@@ -7,10 +7,21 @@ result-*
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 .venv/
+venv/
 *.egg-info/
+*.egg
 dist/
 build/
+*.whl
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
 
 # Editor
 .idea/
@@ -18,11 +29,23 @@ build/
 *.swp
 *.swo
 *~
+.project
+.classpath
+.settings/
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+._*
 
-# Environment
+# Environment / Secrets
 .env
 .env.local
+.env.*.local
+
+# Temporary
+*.tmp
+*.bak
+*.log
+.scratch/
