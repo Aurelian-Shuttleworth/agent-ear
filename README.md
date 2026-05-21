@@ -85,6 +85,8 @@ CLI flag → Environment variable → Auto-detected → Default
 | GCS bucket | `--gcs-bucket` | `AGENT_EAR_GCS_BUCKET` | `{project}-transcribe-staging` |
 | Model | `--model` | — | `gemini-3.1-flash-lite-preview` |
 
+→ Full reference: [CLI flags](docs/reference/cli.md) · [Environment variables](docs/reference/environment-variables.md)
+
 ## Authentication
 
 agent-ear supports two authentication backends:
@@ -94,13 +96,32 @@ agent-ear supports two authentication backends:
 | **Vertex AI** | Application Default Credentials + GCP project | Full (GCS uploads, all models) |
 | **Google AI Studio** | `GOOGLE_API_KEY` only | Most features (no GCS) |
 
+→ Setup guides: [Google AI Studio](docs/guides/setup-google-ai-studio.md) · [Vertex AI](docs/guides/setup-vertex-ai.md) · [Auth reference](docs/reference/authentication.md)
+
+## Documentation
+
+Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
+
+| Type | Document | Description |
+|:-----|:---------|:------------|
+| **Tutorial** | [Your First Transcription](docs/tutorials/first-transcription.md) | Get recording in 5 minutes |
+| **How-to** | [Set up AI Studio](docs/guides/setup-google-ai-studio.md) | Free API key authentication |
+| **How-to** | [Set up Vertex AI](docs/guides/setup-vertex-ai.md) | Full-featured GCP authentication |
+| **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | Large file support (>20MB) |
+| **How-to** | [TTS Briefing](docs/guides/tts-briefing.md) | Spoken instructions before recording |
+| **How-to** | [Nix Consumer Integration](docs/guides/nix-consumer-integration.md) | Use agent-ear in your flake |
+| **Reference** | [CLI Flags](docs/reference/cli.md) | Complete flag reference |
+| **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
+| **Reference** | [Authentication](docs/reference/authentication.md) | Auth resolution & feature matrix |
+| **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three binaries? Design decisions |
+
 ## For Nix Consumers
 
 ### As a flake input
 
 ```nix
 {
-  inputs.agent-ear.url = "github:aurelianshuttleworth/agent-ear";
+  inputs.agent-ear.url = "github:Aurelian-Shuttleworth/agent-ear";
 
   # Use the overlay
   nixpkgs.overlays = [ inputs.agent-ear.overlays.default ];
@@ -119,6 +140,8 @@ agent-ear supports two authentication backends:
 }
 ```
 
+→ Full guide: [Nix Consumer Integration](docs/guides/nix-consumer-integration.md)
+
 ## Development
 
 ```bash
@@ -135,3 +158,4 @@ nix build
 ## License
 
 Dual-licensed under MIT and Apache 2.0. See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE).
+
