@@ -1,155 +1,84 @@
 ---
 name: agent-ear
-description: >
-  Agentic voice capture, TTS playback, and constrained transcription via
-  agent-ear. Supports mic recording, video/YouTube ingestion, and meeting
-  mode with action items.
+description: >-
+  CLI reference for agent-ear — agentic voice capture, constrained transcription,
+  and TTS briefing. Covers invocation, auth, exit codes, output formats, models, and costs.
 version: 1.1.0
-tags: [voice, tts, transcription, multimodal, agentic]
-safety_classification: Medium
-triggers:
-  - "Workflow needs to speak a briefing then capture user response"
-  - "User asks to record audio with a specific prompt or structure"
-  - "Workflow needs constrained voice transcription (feedback, interview, dictation)"
-  - "Agent needs to read something aloud to the user"
-  - "User wants to transcribe a video or YouTube URL"
-parameters:
-  - name: prompt-file
-    required: false
-    description: System prompt constraining transcription output structure
-  - name: briefing-file
-    required: false
-    description: TTS briefing file spoken to user before recording
-  - name: video
-    required: false
-    description: Video file path or YouTube URL for analysis
-requirements: [agent-ear]
+tags: [voice, tts, transcription, multimodal, agentic, cli]
 ---
 
-# agent-ear — Agentic Voice Skill
+# agent-ear — CLI Tool Reference
 
-Unified voice I/O for AI agent workflows. Combines TTS briefing playback, prompted recording, and constrained transcription in a single pipeline.
+Agentic voice I/O: TTS briefing → mic recording → constrained transcription. Also ingests local video and YouTube URLs.
 
-## Usage
-
-```bash
-# Full agentic mode (TTS briefing → record → constrained transcription):
-agent-ear --prompt-file prompt.txt --briefing-file brief.md --auto
-
-# TTS-only (speak to user, then record freely):
-agent-ear --briefing-file brief.md --auto
-
-# Prompted recording (constrained output, no TTS):
-agent-ear --prompt-file prompt.txt --auto
-
-# Standalone recording:
-agent-ear --auto
-
-# Video/YouTube analysis:
-agent-ear --video recording.mp4 --auto
-agent-ear --video "https://youtube.com/watch?v=..." --high-res --auto
-```
-
-**Run without installing** (Nix):
+## Invocation
 
 ```bash
-nix run github:Aurelian-Shuttleworth/agent-ear -- --auto
+# Installed via Nix (Home Manager or profile)
+agent-ear --auto [flags]
+
+# Run without installing
+nix run github:Aurelian-Shuttleworth/agent-ear -- --auto [flags]
 ```
 
 ## Authentication
 
-agent-ear requires one of:
-- `GOOGLE_API_KEY` — Google AI Studio (free, most features, no GCS)
-- `GOOGLE_CLOUD_PROJECT` + ADC — Vertex AI (full features incl. GCS staging)
+| Backend    | Setup                        | Capabilities                           |
+| :--------- | :--------------------------- | :------------------------------------- |
+| Vertex AI  | ADC + `GOOGLE_CLOUD_PROJECT` | Full (GCS uploads, all models)         |
+| AI Studio  | `GOOGLE_API_KEY` only        | Most features (no GCS, 20 MB limit)    |
 
-See [Authentication Reference](https://github.com/Aurelian-Shuttleworth/agent-ear/blob/main/docs/reference/authentication.md) for details.
+Resolution order: `--project-id` → `GOOGLE_CLOUD_PROJECT` → `gcloud config` → API key fallback.
 
-## Creating Briefing Files
+## Exit Codes
 
-Briefing files use YAML frontmatter for director notes + markdown body for spoken text.
-The TTS model uses the **Director's Notes + Transcript** format internally —
-style goes in `DIRECTOR'S NOTES` (never spoken), text goes in `TRANSCRIPT` (spoken).
+| Code | Meaning                              | Agent Action           |
+| :--- | :----------------------------------- | :--------------------- |
+| 0    | Success                              | Read output file       |
+| 1    | Error (recording, transcription, auth) | Report error to user |
+| 2    | Prompt validation failed             | Refine prompt and retry |
 
-```markdown
----
-voice: Kore
-style: warm, conversational
-format: inline
----
+## Common Operations
 
-Hi! I'd like to ask you about your experience with the new feature.
-What works well, and what could be improved?
-```
+| Task             | Command                                                        |
+| :--------------- | :------------------------------------------------------------- |
+| Record audio     | `agent-ear --auto`                                             |
+| Record w/ prompt | `agent-ear --auto --prompt-file prompt.md`                     |
+| Transcribe file  | `agent-ear --auto --input-file recording.wav`                  |
+| Local video      | `agent-ear --auto --video recording.mp4`                       |
+| YouTube          | `agent-ear --auto --video "https://youtube.com/watch?v=..."`   |
+| TTS + Record     | `agent-ear --auto --prompt-file p.md --briefing-file b.md`     |
+| JSON output      | `agent-ear --auto --output-format json`                        |
 
-| Field    | Values                                       | Default     |
-| :------- | :------------------------------------------- | :---------- |
-| `voice`  | `Kore`, `Aoede`, `Puck`, `Charon`, `Fenrir`  | `Kore`      |
-| `style`  | Free-form (e.g., `calm, professional`)       | —           |
-| `format` | `inline` (compact) or `full` (audio profile) | `inline`    |
+## Output Formats
 
-## Creating Prompt Files
+| Format     | Description                                         |
+| :--------- | :-------------------------------------------------- |
+| `markdown` | YAML frontmatter + structured transcript (default)  |
+| `json`     | `{ "date", "slug", "format", "content" }` object    |
+| `raw`      | Plain text transcript                                |
 
-Prompts constrain transcription output. Write as a plain text system instruction:
+## Model Selection
 
-```text
-You are an expert Product Feedback Analyst extracting structured insights
-from recorded interviews.
-
-STRATEGY:
-1. Listen to the ENTIRE recording before producing output.
-2. Reference specific timestamps (MM:SS) for all key statements or quotes.
-3. Prioritise DEPTH over brevity — capture every distinct nuance.
-
-OUTPUT FORMAT — produce a complete Markdown note with ALL sections.
-
-## What Works Well
-Comprehensive list of positive feedback.
-
-## Concerns / Suggestions
-- **Pain Point**: What the user struggled with (MM:SS)
-- **Suggestion**: How they think it could be improved
-
-## Priority Requests
-Concrete feature requests or blockers.
-
-## Verbatim Quotes
-> "Exact quote" (MM:SS)
-
-DO NOT:
-- Produce a brief, shallow summary.
-- Skip sections — if a section is sparse, note "None explicitly mentioned".
-```
-
-## Pipeline Steps
-
-1. **Prompt validation** — LLM judge checks prompt quality (score 1-5)
-2. **Briefing validation** — static + LLM checks for TTS issues, auto-fixes
-3. **TTS playback** — speaks briefing (pre-warm ping → audio stream)
-4. **Recording** — user records response (press stop / Ctrl+C)
-5. **Transcription** — Gemini transcribes with prompt constraints
-6. **Cost summary** — prints all API costs (token counts + dollar estimates)
-
-## Exit Criteria
-
-You may exit this skill **only when**:
-
-- Recording completed (user-terminated)
-- Transcript returned and saved as markdown
-- Cost summary printed
-
-## Anti-Patterns
-
-- ❌ Programmatically sending Ctrl+C or terminating the recording
-- ❌ Speaking >500 words in a briefing (TTS timeout risk)
-- ❌ Cancelling a command that appears to hang (recording IS the "hang")
-- ❌ Putting markdown (`**bold**`, `## headers`) in briefing text
+| Model                          | Use Case         | Cost (in / out per 1M tokens) |
+| :----------------------------- | :--------------- | :---------------------------- |
+| `gemini-3.1-flash-lite-preview` | Audio (default) | $0.30 / $1.50                 |
+| `gemini-3-flash-preview`       | Video (default)  | $1.00 / $4.00                 |
+| `gemini-3.1-pro-preview`       | Quality          | $1.25 / $10.00                |
+| `gemini-2.5-flash-tts`         | TTS briefing     | $0.30 / $2.50                 |
 
 ## Sharp Edges
 
-| Issue                                    | Severity   | Solution                                     |
-| :--------------------------------------- | :--------- | :------------------------------------------- |
-| Command appears to hang during recording | **High**   | EXPECTED — do NOT cancel. User will stop it. |
-| Markdown in briefing text                | **Medium** | Auto-detected and stripped by validation     |
-| API rate limits on TTS                   | **Medium** | Tenacity retries with exponential backoff    |
-| Audio beginning cut off                  | **Low**    | Pre-warm ping plays 200ms silence first      |
-| Files >20MB fail in AI Studio mode       | **Medium** | Switch to Vertex AI for GCS staging          |
+| Issue                                        | Severity   | Mitigation                                |
+| :------------------------------------------- | :--------- | :---------------------------------------- |
+| Command appears to hang during recording     | **High**   | EXPECTED — do NOT cancel                  |
+| `--briefing-file` requires `--prompt-file`   | **Medium** | Always pair briefing with a prompt        |
+| Files >20 MB fail in AI Studio mode          | **Medium** | Use Vertex AI for GCS staging             |
+| macOS `/tmp` cleanup loses recordings        | **Low**    | Recovery copy saved in `.recovery/`       |
+| `pace` field excluded from TTS               | **Low**    | Gemini reads it too literally — omitted   |
+
+## Related Skills
+
+- `@agent-ear-capture` — Recording and transcription workflow
+- `@agent-ear-briefing` — TTS briefing creation
+- `@agent-ear-video` — Video / YouTube processing

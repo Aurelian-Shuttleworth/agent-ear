@@ -73,10 +73,22 @@
               "${cfg.configDir}/skills/agent-ear/SKILL.md" = {
                 source = ../nix/resources/skills/agent-ear/SKILL.md;
               };
+              "${cfg.configDir}/skills/agent-ear-capture/SKILL.md" = {
+                source = ../nix/resources/skills/agent-ear-capture/SKILL.md;
+              };
+              "${cfg.configDir}/skills/agent-ear-briefing/SKILL.md" = {
+                source = ../nix/resources/skills/agent-ear-briefing/SKILL.md;
+              };
+              "${cfg.configDir}/skills/agent-ear-video/SKILL.md" = {
+                source = ../nix/resources/skills/agent-ear-video/SKILL.md;
+              };
             })
             (lib.mkIf cfg.workflows.enable {
               "${cfg.configDir}/workflows/voice-mode.md" = {
                 source = ../nix/resources/workflows/voice-mode.md;
+              };
+              "${cfg.configDir}/workflows/voice-capture.md" = {
+                source = ../nix/resources/workflows/voice-capture.md;
               };
             })
           ];
