@@ -140,6 +140,37 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
 }
 ```
 
+### With Home Manager (recommended)
+
+Installs the binary, agent skill, and voice-mode workflow automatically:
+
+```nix
+{
+  # In your flake.nix: apply the overlay
+  nixpkgs.overlays = [ inputs.agent-ear.overlays.default ];
+}
+
+# In your home-manager config:
+{
+  imports = [ inputs.agent-ear.homeManagerModules.default ];
+  agent-ear.enable = true;
+}
+```
+
+This places:
+- `agent-ear` binary in your PATH
+- `~/.gemini/config/skills/agent-ear/SKILL.md` for AI agent auto-discovery
+- `~/.gemini/config/workflows/voice-mode.md` for voice interaction workflows
+
+**Options:**
+
+| Option | Default | Description |
+|:-------|:--------|:------------|
+| `agent-ear.enable` | `false` | Enable agent-ear |
+| `agent-ear.skills.enable` | `true` | Install skill for AI agent discovery |
+| `agent-ear.workflows.enable` | `true` | Install voice-mode workflow |
+| `agent-ear.configDir` | `".gemini/config"` | Base path for skills/workflows (change to `".agents"` for Antigravity 2.0) |
+
 → Full guide: [Nix Consumer Integration](docs/guides/nix-consumer-integration.md)
 
 ## Development

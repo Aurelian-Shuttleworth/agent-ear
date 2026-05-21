@@ -6,28 +6,87 @@
 {
   inputs,
   self,
-  lib,
   ...
 }:
 {
-  # ── Reusable flake module for downstream consumers ──────────────
-  flake.flakeModules.agent-ear =
-    {
-      config,
-      lib,
-      ...
-    }:
-    {
-      options.agent-ear = {
-        enable = lib.mkEnableOption "agent-ear voice capture & transcription tool";
+  # ── Top-level flake outputs ──────────────────────────────────────
+  flake = {
+    # Reusable flake module for downstream consumers
+    flakeModules.agent-ear =
+      {
+        lib,
+        ...
+      }:
+      {
+        options.agent-ear = {
+          enable = lib.mkEnableOption "agent-ear voice capture & transcription tool";
+        };
+
+        # Consumers wire this up in their own perSystem/home.packages
       };
 
-      # Consumers wire this up in their own perSystem/home.packages
-    };
+    # Home Manager modules
+    homeManagerModules.default = self.homeManagerModules.agent-ear;
+    homeManagerModules.agent-ear =
+      {
+        config,
+        lib,
+        pkgs,
+        ...
+      }:
+      let
+        cfg = config.agent-ear;
+      in
+      {
+        options.agent-ear = {
+          enable = lib.mkEnableOption "agent-ear voice capture & transcription";
 
-  # ── Overlay for nixpkgs consumers ───────────────────────────────
-  flake.overlays.default = final: _prev: {
-    agent-ear = self.packages.${final.system}.agent-ear;
+          skills.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Install agent-ear skill for AI agent auto-discovery.";
+          };
+
+          workflows.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Install agent-ear workflows (e.g., voice-mode).";
+          };
+
+          configDir = lib.mkOption {
+            type = lib.types.str;
+            default = ".gemini/config";
+            description = ''
+              Base directory for skill/workflow placement (relative to $HOME).
+              Change to ".agents" when migrating to the Antigravity 2.0 path.
+            '';
+          };
+        };
+
+        config = lib.mkIf cfg.enable {
+          # Binary in PATH (requires overlay applied to pkgs)
+          home.packages = [ pkgs.agent-ear ];
+
+          # Skill files for AI agent auto-discovery
+          home.file = lib.mkMerge [
+            (lib.mkIf cfg.skills.enable {
+              "${cfg.configDir}/skills/agent-ear/SKILL.md" = {
+                source = ../nix/resources/skills/agent-ear/SKILL.md;
+              };
+            })
+            (lib.mkIf cfg.workflows.enable {
+              "${cfg.configDir}/workflows/voice-mode.md" = {
+                source = ../nix/resources/workflows/voice-mode.md;
+              };
+            })
+          ];
+        };
+      };
+
+    # Overlay for nixpkgs consumers
+    overlays.default = final: _prev: {
+      agent-ear = self.packages.${final.system}.agent-ear;
+    };
   };
 
   # ── Per-system outputs ──────────────────────────────────────────
@@ -35,7 +94,6 @@
     {
       pkgs,
       lib,
-      system,
       ...
     }:
     let
