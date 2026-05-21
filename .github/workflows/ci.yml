@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: write
-  packages: write
 
 jobs:
   # ── Quality gates & build verification ──────────────────────────
@@ -30,47 +29,9 @@ jobs:
       - name: Nix flake check (deadnix, statix, build)
         run: nix flake check --print-build-logs
 
-  # ── Build & push OCI container on tag ───────────────────────────
-  publish-container:
-    needs: check
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Nix
-        uses: cachix/install-nix-action@v30
-        with:
-          nix_path: nixpkgs=channel:nixos-unstable
-
-      - name: Set up Nix cache
-        uses: DeterminateSystems/magic-nix-cache-action@v8
-
-      - name: Build OCI image
-        run: nix build .#container --out-link result-container --print-build-logs
-
-      - name: Load image into Docker
-        run: docker load < result-container
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Tag and push image
-        run: |
-          TAG_NAME="${GITHUB_REF##*/}"
-          docker tag ghcr.io/aurelianshuttleworth/agent-ear:latest \
-            ghcr.io/aurelianshuttleworth/agent-ear:"$TAG_NAME"
-          docker push ghcr.io/aurelianshuttleworth/agent-ear:"$TAG_NAME"
-          docker push ghcr.io/aurelianshuttleworth/agent-ear:latest
-
   # ── Create GitHub Release on tag ────────────────────────────────
   release:
-    needs: publish-container
+    needs: check
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:

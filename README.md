@@ -16,50 +16,6 @@ nix run github:aurelianshuttleworth/agent-ear
 nix profile install github:aurelianshuttleworth/agent-ear
 ```
 
-### With Docker / Podman
-
-```bash
-# Pull and run
-docker run --rm -it ghcr.io/aurelianshuttleworth/agent-ear:latest --help
-```
-
-## Container Usage
-
-> **Note:** Containers do not have access to the host microphone by default.
-> Use one of the patterns below to provide audio input.
-
-### Transcribe a local audio/video file (volume mount)
-
-```bash
-docker run --rm \
-  -v /path/to/files:/data \
-  -v /path/to/output:/output \
-  ghcr.io/aurelianshuttleworth/agent-ear:latest \
-  --auto --input-file /data/recording.wav --output-dir /output
-```
-
-### Transcribe a YouTube video (no local file needed)
-
-```bash
-docker run --rm \
-  -v /path/to/output:/output \
-  ghcr.io/aurelianshuttleworth/agent-ear:latest \
-  --auto --video "https://youtube.com/watch?v=..." --output-dir /output
-```
-
-### Live microphone recording (Linux — PulseAudio)
-
-For live recording from a container, forward the host's PulseAudio socket:
-
-```bash
-docker run --rm -it \
-  -e PULSE_SERVER=unix:/run/pulse/native \
-  -v ${XDG_RUNTIME_DIR}/pulse/native:/run/pulse/native \
-  -v /path/to/output:/output \
-  ghcr.io/aurelianshuttleworth/agent-ear:latest \
-  --auto --output-dir /output
-```
-
 ## Features
 
 - **🎤 Voice Capture** — Record audio via microphone with automatic silence detection
@@ -174,10 +130,6 @@ nix flake check
 
 # Build the package
 nix build
-
-# Build OCI container
-nix build .#container
-docker load < result
 ```
 
 ## License

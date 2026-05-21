@@ -1,7 +1,7 @@
 # nix/flake-module.nix
 #
 # Self-contained flake-parts module for agent-ear.
-# All packaging, containers, checks, and devShell in one file.
+# All packaging, checks, and devShell in one file.
 # Zero external dependencies on company infrastructure.
 {
   inputs,
@@ -124,24 +124,6 @@
         '';
         meta.mainProgram = "agent-ear";
       };
-
-      # ── OCI container image ────────────────────────────────────
-      container = pkgs.dockerTools.buildLayeredImage {
-        name = "ghcr.io/aurelianshuttleworth/agent-ear";
-        tag = "latest";
-        contents = [
-          dispatcher
-          pkgs.bashInteractive
-          pkgs.coreutils
-          pkgs.cacert
-        ];
-        config = {
-          Cmd = [ "${dispatcher}/bin/agent-ear" "--auto" ];
-          Env = [
-            "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
-          ];
-        };
-      };
     in
     {
       # ── Packages ────────────────────────────────────────────────
@@ -150,7 +132,6 @@
         agent-ear = dispatcher;
         agent-ear-core = core;
         agent-ear-interactive = interactive;
-        container = container;
       };
 
       # ── Checks (self-contained quality gates) ───────────────────
