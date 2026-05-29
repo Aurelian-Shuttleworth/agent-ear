@@ -12,8 +12,6 @@ import tempfile
 import time
 
 import numpy as np
-import sounddevice as sd
-import soundfile as sf
 
 from config import RECORDING_SAMPLERATE
 
@@ -43,6 +41,11 @@ def record_audio() -> str:
     Returns:
         Path to temporary WAV file containing the recording.
     """
+    # Lazy imports — sounddevice requires PortAudio native library
+    # which isn't available on headless CI runners
+    import sounddevice as sd
+    import soundfile as sf
+
     tf = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
     output_path = tf.name
     tf.close()
