@@ -228,6 +228,10 @@
         pytest = pkgs.runCommand "check-pytest"
           {
             nativeBuildInputs = [ testVenv ];
+            buildInputs = [
+              pkgs.portaudio
+              pkgs.libsndfile
+            ];
             env.${libVar} = libPath;
           }
           ''
