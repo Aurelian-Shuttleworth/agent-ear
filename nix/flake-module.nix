@@ -130,6 +130,9 @@
           );
 
       venv = pythonSet.mkVirtualEnv "agent-ear-env" workspace.deps.default;
+      testVenv = pythonSet.mkVirtualEnv "agent-ear-test-env" {
+        agent-ear = [ "test" ];
+      };
 
       # ── Native library paths ──────────────────────────────────
       binPath = lib.makeBinPath [
@@ -220,6 +223,38 @@
           statix check ${../.}
           touch $out
         '';
+
+        # Python test suite (excludes integration tests)
+        pytest = pkgs.runCommand "check-pytest"
+          {
+            nativeBuildInputs = [ testVenv ];
+            env.${libVar} = libPath;
+          }
+          ''
+            export PYTHONPATH="${../src}:$PYTHONPATH"
+            python -m pytest ${../src}/tests/ \
+              --rootdir=${../src} \
+              -c ${../src}/pyproject.toml \
+              -m "not integration" \
+              --tb=short \
+              -q \
+              --no-header \
+              -p no:cacheprovider
+            touch $out
+          '';
+
+        # Python linting + formatting
+        ruff = pkgs.runCommand "check-ruff" { nativeBuildInputs = [ pkgs.ruff ]; } ''
+          ruff check ${../src}
+          ruff format --check ${../src}
+          touch $out
+        '';
+
+        # Shell script linting
+        shellcheck = pkgs.runCommand "check-shellcheck" { nativeBuildInputs = [ pkgs.shellcheck ]; } ''
+          shellcheck ${../scripts}/*.sh
+          touch $out
+        '';
       };
 
       # ── DevShell ────────────────────────────────────────────────
@@ -236,6 +271,12 @@
           pkgs.deadnix
           pkgs.statix
           pkgs.nixfmt-rfc-style
+
+          # Python quality tools
+          pkgs.ruff
+
+          # Shell quality tools
+          pkgs.shellcheck
         ];
         shellHook = ''
           unset PYTHONPATH
