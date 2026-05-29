@@ -175,7 +175,7 @@ class TestResolveThinkingConfig:
             validator_hint="medium",  # Would be "medium" by validator
             explicit_level="high",  # CLI override
         )
-        assert config.thinking_level == "high", (
+        assert config.thinking_level.value.lower() == "high", (
             f"Explicit level should win, got {config.thinking_level}"
         )
 
@@ -188,7 +188,7 @@ class TestResolveThinkingConfig:
             high_res=False,
             validator_hint="high",
         )
-        assert config.thinking_level == "high", (
+        assert config.thinking_level.value.lower() == "high", (
             f"Validator hint should override duration, got {config.thinking_level}"
         )
 
@@ -200,7 +200,7 @@ class TestResolveThinkingConfig:
             is_video=False,
             high_res=False,
         )
-        assert config.thinking_level == "low", (
+        assert config.thinking_level.value.lower() == "low", (
             f"Short recording should be 'low', got {config.thinking_level}"
         )
 
@@ -212,7 +212,7 @@ class TestResolveThinkingConfig:
             is_video=False,
             high_res=False,
         )
-        assert config.thinking_level == "medium", (
+        assert config.thinking_level.value.lower() == "medium", (
             f"Medium recording should be 'medium', got {config.thinking_level}"
         )
 
@@ -224,7 +224,7 @@ class TestResolveThinkingConfig:
             is_video=False,
             high_res=False,
         )
-        assert config.thinking_level == "high", (
+        assert config.thinking_level.value.lower() == "high", (
             f"Long recording should be 'high', got {config.thinking_level}"
         )
 
@@ -236,7 +236,7 @@ class TestResolveThinkingConfig:
             is_video=False,
             high_res=False,
         )
-        assert config.thinking_level == "medium", (
+        assert config.thinking_level.value.lower() == "medium", (
             f"None duration should default to 'medium', got {config.thinking_level}"
         )
 
@@ -248,7 +248,7 @@ class TestResolveThinkingConfig:
             is_video=True,
             high_res=True,
         )
-        assert config.thinking_level == "high", (
+        assert config.thinking_level.value.lower() == "high", (
             f"High-res video should promote to 'high', got {config.thinking_level}"
         )
 
@@ -286,6 +286,6 @@ class TestResolveThinkingConfig:
             is_video=False,
             high_res=False,
         )
-        assert config.thinking_level == "high", (
+        assert config.thinking_level.value.lower() == "high", (
             f"Env var should override, got {config.thinking_level}"
         )
