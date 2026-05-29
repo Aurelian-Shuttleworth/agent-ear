@@ -289,4 +289,3 @@ class TestResolveThinkingConfig:
         assert config.thinking_level == "high", (
             f"Env var should override, got {config.thinking_level}"
         )
-

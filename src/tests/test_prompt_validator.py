@@ -111,9 +111,7 @@ class TestThinkingHintsParsing:
         assert result.thinking_level == "high", (
             f"Expected 'high', got {result.thinking_level}"
         )
-        assert result.extra_tokens == 4096, (
-            f"Expected 4096, got {result.extra_tokens}"
-        )
+        assert result.extra_tokens == 4096, f"Expected 4096, got {result.extra_tokens}"
 
     def test_backward_compat_missing_hints(self):
         """Absent thinking_level and extra_tokens default to None/0."""
@@ -157,4 +155,3 @@ class TestThinkingHintsParsing:
         assert result.extra_tokens == 0, (
             f"Non-numeric should default to 0, got {result.extra_tokens}"
         )
-

@@ -361,9 +361,7 @@ def _parse_validation_response(text: str, min_score: int) -> ValidationResult:
 
         # Parse thinking hints with safe defaults
         raw_level = data.get("thinking_level")
-        thinking_level = (
-            raw_level if raw_level in ("low", "medium", "high") else None
-        )
+        thinking_level = raw_level if raw_level in ("low", "medium", "high") else None
         try:
             extra_tokens = min(max(int(data.get("extra_tokens", 0)), 0), 16384)
         except (TypeError, ValueError):

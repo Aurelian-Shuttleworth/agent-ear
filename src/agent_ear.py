@@ -23,7 +23,6 @@ from config import (
     DEFAULT_LOCATION,
     DEFAULT_TRANSCRIPTION_MODEL,
     DEFAULT_VALIDATION_MODEL,
-
     create_client,
     resolve_config,
     resolve_output_dir,
