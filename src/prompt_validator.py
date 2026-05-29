@@ -23,12 +23,19 @@ from config import DEFAULT_VALIDATION_MODEL
 
 @dataclass
 class ValidationResult:
-    """Result of prompt validation."""
+    """Result of prompt validation.
+
+    Includes optional transcription hints emitted by the validator LLM
+    to configure the downstream transcription model's reasoning effort
+    and output token budget.
+    """
 
     valid: bool
     score: int  # 1-5 pointwise quality score
     feedback: str  # Human-readable feedback for the agent
     improved_prompt: str | None = None  # Optional improved version
+    thinking_level: str | None = None  # "low", "medium", "high" hint
+    extra_tokens: int = 0  # Additive token budget adjustment (0-16384)
 
 
 @dataclass
@@ -66,12 +73,28 @@ for audio transcription.
    silence, or background noise?
 </criteria>
 
+<transcription_hints>
+Based on the prompt's complexity, estimate the optimal configuration
+for the downstream transcription model:
+- thinking_level: "low" for simple extraction or verbatim transcription,
+  "medium" for structured multi-section output with formatting constraints,
+  "high" for complex multi-speaker analysis, cross-referencing, or prompts
+  requiring deep logical reasoning and exhaustive annotations.
+- extra_tokens: integer (0-16384) of ADDITIONAL output tokens the
+  transcription model should reserve beyond the duration-based default.
+  Use 0 for simple prompts, 2048-4096 for prompts with structured
+  sections or YAML frontmatter, 8192+ for prompts demanding exhaustive
+  multi-speaker verbatim transcription with annotations.
+</transcription_hints>
+
 <output_format>
 Return a JSON object with exactly these fields:
 - "score": integer 1-5 (1=very poor, 5=excellent)
 - "valid": boolean (true if score >= {min_score})
 - "feedback": string with specific, actionable improvement suggestions
 - "improved_prompt": string with an improved version (only if score < {min_score}, otherwise null)
+- "thinking_level": string ("low", "medium", or "high") — recommended reasoning depth for the transcription model
+- "extra_tokens": integer 0-16384 — additional output tokens to reserve
 </output_format>
 
 Return ONLY the JSON object, no markdown fences, no commentary."""
@@ -336,13 +359,25 @@ def _parse_validation_response(text: str, min_score: int) -> ValidationResult:
         score = int(data.get("score", 3))
         score = max(1, min(5, score))  # Clamp to 1-5
 
+        # Parse thinking hints with safe defaults
+        raw_level = data.get("thinking_level")
+        thinking_level = (
+            raw_level if raw_level in ("low", "medium", "high") else None
+        )
+        try:
+            extra_tokens = min(max(int(data.get("extra_tokens", 0)), 0), 16384)
+        except (TypeError, ValueError):
+            extra_tokens = 0
+
         return ValidationResult(
             valid=data.get("valid", score >= min_score),
             score=score,
             feedback=data.get("feedback", "No feedback provided."),
             improved_prompt=data.get("improved_prompt"),
+            thinking_level=thinking_level,
+            extra_tokens=extra_tokens,
         )
-    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
         # Graceful fallback — return the raw text as feedback
         return ValidationResult(
             valid=False,

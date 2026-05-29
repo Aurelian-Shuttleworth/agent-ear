@@ -12,6 +12,8 @@ from dataclasses import dataclass, field
 
 # Pricing per 1M tokens (USD) — update as pricing changes
 PRICING = {
+    # Gemini 3.5
+    "gemini-3.5-flash": {"input": 1.50, "output": 9.00, "cache": 0.15},
     # Gemini 3.x
     "gemini-3-flash-preview": {"input": 1.00, "output": 4.00, "cache": 0.10},
     "gemini-3.1-flash-lite-preview": {"input": 0.30, "output": 1.50, "cache": 0.03},
@@ -52,7 +54,7 @@ class CostTracker:
         thinking_tokens = getattr(usage, "thoughts_token_count", 0) or 0
         cached_tokens = getattr(usage, "cached_content_token_count", 0) or 0
 
-        rates = PRICING.get(model, PRICING["gemini-3.1-flash-lite-preview"])
+        rates = PRICING.get(model, PRICING["gemini-3.5-flash"])
         billable_input = input_tokens - cached_tokens
         cost = (
             (billable_input / 1_000_000) * rates["input"]

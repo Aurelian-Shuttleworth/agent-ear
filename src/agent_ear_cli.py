@@ -15,11 +15,15 @@ from agent_ear import run_pipeline
 from config import (
     DEFAULT_LOCATION,
     DEFAULT_TRANSCRIPTION_MODEL,
-    resolve_output_dir,
 )
 
 
-def main():
+def build_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser.
+
+    Extracted for testability — allows testing argument parsing
+    without invoking main().
+    """
     parser = argparse.ArgumentParser(
         description="Agentic voice capture — agent-steerable audio transcription",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -46,9 +50,10 @@ examples:
 environment variables:
   AGENT_EAR_OUTPUT_DIR   Default output directory for saved notes.
                          Overridden by --output-dir if provided.
-  AGENT_EAR_GCS_BUCKET   GCS bucket for large file staging (>20MB).
+  AGENT_EAR_GCS_BUCKET   GCS bucket override (any auth mode, any file size).
                          Overridden by --gcs-bucket if provided.
-  AGENT_EAR_GCS_LOCATION GCS bucket location for auto-provisioning (default: EU).
+  AGENT_EAR_THINKING_LEVEL  Override thinking level (minimal/low/medium/high).
+                         Overridden by --thinking-level if provided.
   GOOGLE_API_KEY         Google AI Studio API key (no GCP project needed).
   GOOGLE_CLOUD_PROJECT   GCP project ID for Vertex AI mode.
 
@@ -60,13 +65,13 @@ output directory resolution (highest priority first):
 authentication resolution (highest priority first):
   1. Vertex AI — if --project-id or $GOOGLE_CLOUD_PROJECT is set (uses ADC)
   2. Google AI Studio — if $GOOGLE_API_KEY is set (simpler, no GCP needed)
-  Note: GCS uploads (files >20MB) require Vertex AI mode.
 
-gcs auto-provisioning:
-  When uploading files >20MB, agent-ear will interactively offer to:
-    1. Enable the Cloud Storage API (if not already enabled)
-    2. Create a staging bucket with 7-day auto-delete lifecycle
-  In --auto mode, provisioning is skipped and errors are raised instead.
+upload strategy:
+  --gcs-bucket provided → GCS upload (any auth, any size)
+  Otherwise, fully automatic:
+    ≤ 100 MB → Inline (fastest)
+    > 100 MB + Vertex AI → GCS (auto-derived from project)
+    > 100 MB + AI Studio → Gemini Files API (up to 2 GB, free)
 
 exit codes:
   0  Success
@@ -153,7 +158,14 @@ exit codes:
     model_group.add_argument(
         "--gcs-bucket",
         metavar="BUCKET",
-        help="GCS bucket for large file staging (>20MB)",
+        help="GCS bucket override for large file staging",
+    )
+    model_group.add_argument(
+        "--thinking-level",
+        metavar="LEVEL",
+        choices=["minimal", "low", "medium", "high"],
+        default=None,
+        help="Override thinking level (default: auto from validator or duration)",
     )
 
     # Recording
@@ -171,6 +183,11 @@ exit codes:
         help="Max output tokens for transcription (default: 8192 audio, 16384 video)",
     )
 
+    return parser
+
+
+def main():
+    parser = build_parser()
     args = parser.parse_args()
 
     # Validation
@@ -194,6 +211,7 @@ exit codes:
             high_res=args.high_res,
             gcs_bucket=args.gcs_bucket,
             max_tokens=args.max_tokens,
+            thinking_level=args.thinking_level,
         )
         sys.exit(result.get("exit_code", 0))
 

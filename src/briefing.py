@@ -89,9 +89,7 @@ def parse_briefing_file(briefing_path: str) -> tuple[str, dict | None]:
 # "at a calm, measured pace". Style alone carries natural pacing.
 
 
-def build_tts_prompt(
-    briefing_text: str, director_notes: dict | None = None
-) -> str:
+def build_tts_prompt(briefing_text: str, director_notes: dict | None = None) -> str:
     """Build a TTS prompt for the Vertex AI generate_content API.
 
     Uses the official Google TTS pattern for Vertex AI:

@@ -9,24 +9,25 @@ import subprocess
 
 from google import genai
 
-# Model constants — verified against Google model catalog 2026-03-19
-DEFAULT_TRANSCRIPTION_MODEL = "gemini-3.1-flash-lite-preview"
-DEFAULT_VIDEO_MODEL = "gemini-3-flash-preview"
+# Model constants — verified against Google model catalog 2026-05-25
+DEFAULT_TRANSCRIPTION_MODEL = "gemini-3.5-flash"
 DEFAULT_TTS_MODEL = "gemini-2.5-flash-tts"
-DEFAULT_VALIDATION_MODEL = "gemini-3.1-flash-lite-preview"
+DEFAULT_VALIDATION_MODEL = "gemini-3.5-flash"
 DEFAULT_LOCATION = "global"
 
 
 def resolve_output_dir(cli_output_dir=None):
     """Resolve output directory via 3-tier chain: CLI → env → cwd."""
-    return (
-        cli_output_dir
-        or os.environ.get("AGENT_EAR_OUTPUT_DIR")
-        or os.getcwd()
-    )
+    return cli_output_dir or os.environ.get("AGENT_EAR_OUTPUT_DIR") or os.getcwd()
+
 
 # Upload thresholds
-INLINE_THRESHOLD = 20 * 1024 * 1024  # 20MB — inline vs GCS
+INLINE_THRESHOLD = 100 * 1024 * 1024  # 100MB — inline limit (raised Jan 2026)
+FILES_API_THRESHOLD = 2 * 1024 * 1024 * 1024  # 2GB — Gemini Files API hard limit
+
+# Files API polling
+FILES_API_POLL_INTERVAL = 5  # seconds between status checks
+FILES_API_POLL_TIMEOUT = 300  # 5 minutes max wait for server-side processing
 
 # Audio constants
 RECORDING_SAMPLERATE = 44100  # Standard quality for voice recording
@@ -110,4 +111,3 @@ def create_client(project_id=None, location=None):
         return genai.Client(api_key=api_key), False
 
     return None, False
-
