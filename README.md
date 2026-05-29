@@ -1,8 +1,17 @@
-# agent-ear
+# Agent Ear
 
-**Agentic voice capture, transcription & TTS for AI agents.**
+**Agent-ear: Open-source Agentic CLI TOOL for Language and Video Comprehension**
 
-`agent-ear` is a voice pipeline designed to be operated by AI agents. Unlike traditional transcription tools, it exposes a full pipeline where an AI agent validates its own prompt, briefs the human with spoken instructions, records the response, and transcribes it within agent-defined constraints.
+Agent ear offers open-source audio and video comprehension for your agentic IDE, including antigravity 2.0. Despite its deep Gemini integration, the tool is CLI-agnostic; it runs wherever command-line execution is available as long as an API key is provided.
+
+**Move Beyond Simplistic Transcription**
+
+Agent-ear's elegant multimodal architecture enables **prosodic contextualization**: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, it delivers frontier-level reasoning at lightweight-model prices, handling the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
+
+**End-to-End Agentic Orchestration** / **A Closed-Loop Agentic Pipeline**
+
+Agent-ear exposes a full pipeline where an AI agent validates its own 'extraction-comprehension prompt', records a response of any length, transcribes it within agent-defined constraints, and can brief human users with spoken instructions using advanced text-to-speech. 
+
 
 ## Quick Start
 
