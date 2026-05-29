@@ -1,4 +1,4 @@
-# Agent Ear
+# Agent-ear
 
 **Agent-ear: Open-source Agentic CLI TOOL for Language and Video Comprehension**
 
@@ -6,12 +6,13 @@ Agent ear offers open-source audio and video comprehension for your agentic IDE,
 
 **Move Beyond Simplistic Transcription**
 
-Agent-ear's elegant multimodal architecture enables **prosodic contextualization**: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, it delivers frontier-level reasoning at lightweight-model prices, handling the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
+Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, it delivers frontier-level reasoning at lightweight-model prices, handling the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
 
-**End-to-End Agentic Orchestration** / **A Closed-Loop Agentic Pipeline**
+**End-to-End Agentic Pipeline**
 
 Agent-ear exposes a full pipeline where an AI agent validates its own 'extraction-comprehension prompt', records a response of any length, transcribes it within agent-defined constraints, and can brief human users with spoken instructions using advanced text-to-speech. 
 
+[^1]: prosody - the rhythmic and intonational aspect of language
 
 ## Quick Start
 
@@ -30,10 +31,10 @@ nix profile install github:aurelianshuttleworth/agent-ear
 - **🎤 Voice Capture** — Record audio via microphone with automatic silence detection
 - **🗣️ TTS Briefing** — Speak instructions to the user before recording (with Director's Notes prosody control)
 - **📝 Prompt Validation** — LLM-as-a-judge scoring prevents garbage-in/garbage-out
-- **🎬 Video Transcription** — Transcribe local video files or YouTube URLs
-- **🤝 Meeting Mode** — Multi-speaker transcription with action items and notable quotes
+- **🎬 Video Contextualization** — WCAG-compliant descriptions of local video files or YouTube URLs
+- **🤝 Meeting Mode** — Multi-speaker descriptions with action items and notable quotes
 - **💰 Cost Tracking** — Per-call token usage and estimated dollar cost reporting
-- **☁️ GCS Auto-Provisioning** — Automatic staging bucket creation for large files
+- **Open-source** - Licensed under Apache 2.0.
 
 ## Architecture
 
