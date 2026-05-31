@@ -1,14 +1,9 @@
 # The Architecture
  
-Agent-ear has two operational modes. For human users, agent-ear has a bash wrapper that creates a UI. For AI agents, agent-ear works autonomously with the core python pipeline.
+Agent-ear has two operational modes. For human users, agent-ear has a bash wrapper that creates a UI. For AI agents, agent-ear works autonomously with the core python pipeline. For the purposes of this document, 'agent-ear' will hereafter refer to the bash dispatcher and gum TUI. 'agent-ear-core- will refer to the python pipeline.
 
-## agent-ear: Bash dispatcher and Gum TUI
-
-## agent-ear-core: Python pipeline
-
-
-
-## The 2 Entry Points
+## Operational modes
+Here is a graphical overview of the agent-ear architecture:
 
 ```mermaid
 graph TD
@@ -21,23 +16,18 @@ graph TD
     style B fill:#0ea5e9,stroke:#0284c7,color:#fff
 ```
 
+As you can see, agent-ear routes non-interactive calls (made by AI agents, using --auto flag or piped in via non-interactive command line (non-TTY stdin)) directly to agent-ear-core. All interactive calls (by humans) are routed through the TUI wizard using Gum.
+
 | Entry point | What it actually is | Purpose |
 |:------------|:-------------------|:--------|
 | `agent-ear` | Bash script (Nix `writeShellApplication` wrapping `scripts/agent-ear.sh`) | The main interface. Routes non-interactive calls directly to core, otherwise launches the guided TUI wizard using [Gum](https://github.com/charmbracelet/gum). |
 | `agent-ear-core` | Python package (Nix `makeWrapper` around the Python venv) | The actual pipeline: validate → brief → record → transcribe. |
 
-> [!NOTE] 🔍 **Context for reviewer**
-> These aren't two independently compiled programs. Nix builds one Python package (`agent-ear-core`) and generates one bash script around it. Think of it like a Python package installed via `pip` that comes with a shell alias. The "two entry points" are two files in `$PATH`, but they're really one Python program and one shell-script front-end that Nix wires together at build time — handling PATH, library paths, and runtime dependencies automatically.
+## agent-ear: Bash dispatcher and Gum TUI
 
-### Why not one entry point?
+To handle the different needs of humans and AI agents cleanly, `agent-ear` acts as a smart dispatcher. The Gum TUI wizard walks human users through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --auto` with the assembled flags.
 
-Two fundamentally different consumers need different interfaces:
-
-**AI agents** need `--auto` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They don't have a TTY. The Python backend handles this natively.
-
-**Humans** need guidance. Which mode? Which model? What's a "system prompt"? The Gum TUI wizard walks them through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --auto` with the assembled flags.
-
-To handle this cleanly, `agent-ear` acts as a smart dispatcher. Its routing logic at the very top of the script is trivial:
+Agent-ear's routing logic at the very top of the script is trivial:
 
 ```bash
 # Any of these flags → bypass interactive, go straight to core
@@ -52,6 +42,10 @@ done
 ```
 
 This separation means agents never see the TUI code loading, and humans never need to know the flag syntax. Both paths ultimately `exec` into the same Python entry point (`agent-ear-core`), which does all the real work.
+
+## agent-ear-core: Python pipeline
+
+AI agents need `--auto` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They don't have a TTY (no interactive terminal input/output). The Python backend handles this natively.
 
 ## Auth Backend Design
 
