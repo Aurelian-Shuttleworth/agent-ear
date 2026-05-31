@@ -26,13 +26,13 @@ agent-ear [-h] [--prompt-file FILE] [--prompt TEXT]
 
 ## Dispatch Behaviour
 
-`agent-ear` is a smart dispatcher. It selects the backend based on context:
+`agent-ear` is a smart dispatcher. It selects the mode based on context:
 
 | Condition | Backend |
 |:----------|:--------|
-| `--auto` flag present | `agent-ear-core` (non-interactive pipeline) |
-| Non-TTY stdin/stdout | `agent-ear-core` (non-interactive pipeline) |
-| Interactive TTY, no `--auto` | `agent-ear-interactive` (Gum TUI wizard) |
+| `--auto` flag present | `agent-ear-core` (non-interactive Python pipeline) |
+| Non-TTY stdin/stdout | `agent-ear-core` (non-interactive Python pipeline) |
+| Interactive TTY, no `--auto` | Interactive Mode (Gum TUI wizard) |
 
 Agents **must** always pass `--auto` to bypass the interactive wizard.
 

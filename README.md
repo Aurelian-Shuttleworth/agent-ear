@@ -39,19 +39,18 @@ nix profile install github:aurelianshuttleworth/agent-ear
 ## Architecture
 
 ```
-agent-ear (dispatcher)
-├── --auto or non-TTY → agent-ear-core (Python pipeline)
-└── interactive TTY   → agent-ear-interactive (Gum TUI wizard)
+agent-ear (Bash wrapper)
+├── --auto or non-TTY → exec agent-ear-core (Python pipeline)
+└── interactive TTY   → Launch Interactive Mode (Gum TUI wizard)
                              └── exec agent-ear-core --auto
 ```
 
-Three binaries, one tool:
+Two entry points, one tool:
 
 | Binary | Purpose |
 |:-------|:--------|
-| `agent-ear` | Smart dispatcher — routes based on flags and TTY state |
+| `agent-ear` | Main entry point — handles routing and interactive wizard |
 | `agent-ear-core` | Python backend — the pipeline that agents and scripts call |
-| `agent-ear-interactive` | Terminal wizard — guided setup for human users |
 
 ## Usage
 

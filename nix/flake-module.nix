@@ -160,57 +160,29 @@
             --unset PYTHONHOME
         '';
 
-      # ── Binary 2: agent-ear-interactive (Gum TUI) ─────────────
-      interactive = pkgs.writeShellApplication {
-        name = "agent-ear-interactive";
+      # ── Binary 2: agent-ear (Gum TUI & Dispatcher) ────────────
+      agent-ear-script = pkgs.writeShellApplication {
+        name = "agent-ear";
         runtimeInputs = [
           pkgs.gum
           core
         ];
-        text = builtins.readFile ../scripts/agent-ear-interactive.sh;
-      };
-
-      # ── Binary 3: agent-ear (dispatcher) ───────────────────────
-      dispatcher = pkgs.writeShellApplication {
-        name = "agent-ear";
-        runtimeInputs = [
-          core
-          interactive
-        ];
-        text = ''
-          # Pass-through to core for flags that bypass interactive mode
-          for arg in "$@"; do
-            case "$arg" in
-              --auto|--help|-h)
-                exec agent-ear-core "$@"
-                ;;
-            esac
-          done
-
-          # Pass-through to core if stdin is not a TTY (piped/automated)
-          if [[ ! -t 0 ]]; then
-            exec agent-ear-core "$@"
-          fi
-
-          # Interactive mode
-          exec agent-ear-interactive "$@"
-        '';
+        text = builtins.readFile ../scripts/agent-ear.sh;
         meta.mainProgram = "agent-ear";
       };
     in
     {
       # ── Packages ────────────────────────────────────────────────
       packages = {
-        default = dispatcher;
-        agent-ear = dispatcher;
+        default = agent-ear-script;
+        agent-ear = agent-ear-script;
         agent-ear-core = core;
-        agent-ear-interactive = interactive;
       };
 
       # ── Checks (self-contained quality gates) ───────────────────
       checks = {
         # Verify the package builds
-        build = dispatcher;
+        build = agent-ear-script;
 
         # Dead code detection
         deadnix = pkgs.runCommand "check-deadnix" { nativeBuildInputs = [ pkgs.deadnix ]; } ''

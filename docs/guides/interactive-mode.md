@@ -13,12 +13,10 @@
 
 ## When to use interactive mode
 
-Running `agent-ear` **without** the `--auto` flag launches the wizard automatically (provided stdin is a TTY). You can also invoke it directly:
+Running `agent-ear` **without** the `--auto` flag launches the wizard automatically (provided stdin is a TTY):
 
 ```bash
-# These are equivalent when stdin is a TTY:
 agent-ear
-agent-ear-interactive
 ```
 
 The split is intentional:
