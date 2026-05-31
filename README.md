@@ -123,7 +123,7 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
 | **Reference** | [CLI Flags](docs/reference/cli.md) | Complete flag reference |
 | **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
 | **Reference** | [Authentication](docs/reference/authentication.md) | Auth resolution & feature matrix |
-| **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three binaries? Design decisions |
+| **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three entry points? Design decisions |
 
 ## For Nix Consumers
 
