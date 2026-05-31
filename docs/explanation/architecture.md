@@ -200,6 +200,8 @@ The tracker computes a dollar estimate per call using a built-in pricing table. 
 
 For current per-model pricing, see the [Google AI pricing page](https://ai.google.dev/pricing) and [Vertex AI pricing page](https://cloud.google.com/vertex-ai/generative-ai/pricing).
 
+For current per-model pricing, see the [Google AI pricing page](https://ai.google.dev/pricing) and [Vertex AI pricing page](https://cloud.google.com/vertex-ai/generative-ai/pricing).
+
 ### Per-call reporting
 
 At the end of a pipeline run, you see:

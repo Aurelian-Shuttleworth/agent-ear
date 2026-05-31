@@ -103,7 +103,7 @@ CLI flag → Environment variable → Auto-detected → Default
 | Output dir | `--output-dir` | `AGENT_EAR_OUTPUT_DIR` | Current directory |
 | GCP project | `--project-id` | `GOOGLE_CLOUD_PROJECT` | `gcloud config` |
 | GCS bucket | `--gcs-bucket` | `AGENT_EAR_GCS_BUCKET` | `{project}-transcribe-staging` |
-| Model | `--model` | — | `gemini-3.1-flash-lite-preview` |
+| Model | `--model` | — | `gemini-3.5-flash` |
 
 → Full reference: [CLI flags](docs/reference/cli.md) · [Environment variables](docs/reference/environment-variables.md)
 
@@ -120,7 +120,7 @@ agent-ear supports two authentication backends:
 
 ## Documentation
 
-Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
+Full documentation follows the [Diátaxis](https://diataxis.fr/) framework. Start at the [docs landing page](docs/index.md) or browse the table below:
 
 | Type | Document | Description |
 |:-----|:---------|:------------|
@@ -130,12 +130,16 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
 | **How-to** | [Set up Vertex AI](docs/guides/setup-vertex-ai.md) | Full-featured GCP authentication |
 | **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | GCS staging (Vertex AI / files > 2 GB) |
 | **How-to** | [TTS Briefing](docs/guides/tts-briefing.md) | Spoken instructions before recording |
+| **How-to** | [Meeting Transcription](docs/guides/meeting-transcription.md) | Multi-speaker meetings with action items |
+| **How-to** | [Interactive Mode](docs/guides/interactive-mode.md) | Guided setup via the terminal wizard |
 | **How-to** | [Nix Consumer Integration](docs/guides/nix-consumer-integration.md) | Use agent-ear in your flake |
-| **Reference** | [CLI Flags](docs/reference/cli.md) | Complete flag reference |
+| **Reference** | [CLI Flags & Exit Codes](docs/reference/cli.md) | Complete flag and exit code reference |
 | **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
 | **Reference** | [Interactive TUI](docs/reference/interactive-tui.md) | ASCII mockups and UI flow |
 | **Reference** | [Authentication](docs/reference/authentication.md) | Auth resolution & feature matrix |
 | **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three entry points? Design decisions |
+
+See the [Changelog](CHANGELOG.md) for release history.
 
 ## For Nix Consumers
 
