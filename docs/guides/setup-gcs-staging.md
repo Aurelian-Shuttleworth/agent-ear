@@ -1,6 +1,6 @@
 # Configure GCS Staging for Large Files
 
-> **Goal**: Enable transcription of audio and video files larger than 20 MB by configuring a Google Cloud Storage staging bucket.
+> **Goal**: Enable transcription of audio and video files larger than 100 MB by configuring a Google Cloud Storage staging bucket.
 
 ## Prerequisites
 
@@ -9,44 +9,35 @@
 
 ## Why GCS staging is needed
 
-The Gemini API accepts files inline up to **20 MB**. For anything larger, agent-ear uploads the file to a GCS bucket and passes the `gs://` URI to Gemini instead. This happens transparently — you still use the same CLI commands.
+The Gemini API accepts files inline up to **100 MB**. For anything larger, agent-ear uploads the file to a GCS bucket (Vertex AI) or uses the Gemini Files API (AI Studio) and passes the reference to Gemini instead. This happens transparently — you still use the same CLI commands.
 
 ```
-File ≤20 MB → inline upload → Gemini API
-File >20 MB → GCS upload → gs:// URI → Gemini API
+File ≤100 MB  → inline upload → Gemini API
+File >100 MB  → GCS upload (Vertex AI) or Files API (AI Studio) → Gemini API
 ```
 
-> [!NOTE]
-> GCS staging is only available with the Vertex AI backend. Google AI Studio keys cannot access GCS. If you're using an AI Studio key, files over 20 MB will fail with an error.
+> [!TIP]
+> If you're using Google AI Studio, files between 100 MB and 2 GB are handled automatically via the Gemini Files API — no GCS setup required. GCS staging is primarily needed for Vertex AI users with large files, or when you want explicit control over file staging.
 
 ## Steps
 
-### 1. Let agent-ear auto-provision (interactive mode)
+### 1. Determine if you need GCS staging
 
-The simplest path. Run agent-ear **without** `--auto` on a large file:
+GCS staging is required when:
 
-```bash
-agent-ear --video ./long-meeting.mp4
-```
+- You are using **Vertex AI** and your file exceeds **100 MB** (the inline upload limit)
+- You want explicit control over file staging via `--gcs-bucket`
 
-If no bucket exists, agent-ear will prompt you:
+GCS staging is **not required** when:
 
-```
-📦 GCS bucket 'your-project-transcribe-staging' not found.
-   Location: EU
-   Lifecycle: auto-delete staging files after 7 days
+- Your files are ≤100 MB (uploaded inline automatically)
+- You are using **AI Studio** with files ≤2 GB (handled via the Gemini Files API)
 
-Create this bucket now? [y/N]:
-```
+If you don't need GCS staging, skip this guide entirely.
 
-Confirm with `y` and the bucket is created with a **7-day auto-delete lifecycle rule** — staging files are cleaned up automatically.
+### 2. Create the bucket
 
-> [!IMPORTANT]
-> Auto-provisioning only works in interactive mode (no `--auto` flag). In `--auto` mode, agent-ear errors instead of prompting, since bucket creation could incur costs.
-
-### 2. Or create the bucket manually
-
-If you prefer to create the bucket yourself, or need it for `--auto` mode:
+Create a GCS bucket for staging large files:
 
 ```bash
 gcloud storage buckets create gs://YOUR_PROJECT_ID-transcribe-staging \
@@ -62,14 +53,11 @@ The authenticated identity (your user account or service account) needs these pe
 
 | Permission | Purpose |
 |:-----------|:--------|
-| `storage.buckets.create` | Create the staging bucket (auto-provisioning only) |
-| `storage.buckets.list` | Check if the bucket already exists |
+| `storage.buckets.list` | Check if the bucket exists |
 | `storage.objects.create` | Upload files to the bucket |
-| `serviceusage.services.get` | Check if Cloud Storage API is enabled |
-| `serviceusage.services.enable` | Enable Cloud Storage API (auto-provisioning only) |
 
 > [!TIP]
-> The built-in **Editor** role (`roles/editor`) covers all of these. For least-privilege setups, use **Storage Object Creator** (`roles/storage.objectCreator`) plus **Service Usage Consumer** (`roles/serviceusage.serviceUsageConsumer`).
+> The built-in **Storage Object Creator** role (`roles/storage.objectCreator`) covers these permissions.
 
 ### 4. Use a custom bucket name
 
@@ -97,11 +85,11 @@ The default bucket location is **EU**. To change it:
 export AGENT_EAR_GCS_LOCATION="US"
 ```
 
-This affects auto-provisioned buckets only. For manually created buckets, set the location in the `gcloud storage buckets create` command.
+This sets the default location for the auto-derived bucket name. For manually created buckets, set the location in the `gcloud storage buckets create` command.
 
 ### 6. Verify large file support
 
-Test with a file over 20 MB:
+Test with a file over 100 MB:
 
 ```bash
 agent-ear --auto --video ./large-presentation.mp4
@@ -111,13 +99,13 @@ You should see a GCS upload step in the output before the transcription begins.
 
 ## Auto-cleanup behaviour
 
-Auto-provisioned buckets include a **7-day lifecycle delete rule**. This means:
+We recommend adding a **7-day lifecycle delete rule** to your staging bucket to prevent forgotten files from accumulating costs. This means:
 
 - Staging files are automatically deleted 7 days after upload
 - No manual cleanup needed
 - Ongoing storage costs are minimal
 
-Manually created buckets do **not** include this rule by default. Add it yourself if desired:
+Add the lifecycle rule to your bucket:
 
 ```bash
 gcloud storage buckets update gs://YOUR_BUCKET \

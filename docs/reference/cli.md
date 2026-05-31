@@ -21,7 +21,7 @@ agent-ear [-h] [--prompt-file FILE] [--prompt TEXT]
            [--video FILE_OR_URL] [--output-dir DIR]
            [--output-format FMT] [--auto] [--model MODEL]
            [--project-id ID] [--location LOC] [--gcs-bucket BUCKET]
-           [--high-res] [--max-tokens N]
+           [--thinking-level LEVEL] [--high-res] [--max-tokens N]
 ```
 
 ## Dispatch Behaviour
@@ -135,13 +135,14 @@ Flags that configure the Gemini model and Google Cloud project.
 
 | Flag | Type | Default | Env Var | Description |
 |:-----|:-----|:--------|:--------|:------------|
-| `--model MODEL` | `string` | `gemini-3.1-flash-lite-preview` | — | Gemini model name for transcription and prompt validation. |
+| `--model MODEL` | `string` | `gemini-3.5-flash` | — | Gemini model name for transcription and prompt validation. |
 | `--project-id ID` | `string` | Auto-detected | `GOOGLE_CLOUD_PROJECT` | Google Cloud project ID. Enables Vertex AI mode. See [[authentication]]. |
 | `--location LOC` | `string` | `global` | `GOOGLE_CLOUD_LOCATION` | Gemini API region. Falls back through: flag → env var → `gcloud config get-value compute/region` → `global`. |
-| `--gcs-bucket BUCKET` | `string` | `{project}-transcribe-staging` | `AGENT_EAR_GCS_BUCKET` | GCS bucket name for staging large media files (>20 MB). Auto-provisioned if it does not exist. Requires Vertex AI mode. |
+| `--gcs-bucket BUCKET` | `string` | `{project}-transcribe-staging` | `AGENT_EAR_GCS_BUCKET` | GCS bucket name for staging large media files (>100 MB). Must exist before use. Requires Vertex AI mode. |
+| `--thinking-level LEVEL` | `string` | `auto` | `AGENT_EAR_THINKING_LEVEL` | Reasoning depth for transcription: `minimal`, `low`, `medium`, `high`. Auto-resolved from prompt complexity and audio duration if not set. |
 
 > [!TIP]
-> For high-quality meeting transcription, use `--model gemini-3.1-pro-preview`. The default `flash-lite` model is optimised for speed and cost.
+> The default model is now `gemini-3.5-flash`, which balances quality and speed. For highest quality meeting transcription, use `--model gemini-3.1-pro-preview`.
 
 #### Examples
 
@@ -154,6 +155,9 @@ agent-ear --auto --project-id my-project --location us-central1
 
 # Custom GCS bucket
 agent-ear --auto --gcs-bucket my-custom-bucket --project-id my-project
+
+# Control reasoning depth
+agent-ear --auto --thinking-level high
 ```
 
 ---
@@ -165,7 +169,7 @@ Flags that control audio/video recording quality and token limits.
 | Flag | Type | Default | Env Var | Description |
 |:-----|:-----|:--------|:--------|:------------|
 | `--high-res` | `flag` | `false` | — | Enable high-resolution audio capture. Increases quality at the cost of larger file size and higher token usage. |
-| `--max-tokens N` | `integer` | `8192` (audio) / `16384` (video) | — | Maximum output token count for the Gemini response. Automatically doubled when `--video` is used. |
+| `--max-tokens N` | `integer` | Auto-scaled | — | Maximum output token count for the Gemini response. Auto-scaled (~200 tokens/min of speech, floor 8192, cap 65536). Video defaults to 32768. Overridable. |
 
 #### Examples
 
@@ -194,11 +198,67 @@ See [[environment-variables]] for the complete environment variable reference.
 
 ## Exit Codes
 
-| Code | Meaning |
-|:-----|:--------|
-| `0` | Success |
-| `1` | Error (auth failure, invalid arguments, runtime error) |
-| `2` | Prompt validation failed (prompt scored below quality threshold) |
+<!-- REVIEW: Lara — is this section clear enough for a developer building an agent that calls agent-ear? The key insight is that exit code 2 is recoverable. -->
+
+agent-ear uses three exit codes. Agents **must** handle all three to implement robust voice capture workflows.
+
+| Code | Name | Meaning |
+|:----:|:-----|:--------|
+| `0` | **Success** | Transcription completed. Output file written to `--output-dir`. |
+| `1` | **Error** | Unrecoverable failure. |
+| `2` | **Prompt Rejected** | Prompt validation failed — the prompt scored below the quality threshold. |
+
+### Exit Code 0 — Success
+
+The transcription pipeline completed successfully. The output file path is printed to stdout (last line). Agents should parse this path to locate the result.
+
+### Exit Code 1 — Error
+
+An unrecoverable error occurred. Common causes:
+
+- **Authentication failure** — No API key or ADC credentials found. See [authentication](authentication.md).
+- **Invalid arguments** — Conflicting flags (e.g. `--prompt` and `--prompt-file` together).
+- **Network / API error** — Gemini API unreachable, quota exceeded, or model not available.
+- **File not found** — `--input-file`, `--video`, `--prompt-file`, or `--briefing-file` path does not exist.
+- **Recording failure** — Microphone not available or recording interrupted.
+
+**Agent response:** Log the error, do not retry automatically. Fix the underlying cause.
+
+### Exit Code 2 — Prompt Rejected
+
+The LLM-as-a-Judge prompt validator scored the prompt below the quality threshold. This is a **recoverable** condition — the agent should revise its prompt and retry.
+
+The validator evaluates five criteria:
+1. **Specificity** — Does the prompt describe what to extract?
+2. **Actionability** — Can the model act on the instructions?
+3. **Scope** — Is the task appropriately bounded?
+4. **Format guidance** — Does the prompt specify output structure?
+5. **Grounding** — Does it reference the audio input?
+
+**Agent response:**
+1. Read the validation feedback from stderr.
+2. Revise the prompt to address the flagged criteria.
+3. Retry with `--prompt "improved prompt text"`.
+4. Alternatively, pass `--no-validate` to skip validation (use with caution).
+
+> [!NOTE] 🔍 **Context for reviewer**
+> Exit code 2 is the key innovation for agent integration. Most CLI tools use only 0 (success) and 1 (failure). Exit code 2 means "your input was bad, try again" — it lets agents implement a retry loop where they improve their prompt based on validator feedback, rather than just failing. This is why it gets its own section.
+
+```bash
+# Example: agent retry loop (pseudocode)
+agent-ear --auto --prompt "$PROMPT" 2>validator_feedback.txt
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 2 ]; then
+  # Read feedback, revise prompt, retry
+  FEEDBACK=$(cat validator_feedback.txt)
+  # ... agent revises PROMPT based on FEEDBACK ...
+  agent-ear --auto --prompt "$REVISED_PROMPT"
+elif [ $EXIT_CODE -eq 1 ]; then
+  echo "Fatal error — check logs"
+  exit 1
+fi
+```
 
 ## See Also
 

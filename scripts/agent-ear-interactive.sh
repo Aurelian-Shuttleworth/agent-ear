@@ -117,14 +117,14 @@ configure_options() {
   local model_choice
   model_choice=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
     --header "Transcription model:" \
-    "🟢 Flash-Lite — fast, cheap (default)" \
-    "🟡 Flash — balanced quality/cost" \
+    "🟢 Flash — fast, balanced (default)" \
+    "🟡 Flash-Lite — cheapest, lower quality" \
     "🔴 Pro — premium, expensive" \
   ) || cancelled
 
   case "$model_choice" in
     *Flash-Lite*) MODEL="gemini-3.1-flash-lite-preview" ;;
-    *Flash*)      MODEL="gemini-3-flash-preview" ;;
+    *Flash*)      MODEL="gemini-3.5-flash" ;;
     *Pro*)        MODEL="gemini-3.1-pro-preview" ;;
   esac
   success "Model: $MODEL"

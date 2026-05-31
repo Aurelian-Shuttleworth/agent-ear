@@ -37,7 +37,7 @@ flowchart TD
     B -->|"NO"| D{"GOOGLE_API_KEY set?"}
     D -->|"YES"| E["AI Studio Mode"]
     E --> E1["genai.Client(api_key=api_key)"]
-    E1 --> E2["❌ GCS uploads unavailable\n(>20 MB files will fail)"]
+    E1 --> E2["❌ GCS uploads unavailable\n(>2 GB files will fail)"]
     D -->|"NO"| F["❌ Error — exit 1"]
     F --> F1["'Set GOOGLE_API_KEY or\nGOOGLE_CLOUD_PROJECT'"]
 
@@ -99,16 +99,16 @@ GOOGLE_API_KEY env var → None
 
 | Feature | Vertex AI | AI Studio |
 |:--------|:---------:|:---------:|
-| Audio transcription (≤20 MB) | ✅ | ✅ |
-| Video transcription (≤20 MB) | ✅ | ✅ |
+| Audio transcription (≤100 MB) | ✅ | ✅ |
+| Video transcription (≤100 MB) | ✅ | ✅ |
 | YouTube download + transcribe | ✅ | ✅ |
 | TTS briefing | ✅ | ✅ |
 | Prompt validation | ✅ | ✅ |
-| GCS staging (>20 MB files) | ✅ | ❌ |
-| GCS auto-provisioning | ✅ | ❌ |
+| Large files via Gemini Files API (100 MB–2 GB) | ❌ | ✅ |
+| Large files via GCS staging (>100 MB) | ✅ | ❌ |
 
 > [!IMPORTANT]
-> The 20 MB limit for AI Studio is imposed by the Gemini API's inline data upload limit. Files above this threshold **must** be staged via GCS, which requires Vertex AI mode.
+> The 100 MB limit is the Gemini API's inline data upload threshold. AI Studio users can upload files up to 2 GB via the Gemini Files API at no additional cost (files are stored for 48 hours). Vertex AI users route large files through GCS staging instead. Files exceeding 2 GB require Vertex AI mode with GCS.
 
 ---
 
@@ -215,16 +215,16 @@ Verify the principal has these roles:
 
 ---
 
-### Large File in AI Studio Mode
+### File Too Large for Files API
 
 **Message:**
 
 ```
-Error: GCS staging requires a Google Cloud project (Vertex AI mode).
-File size (XX MB) exceeds the 20 MB inline upload limit.
+Error: File too large for Gemini Files API (XX MB > 2048 MB).
+Provide --gcs-bucket to stage via Google Cloud Storage.
 ```
 
-**Cause:** A media file exceeds 20 MB, but agent-ear is running in AI Studio mode which cannot stage files to GCS.
+**Cause:** A media file exceeds the 2 GB Gemini Files API limit, and agent-ear is running in AI Studio mode.
 
 **Resolution:**
 
@@ -243,7 +243,7 @@ agent-ear --auto --video ./large-file.mp4
 ```mermaid
 flowchart TD
     Q1{"Do you have a\nGoogle Cloud project?"} -->|"YES"| V["Use Vertex AI Mode"]
-    Q1 -->|"NO"| Q2{"Do your files\nexceed 20 MB?"}
+    Q1 -->|"NO"| Q2{"Do your files\nexceed 2 GB?"}
     Q2 -->|"YES"| V
     Q2 -->|"NO"| S["Use AI Studio Mode"]
 

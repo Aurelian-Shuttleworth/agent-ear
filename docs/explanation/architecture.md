@@ -59,7 +59,7 @@ flowchart TD
     CheckKey -->|No| Fail["❌ No auth configured"]
 
     Vertex --> Full["Full features<br/>GCS uploads ✅<br/>All models ✅"]
-    Studio --> Limited["Most features<br/>GCS uploads ❌<br/>≤20 MB files only"]
+    Studio --> Limited["Most features<br/>Files API ≤2 GB<br/>GCS uploads ❌"]
 
     style Vertex fill:#22c55e,stroke:#16a34a,color:#fff
     style Studio fill:#eab308,stroke:#ca8a04,color:#000
@@ -72,7 +72,7 @@ The honest answer: **onboarding friction kills tools.**
 
 Vertex AI is the "right" answer for production — it gives you GCS uploads for large files, project-scoped billing, and enterprise features. But setting it up requires a GCP project, enabled APIs, and Application Default Credentials. That's a 5-minute setup that filters out 90% of people who just want to try the tool.
 
-Google AI Studio needs one API key and zero infrastructure. You paste it, export it, and you're running in 60 seconds. The tradeoff is no GCS support, which means files must stay under 20 MB (the Gemini inline upload limit).
+Google AI Studio needs one API key and zero infrastructure. You paste it, export it, and you're running in 60 seconds. The tradeoff is no GCS support — but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging.
 
 The resolution order is intentional:
 
@@ -88,17 +88,17 @@ This means upgrading from AI Studio to Vertex AI is just setting one environment
 sequenceDiagram
     participant Agent as AI Agent
     participant Ear as agent-ear-core
-    participant Judge as Gemini (flash-lite)
+    participant Judge as Gemini (flash)
     participant Mic as Microphone
     participant Trans as Gemini (transcription)
 
     Agent->>Ear: --prompt-file requirements.txt --auto
     Ear->>Judge: "Evaluate this transcription prompt"
-    Judge-->>Ear: {score: 4, valid: true, feedback: "..."}
-    Note over Ear: ✅ Score ≥ 3 → proceed
+    Judge-->>Ear: {score: 4, valid: true, thinking_level: "medium", extra_tokens: 2048}
+    Note over Ear: ✅ Score ≥ 3 → proceed<br/>Apply thinking hints
     Ear->>Mic: 🎙️ Start recording
     Mic-->>Ear: audio.wav
-    Ear->>Trans: audio + system_instruction
+    Ear->>Trans: audio + system_instruction<br/>+ thinking_config + adjusted token budget
     Trans-->>Ear: Structured transcription
     Ear-->>Agent: {output_path, content, cost}
 ```
@@ -107,7 +107,7 @@ sequenceDiagram
 
 Imagine this: an AI agent constructs a vague prompt like _"process the audio"_, the human speaks for 10 minutes, and the transcription comes back as an unusable blob. The human's time is wasted, and the agent has to retry.
 
-Prompt validation catches this _before_ any recording happens. A separate Gemini call (using the cheapest model, `gemini-3.1-flash-lite-preview`) scores the prompt on five criteria:
+Prompt validation catches this _before_ any recording happens. A separate Gemini call (using `gemini-3.5-flash`) scores the prompt on five criteria:
 
 1. **Instruction clarity** — does it specify what to extract?
 2. **Output structure** — does it define the expected format?
@@ -117,47 +117,48 @@ Prompt validation catches this _before_ any recording happens. A separate Gemini
 
 If the score is below 3/5, the pipeline exits with code `2` and returns an improved prompt suggestion. The agent can refine and retry without ever bothering the human.
 
+Beyond scoring, the validator also emits **transcription hints** — a `thinking_level` recommendation (`low`, `medium`, or `high`) and an `extra_tokens` budget adjustment (0–16384). These hints configure the downstream transcription model's reasoning effort and output token budget, optimising quality for complex prompts without manual tuning.
+
 > [!NOTE]
 > Validation is deliberately **fail-open**: if the validation call itself errors (network issue, quota), the pipeline proceeds anyway. The goal is to catch bad prompts, not block good ones.
 
 The same pattern applies to TTS briefings — a two-layer check (static regex checks for free, then LLM-as-a-judge) catches non-speakable content like markdown headers, URLs, and pacing mismatches before the TTS API is called.
 
-## GCS Staging: Why Not Always Inline?
+## Media Upload Strategy
 
 ```mermaid
 flowchart TD
-    Upload["_upload_media()"] --> SizeCheck{"File size<br/>≤ 20 MB?"}
+    Upload["upload_media()"] --> Explicit{"--gcs-bucket<br/>provided?"}
+    Explicit -->|"Yes"| GCS["📤 GCS upload<br/>Part.from_uri()"]
+    Explicit -->|"No"| SizeCheck{"File size<br/>≤ 100 MB?"}
     SizeCheck -->|"Yes"| Inline["📤 Inline upload<br/>Part.from_bytes()"]
-    SizeCheck -->|"No"| VertexCheck{"Vertex AI<br/>mode?"}
-    VertexCheck -->|"No (AI Studio)"| Error["❌ File too large<br/>Switch to Vertex AI"]
-    VertexCheck -->|"Yes"| BucketCheck{"Bucket<br/>exists?"}
-    BucketCheck -->|"Yes"| GCS["📤 GCS upload<br/>Part.from_uri()"]
-    BucketCheck -->|"No"| AutoMode{"--auto<br/>flag?"}
-    AutoMode -->|"Yes"| AutoError["❌ Bucket missing<br/>(no interactive provisioning)"]
-    AutoMode -->|"No"| Provision["🔧 Interactive provisioning<br/>1. Enable Storage API<br/>2. Create bucket<br/>3. Set 7-day lifecycle"]
-    Provision --> GCS
+    SizeCheck -->|"No"| BackendCheck{"Auth<br/>backend?"}
+    BackendCheck -->|"Vertex AI"| GCSAuto["📤 GCS upload<br/>(auto-derived bucket)"]
+    BackendCheck -->|"AI Studio"| FilesCheck{"File size<br/>≤ 2 GB?"}
+    FilesCheck -->|"Yes"| FilesAPI["📤 Gemini Files API<br/>client.files.upload()<br/>(48h storage, async polling)"]
+    FilesCheck -->|"No"| Error["❌ File too large<br/>Use --gcs-bucket"]
 
     style Inline fill:#22c55e,stroke:#16a34a,color:#fff
     style GCS fill:#0ea5e9,stroke:#0284c7,color:#fff
+    style GCSAuto fill:#0ea5e9,stroke:#0284c7,color:#fff
+    style FilesAPI fill:#a855f7,stroke:#9333ea,color:#fff
     style Error fill:#ef4444,stroke:#dc2626,color:#fff
-    style AutoError fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-### The 20 MB problem
+### The 100 MB threshold
 
-The Gemini API accepts inline uploads up to 20 MB. That covers most voice recordings (a 10-minute mono WAV at 44.1 kHz is about 50 MB, but shorter recordings fit), but videos easily exceed this — a 5-minute 720p MP4 is typically 30–80 MB.
+The Gemini API accepts inline uploads up to 100 MB. That comfortably covers most voice recordings and short videos. For anything larger, agent-ear routes through one of two backends:
 
-For anything over 20 MB, agent-ear uploads to a Google Cloud Storage bucket and passes a `gs://` URI to Gemini instead. This requires Vertex AI mode (a GCP project with credentials).
+- **Vertex AI users** → GCS staging. The file is uploaded to a Google Cloud Storage bucket and a `gs://` URI is passed to Gemini.
+- **AI Studio users** → Gemini Files API. The file is uploaded to Google's servers via `client.files.upload()`, stored for 48 hours at no cost, and referenced by file name. This supports files up to 2 GB.
 
-### Auto-provisioning
+If `--gcs-bucket` is explicitly provided (via flag or `AGENT_EAR_GCS_BUCKET` env var), GCS is used regardless of file size or auth backend.
 
-First-time users hit a cold-start problem: they don't have a GCS bucket yet. The interactive provisioning flow handles this:
+### Bucket must pre-exist
 
-1. **Check the Storage API** — is `storage.googleapis.com` enabled on the project? If not, offer to enable it.
-2. **Check the bucket** — does `{project}-transcribe-staging` exist? If not, offer to create it.
-3. **Set lifecycle rules** — the bucket gets a 7-day auto-delete rule on all objects. Staging files are ephemeral; the transcription output is what matters.
+Unlike earlier versions, agent-ear no longer auto-provisions GCS buckets. If a GCS upload is needed and the bucket doesn't exist, the Google Cloud Storage client raises a `NotFound` error with a clear message. This is intentional — agents shouldn't silently create cloud resources that cost money.
 
-In `--auto` mode (agent-driven), provisioning is skipped and errors are raised instead. Agents shouldn't silently create cloud resources that cost money.
+See the [GCS staging guide](../guides/setup-gcs-staging.md) for manual bucket creation instructions.
 
 ### Why 7-day lifecycle?
 
@@ -169,9 +170,9 @@ Every Gemini API call in the pipeline is tracked through a `CostTracker` that th
 
 ```mermaid
 flowchart LR
-    V["Prompt Validation<br/>flash-lite"] --> B["Briefing Validation<br/>flash-lite"]
+    V["Prompt Validation<br/>flash"] --> B["Briefing Validation<br/>flash"]
     B --> T["Transcription<br/>flash / flash-lite / pro"]
-    T --> O["Obsidian Final Pass<br/>flash-lite"]
+    T --> O["Obsidian Final Pass<br/>flash"]
 
     V -.->|"track()"| CT["CostTracker"]
     B -.->|"track()"| CT
@@ -196,13 +197,15 @@ Each API response includes `usage_metadata` with four token types:
 
 The tracker computes a dollar estimate per call using a built-in pricing table. This isn't a bill — it's an approximation to help agents make cost-aware decisions (e.g., choosing `flash-lite` over `pro` when quality requirements are modest).
 
+For current per-model pricing, see the [Google AI pricing page](https://ai.google.dev/pricing) and [Vertex AI pricing page](https://cloud.google.com/vertex-ai/generative-ai/pricing).
+
 ### Per-call reporting
 
 At the end of a pipeline run, you see:
 
 ```
-💰 gemini-3.1-flash-lite-preview: $0.0001 (in: 1,024, out: 256, think: 64)
-💰 gemini-3.1-flash-lite-preview: $0.0003 (in: 18,432, out: 512, think: 128)
+💰 gemini-3.5-flash: $0.0001 (in: 1,024, out: 256, think: 64)
+💰 gemini-3.5-flash: $0.0003 (in: 18,432, out: 512, think: 128)
 💰 Total: $0.0004
 ```
 
@@ -255,4 +258,5 @@ Key design decisions visible in this flow:
 - **System instruction separation** — the agent's prompt goes in `system_instruction`, not mixed with the audio content. This follows Gemini best practices for constrained generation.
 - **Safety copy before transcription** — recordings are backed up to `.recovery/` immediately after capture, before any API call. If transcription crashes, the recording survives.
 - **Cleanup only on success** — temp files and recovery copies are only deleted after the output is saved. Partial failures preserve everything.
-- **Dynamic token budgets** — for audio over 2 minutes, the output token limit scales with recording duration (~200 tokens per minute of speech), preventing truncation of long recordings.
+- **Dynamic token budgets** — output token limits scale with recording duration (~200 tokens per minute of speech, floor 8192, cap 65536). Video defaults to 32768. The prompt validator can add up to 16384 extra tokens via its `extra_tokens` hint.
+- **Validator-driven reasoning** — the prompt validator emits `thinking_level` and `extra_tokens` hints that configure the transcription model's reasoning depth and token budget, optimising quality without manual tuning.

@@ -81,9 +81,9 @@ export GOOGLE_CLOUD_LOCATION="europe-west4"
 gcloud config set compute/region europe-west4
 ```
 
-The resolution chain for location is: `GOOGLE_CLOUD_LOCATION` → `gcloud config get-value compute/region` → `global`.
+The resolution chain for location is: `--location` flag → `GOOGLE_CLOUD_LOCATION` → `gcloud config get-value compute/region` → `global`.
 
 ## Next steps
 
-- [Configure GCS Staging for Large Files](setup-gcs-staging.md) — required for audio/video files >20 MB
+- [Configure GCS Staging for Large Files](setup-gcs-staging.md) — required for audio/video files >100 MB when using Vertex AI
 - [Brief Users with Spoken Instructions](tts-briefing.md) — use TTS to speak instructions before recording
