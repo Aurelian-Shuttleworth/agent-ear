@@ -1,6 +1,12 @@
-# Architecture: Why Two Entry Points?
+# The Architecture
+ 
+Agent-ear has two operational modes. For human users, agent-ear has a bash wrapper that creates a UI. For AI agents, agent-ear works autonomously with the core python pipeline.
 
-agent-ear could have been a single script. Instead, it's one Python package behind a bash wrapper — giving us two distinct entry points in `$PATH`. This page explains why.
+## agent-ear: Bash dispatcher and Gum TUI
+
+## agent-ear-core: Python pipeline
+
+
 
 ## The 2 Entry Points
 
