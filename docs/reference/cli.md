@@ -138,7 +138,7 @@ Flags that configure the Gemini model and Google Cloud project.
 | `--model MODEL` | `string` | `gemini-3.5-flash` | — | Gemini model name for transcription and prompt validation. |
 | `--project-id ID` | `string` | Auto-detected | `GOOGLE_CLOUD_PROJECT` | Google Cloud project ID. Enables Vertex AI mode. See [[authentication]]. |
 | `--location LOC` | `string` | `global` | `GOOGLE_CLOUD_LOCATION` | Gemini API region. Falls back through: flag → env var → `gcloud config get-value compute/region` → `global`. |
-| `--gcs-bucket BUCKET` | `string` | `{project}-transcribe-staging` | `AGENT_EAR_GCS_BUCKET` | GCS bucket name for staging large media files (>100 MB). Must exist before use. Requires Vertex AI mode. |
+| `--gcs-bucket BUCKET` | `string` | `{project}-transcribe-staging` | `AGENT_EAR_GCS_BUCKET` | GCS bucket name for staging media files (Vertex AI, or files > 2 GB). Must exist before use. |
 | `--thinking-level LEVEL` | `string` | `auto` | `AGENT_EAR_THINKING_LEVEL` | Reasoning depth for transcription: `minimal`, `low`, `medium`, `high`. Auto-resolved from prompt complexity and audio duration if not set. |
 
 > [!TIP]

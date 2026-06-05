@@ -35,6 +35,7 @@ nix profile install github:aurelianshuttleworth/agent-ear
 - **🤝 Meeting Mode** - Multi-speaker contextualization with action items and notable quotes
 - **💰 Cost Tracking** — Per-call token usage and estimated dollar cost reporting
 - **📜 Open Source** - Licensed under Apache 2.0.
+- **☁️ Smart Upload** — Files up to 2 GB (auto-routed), or GCS staging for larger files
 
 ## Architecture
 
@@ -116,7 +117,7 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
 | **Tutorial** | [Your First Transcription](docs/tutorials/first-transcription.md) | Get recording in 5 minutes |
 | **How-to** | [Set up AI Studio](docs/guides/setup-google-ai-studio.md) | Free API key authentication |
 | **How-to** | [Set up Vertex AI](docs/guides/setup-vertex-ai.md) | Full-featured GCP authentication |
-| **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | Large file support (>20MB) |
+| **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | GCS staging (Vertex AI / files > 2 GB) |
 | **How-to** | [TTS Briefing](docs/guides/tts-briefing.md) | Spoken instructions before recording |
 | **How-to** | [Nix Consumer Integration](docs/guides/nix-consumer-integration.md) | Use agent-ear in your flake |
 | **Reference** | [CLI Flags](docs/reference/cli.md) | Complete flag reference |

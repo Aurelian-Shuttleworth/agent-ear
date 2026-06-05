@@ -20,7 +20,7 @@ Before we begin, a quick decision:
 | **Best for** | Trying it out, personal use | Production, enterprise, large files |
 | **Setup time** | ~60 seconds | ~5 minutes |
 | **Cost** | Free tier available | Pay-as-you-go |
-| **Limitations** | Files ≤100 MB inline, ≤2 GB via Files API | Full feature set |
+| **Limitations** | Files up to 2 GB | Full feature set |
 
 > [!TIP]
 > **Just want to try it?** Go with Google AI Studio. You can switch to Vertex AI later — no code changes needed.
@@ -54,7 +54,7 @@ Here's what happens:
 2. 🔔 **Ready sound** — a short ping tells you recording has started (macOS)
 3. 🎙️ **Recording** — speak naturally. A GUI stop button appears, or press `Ctrl+C`
 4. 🛡️ **Safety copy** — your recording is backed up immediately (in case anything goes wrong)
-5. 📤 **Upload** — the audio is sent inline to Gemini (files under 100 MB are uploaded inline)
+5. 📤 **Upload** — the audio is uploaded to Gemini (small files go inline, larger files use the Files API — all automatic)
 6. ✨ **Transcription** — Gemini produces a structured note with frontmatter, summary, and verbatim transcript
 7. 💾 **Saved** — a markdown file lands in your current directory
 
@@ -84,7 +84,7 @@ nix run github:Aurelian-Shuttleworth/agent-ear -- --auto --video "https://youtub
 agent-ear will:
 
 1. ⬇️ Download the video via `yt-dlp` (bundled by Nix — nothing to install)
-2. 📤 Upload it to Gemini (inline if under 100 MB, Files API or GCS for larger files)
+2. 📤 Upload it to Gemini (routing is automatic based on file size and auth backend)
 3. ✨ Produce a timestamped, structured note with executive summary and visual descriptions
 
 > [!NOTE]
@@ -121,7 +121,7 @@ You've got the basics working. Here's where to go from here:
 | Guide | What you'll learn |
 |:------|:------------------|
 | [Set up Vertex AI](../guides/setup-vertex-ai.md) | Full-featured auth with GCS uploads for large files |
-| [Set up GCS staging](../guides/setup-gcs-staging.md) | Cloud storage setup for files over 100 MB |
+| [Set up GCS staging](../guides/setup-gcs-staging.md) | Cloud storage setup for Vertex AI or files over 2 GB |
 | [TTS briefing mode](../guides/tts-briefing.md) | Have agent-ear speak instructions before recording |
 | [Architecture](../explanation/architecture.md) | Understand why agent-ear is designed the way it is |
 

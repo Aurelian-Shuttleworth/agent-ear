@@ -150,9 +150,11 @@ flowchart TD
     style Error fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-### The 2 GB threshold
+### How upload routing works
 
-The Gemini API accepts inline uploads up to 2 GB, which should comfortably cover most voice recordings and short videos. For anything larger, agent-ear routes through one of two backends:
+agent-ear handles audio and video files of any practical size. Upload routing is fully automatic — you use the same CLI commands regardless of file size.
+
+Under the hood, files ≤ 100 MB are uploaded **inline** (`Part.from_bytes`) for speed — no round-trip, no polling. For larger files, agent-ear transparently switches backend:
 
 - **Vertex AI users** → GCS staging. The file is uploaded to a Google Cloud Storage bucket and a `gs://` URI is passed to Gemini.
 - **AI Studio users** → Gemini Files API. The file is uploaded to Google's servers via `client.files.upload()`, stored for 48 hours at no cost, and referenced by file name. This supports files up to 2 GB.
@@ -238,7 +240,7 @@ flowchart TD
     end
 
     subgraph "4. Transcription"
-        Safety --> Upload["📤 Upload media<br/>(inline or GCS)"]
+        Safety --> Upload["📤 Upload media<br/>(auto-routed)"]
         Upload --> Transcribe["✨ Gemini transcription<br/>(system_instruction separation)"]
         Transcribe --> FinalPass["📝 Obsidian final pass<br/>(add frontmatter if missing)"]
     end
