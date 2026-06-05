@@ -1,6 +1,6 @@
 # The Architecture
  
-Agent-ear has two operational modes. For human users, agent-ear has a bash wrapper that creates a UI. For AI agents, agent-ear works autonomously with the core python pipeline. For the purposes of this document, 'agent-ear' will hereafter refer to the bash dispatcher and gum TUI. 'agent-ear-core- will refer to the python pipeline.
+Agent-ear has two operational modes. For human users, agent-ear has a bash wrapper that creates a UI. For AI agents, agent-ear works autonomously with the core python pipeline. For the purposes of this document, 'agent-ear' will hereafter refer to the bash dispatcher and gum TUI. 'agent-ear-core' will refer to the python pipeline.
 
 ## Operational modes
 Here is a graphical overview of the agent-ear architecture:
@@ -45,9 +45,11 @@ This separation means agents never see the TUI code loading, and humans never ne
 
 ## agent-ear-core: Python pipeline
 
-AI agents need `--auto` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They don't have a TTY (no interactive terminal input/output). The Python backend handles this natively.
+AI agents work best with `--auto` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They don't have a TTY (no interactive terminal input/output).
 
 ## Auth Backend Design
+
+To maximize easy onboarding, agent-ear offers two auth paths. Here you can see a graphical representation of the available auth paths:
 
 ```mermaid
 flowchart TD
@@ -65,21 +67,17 @@ flowchart TD
     style Fail fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-### Why two auth paths?
+For most users, Google AI studio will be the optimal choice, with the least amount of onboarding required. Google AI Studio needs one API key and zero infrastructure. It has no GCS support, but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging.
 
-The honest answer: **onboarding friction kills tools.**
+If you're handling large audio/video files (larger than 2GB), you may want to opt for Vertex AI. Vertex AI gives you GCS uploads for large files, project-scoped billing, and enterprise features. However, setting up Vertex AI requires a GCP project, enabled APIs, and Application Default Credentials.
 
-Vertex AI is the "right" answer for production — it gives you GCS uploads for large files, project-scoped billing, and enterprise features. But setting it up requires a GCP project, enabled APIs, and Application Default Credentials. That's a 5-minute setup that filters out 90% of people who just want to try the tool.
-
-Google AI Studio needs one API key and zero infrastructure. You paste it, export it, and you're running in 60 seconds. The tradeoff is no GCS support — but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging.
-
-The resolution order is intentional:
+This is order of selection for authentication credentials (= the order in which authentication is selected if available):
 
 1. **Vertex AI first** — if a project ID exists (from flag, env var, or `gcloud config`), use it. This is the "batteries included" path.
 2. **AI Studio fallback** — if no project but `GOOGLE_API_KEY` is set, use it. Zero friction.
 3. **Fail with clear instructions** — if neither is configured, print exactly what to do.
 
-This means upgrading from AI Studio to Vertex AI is just setting one environment variable — no code changes, no config files.
+You can upgrade from AI Studio to Vertex AI by setting one environment variable.
 
 ## Prompt Validation: LLM-as-a-Judge
 
@@ -102,11 +100,11 @@ sequenceDiagram
     Ear-->>Agent: {output_path, content, cost}
 ```
 
-### Why validate before recording?
+Prompt validation makes agent-ear more efficient than transcription tools. 
 
-Imagine this: an AI agent constructs a vague prompt like _"process the audio"_, the human speaks for 10 minutes, and the transcription comes back as an unusable blob. The human's time is wasted, and the agent has to retry.
+In a regular transcription tool, an AI agent may construct a vague prompt like _"process the audio"_, the human speaks for 10 minutes, and the transcription comes back as an unusable blob. The human's time is wasted, and the agent has to retry. 
 
-Prompt validation catches this _before_ any recording happens. A separate Gemini call (using `gemini-3.5-flash`) scores the prompt on five criteria:
+With agent-ear, prompt validation catches this _before_ any recording happens. A separate Gemini call (using `gemini-3.5-flash`) scores the prompt on five criteria:
 
 1. **Instruction clarity** — does it specify what to extract?
 2. **Output structure** — does it define the expected format?
@@ -119,7 +117,7 @@ If the score is below 3/5, the pipeline exits with code `2` and returns an impro
 Beyond scoring, the validator also emits **transcription hints** — a `thinking_level` recommendation (`low`, `medium`, or `high`) and an `extra_tokens` budget adjustment (0–16384). These hints configure the downstream transcription model's reasoning effort and output token budget, optimising quality for complex prompts without manual tuning.
 
 > [!NOTE]
-> Validation is deliberately **fail-open**: if the validation call itself errors (network issue, quota), the pipeline proceeds anyway. The goal is to catch bad prompts, not block good ones.
+> Validation is deliberately **fail-open**: if the validation call itself errors (network issue, quota), the pipeline proceeds anyway. This is part of facilitating off-line use of the tool.
 
 The same pattern applies to TTS briefings — a two-layer check (static regex checks for free, then LLM-as-a-judge) catches non-speakable content like markdown headers, URLs, and pacing mismatches before the TTS API is called.
 
@@ -144,24 +142,18 @@ flowchart TD
     style Error fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-### The 100 MB threshold
+### The 2 GB threshold
 
-The Gemini API accepts inline uploads up to 100 MB. That comfortably covers most voice recordings and short videos. For anything larger, agent-ear routes through one of two backends:
+The Gemini API accepts inline uploads up to 2 GB, which should comfortably cover most voice recordings and short videos. For anything larger, agent-ear routes through one of two backends:
 
 - **Vertex AI users** → GCS staging. The file is uploaded to a Google Cloud Storage bucket and a `gs://` URI is passed to Gemini.
 - **AI Studio users** → Gemini Files API. The file is uploaded to Google's servers via `client.files.upload()`, stored for 48 hours at no cost, and referenced by file name. This supports files up to 2 GB.
 
 If `--gcs-bucket` is explicitly provided (via flag or `AGENT_EAR_GCS_BUCKET` env var), GCS is used regardless of file size or auth backend.
 
-### Bucket must pre-exist
+### 7-day lifecycle
 
-Unlike earlier versions, agent-ear no longer auto-provisions GCS buckets. If a GCS upload is needed and the bucket doesn't exist, the Google Cloud Storage client raises a `NotFound` error with a clear message. This is intentional — agents shouldn't silently create cloud resources that cost money.
-
-See the [GCS staging guide](../guides/setup-gcs-staging.md) for manual bucket creation instructions.
-
-### Why 7-day lifecycle?
-
-Staging files are only needed for the duration of a single Gemini API call — a few minutes at most. A 7-day lifecycle rule is generous enough to survive retries and debugging, but short enough that forgotten files don't accumulate costs. At Google Cloud Storage pricing (~$0.02/GB/month), even leaving files for 7 days costs effectively nothing.
+It is recommended that you use a 7-day lifecycle when using agent-ear. Staging files are only needed for the duration of a single Gemini API call, which takes a few minutes at most. A 7-day lifecycle rule is generous enough to survive retries and debugging, but short enough that forgotten files don't accumulate.
 
 ## Cost Tracking
 
@@ -194,7 +186,7 @@ Each API response includes `usage_metadata` with four token types:
 | Thinking tokens | Output rate | Chain-of-thought (billed as output) |
 | Cached tokens | Reduced rate (~10× cheaper) | Re-used context across calls |
 
-The tracker computes a dollar estimate per call using a built-in pricing table. This isn't a bill — it's an approximation to help agents make cost-aware decisions (e.g., choosing `flash-lite` over `pro` when quality requirements are modest).
+The tracker computes a dollar estimate per call using a built-in pricing table. This approximation helps agents make cost-aware decisions (e.g., choosing `flash-lite` over `pro` when quality requirements are modest).
 
 For current per-model pricing, see the [Google AI pricing page](https://ai.google.dev/pricing) and [Vertex AI pricing page](https://cloud.google.com/vertex-ai/generative-ai/pricing).
 
