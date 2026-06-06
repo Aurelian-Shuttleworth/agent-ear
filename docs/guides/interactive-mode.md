@@ -1,6 +1,6 @@
-# Use the Interactive Wizard
+# How to use the Interactive Wizard
 
-> **Goal**: Use the interactive terminal wizard to configure and run agent-ear without memorising CLI flags.
+This guide shows you how to use the interactive terminal wizard to configure and run agent-ear without memorising CLI flags. 
 
 > [!NOTE] 🔍 **Context for reviewer**
 > The wizard is powered by [Gum](https://github.com/charmbracelet/gum) — a CLI tool from Charm that renders interactive prompts, selections, and styled text in the terminal. Think of it as a TUI framework but lighter: no persistent application loop, just composable widgets (choose, input, confirm, file picker) that your shell script calls sequentially.
@@ -13,22 +13,13 @@
 
 ## When to use interactive mode
 
-Running `agent-ear` **without** the `--auto` flag launches the wizard automatically (provided stdin is a TTY):
+AI agents skip the wizard with `--auto` and pass flags directly. Running `agent-ear` **without** the `--auto` flag launches the wizard automatically (provided stdin is a TTY). This is preferable for human users. Here's how to run 'agent-ear' without the '--auto' flag:
 
 ```bash
 agent-ear
 ```
 
-The split is intentional:
-
-| Audience | Invocation | Why |
-|:---------|:-----------|:----|
-| **Humans** at a terminal | `agent-ear` (no flags) | Wizard guides you through every option |
-| **AI agents** or scripts | `agent-ear --auto ...` | Flags only, no interactive prompts |
-
-If you already know the exact flags you want, skip the wizard with `--auto` and pass them directly.
-
-## The flow
+## How to interact with the wizard: 
 
 The wizard walks you through four screens in sequence. You can cancel at any point — the script exits cleanly without starting a recording.
 
