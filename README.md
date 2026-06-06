@@ -10,7 +10,7 @@ Agent-ear's elegant multimodal architecture enables **prosodic contextualizatio
 
 **End-to-End Agentic Pipeline**
 
-Agent-ear exposes a full pipeline where an AI agent validates its own 'extraction-comprehension prompt', records a response of any length, transcribes it within agent-defined constraints, and can brief human users with spoken instructions using advanced text-to-speech. 
+Agent-ear exposes a full pipeline where an AI agent validates its own 'extraction-comprehension prompt', records responses from quick notes to hour-long meetings, transcribes within agent-defined constraints, and can brief human users with spoken instructions using advanced text-to-speech. 
 
 [^1]: prosody - the rhythmic and intonational aspect of language
 
