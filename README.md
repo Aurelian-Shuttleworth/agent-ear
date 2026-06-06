@@ -1,8 +1,18 @@
 # agent-ear
 
-**Agentic voice capture, transcription & TTS for AI agents.**
+**Open-source agentic CLI tool for voice and video comprehension.**
 
-`agent-ear` is a voice pipeline designed to be operated by AI agents. Unlike traditional transcription tools, it exposes a full pipeline where an AI agent validates its own prompt, briefs the human with spoken instructions, records the response, and transcribes it within agent-defined constraints.
+Agent ear offers open-source audio and video comprehension for your agentic IDE, including antigravity. Despite its deep Gemini integration, the tool is CLI-agnostic; it runs wherever command-line execution is available as long as an API key is provided.
+
+**Move Beyond Simplistic Transcription**
+
+Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, --- . It handles the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
+
+**End-to-End Agentic Pipeline**
+
+Agent-ear exposes a full pipeline where an AI agent validates its own 'extraction-comprehension prompt', records responses from quick notes to hour-long meetings, transcribes within agent-defined constraints, and can brief human users with spoken instructions using advanced text-to-speech. 
+
+[^1]: prosody - the rhythmic and intonational aspect of language
 
 ## Quick Start
 
@@ -21,10 +31,10 @@ nix profile install github:aurelianshuttleworth/agent-ear
 - **🎤 Voice Capture** — Record audio via microphone with automatic silence detection
 - **🗣️ TTS Briefing** — Speak instructions to the user before recording (with Director's Notes prosody control)
 - **📝 Prompt Validation** — LLM-as-a-judge scoring prevents garbage-in/garbage-out
-- **🎬 Video Transcription** — Transcribe local video files or YouTube URLs
-- **🤝 Meeting Mode** — Multi-speaker transcription with action items and notable quotes
+- **🎬 Video Contextualization** — WCAG-compliant descriptions of local video files or YouTube URLs
+- **🤝 Meeting Mode** - Multi-speaker contextualization with action items and notable quotes
 - **💰 Cost Tracking** — Per-call token usage and estimated dollar cost reporting
-- **☁️ GCS Auto-Provisioning** — Automatic staging bucket creation for large files
+- **📜 Open Source** - Licensed under Apache 2.0.
 
 ## Architecture
 
