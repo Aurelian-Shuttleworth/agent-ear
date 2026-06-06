@@ -1,4 +1,4 @@
-# Agent-ear
+# agent-ear
 
 **Agent-ear: Open-source Agentic CLI TOOL for Language and Video Comprehension**
 
