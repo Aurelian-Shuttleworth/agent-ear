@@ -90,14 +90,22 @@ sequenceDiagram
     participant Trans as Gemini (transcription)
 
     Agent->>Ear: --prompt-file requirements.txt --auto
+
+    %% Validation phase — judge evaluates AND improves
     Ear->>Judge: "Evaluate this transcription prompt"
-    Judge-->>Ear: {score: 4, valid: true, thinking_level: "medium", extra_tokens: 2048}
-    Note over Ear: ✅ Score ≥ 3 → proceed<br/>Apply thinking hints
-    Ear->>Mic: 🎙️ Start recording
-    Mic-->>Ear: audio.wav
-    Ear->>Trans: audio + system_instruction<br/>+ thinking_config + adjusted token budget
-    Trans-->>Ear: Structured transcription
-    Ear-->>Agent: {output_path, content, cost}
+    Judge-->>Ear: {score, valid, feedback,<br/>improved_prompt, thinking_level, extra_tokens}
+
+    alt score < 3: Reject with corrective feedback
+        Ear-->>Agent: exit_code: 2 + feedback<br/>+ improved_prompt suggestion
+        Note over Agent: Agent refines prompt<br/>and retries
+    else score ≥ 3: Proceed with hints
+        Note over Ear: Apply thinking_level<br/>and extra_tokens to<br/>transcription config
+        Ear->>Mic: 🎙️ Start recording
+        Mic-->>Ear: audio.wav
+        Ear->>Trans: audio + system_instruction<br/>+ thinking_config + adjusted token budget
+        Trans-->>Ear: Structured transcription
+        Ear-->>Agent: {output_path, content, format,<br/>cost, validation_result, exit_code}
+    end
 ```
 
 Prompt validation makes agent-ear more efficient than transcription tools. 
