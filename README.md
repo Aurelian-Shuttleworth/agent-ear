@@ -16,14 +16,24 @@ Agent-ear exposes a full pipeline where an AI agent validates its own 'extractio
 
 ## Quick Start
 
-### With Nix (recommended)
+### Run without installing (from GitHub)
 
 ```bash
-# Run directly from GitHub
-nix run github:aurelianshuttleworth/agent-ear
+nix run github:Aurelian-Shuttleworth/agent-ear
+```
 
-# Or install into your profile
-nix profile install github:aurelianshuttleworth/agent-ear
+### Run locally (from source)
+
+```bash
+git clone https://github.com/Aurelian-Shuttleworth/agent-ear.git
+cd agent-ear
+
+# Run directly
+nix run .
+
+# Or enter the development shell
+nix develop
+agent-ear
 ```
 
 ## Features
