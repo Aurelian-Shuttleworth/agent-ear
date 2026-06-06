@@ -6,7 +6,7 @@ Agent ear offers open-source audio and video comprehension for your agentic IDE,
 
 **Move Beyond Simplistic Transcription**
 
-Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, it delivers frontier-level reasoning at lightweight-model prices, handling the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
+Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, --- . It handles the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
 
 **End-to-End Agentic Pipeline**
 
