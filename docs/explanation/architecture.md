@@ -150,7 +150,7 @@ flowchart TD
     style Error fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-### How upload routing works
+### Upload Routing
 
 agent-ear handles audio and video files of any practical size. Upload routing is fully automatic — you use the same CLI commands regardless of file size.
 
