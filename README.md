@@ -32,7 +32,7 @@ nix profile install github:aurelianshuttleworth/agent-ear
 - **🗣️ TTS Briefing** — Speak instructions to the user before recording (with Director's Notes prosody control)
 - **📝 Prompt Validation** — LLM-as-a-judge scoring prevents garbage-in/garbage-out
 - **🎬 Video Contextualization** — WCAG-compliant descriptions of local video files or YouTube URLs
-- **🤝 Meeting Mode** — Multi-speaker descriptions with action items and notable quotes
+- **🤝 Meeting Mode** - Multi-speaker contextualization with action items and notable quotes
 - **💰 Cost Tracking** — Per-call token usage and estimated dollar cost reporting
 - **Open-source** - Licensed under Apache 2.0.
 
