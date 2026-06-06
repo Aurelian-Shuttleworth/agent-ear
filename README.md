@@ -133,6 +133,7 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
 | **How-to** | [Nix Consumer Integration](docs/guides/nix-consumer-integration.md) | Use agent-ear in your flake |
 | **Reference** | [CLI Flags](docs/reference/cli.md) | Complete flag reference |
 | **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
+| **Reference** | [Interactive TUI](docs/reference/interactive-tui.md) | ASCII mockups and UI flow |
 | **Reference** | [Authentication](docs/reference/authentication.md) | Auth resolution & feature matrix |
 | **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three entry points? Design decisions |
 

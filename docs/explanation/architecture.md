@@ -27,7 +27,9 @@ As you can see, agent-ear routes non-interactive calls (made by AI agents, using
 
 To handle the different needs of humans and AI agents cleanly, `agent-ear` acts as a smart dispatcher. The Gum TUI wizard walks human users through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --auto` with the assembled flags.
 
-Agent-ear's routing logic at the very top of the script is trivial:
+**Humans** need guidance. Which mode? Which model? What's a "system prompt"? The Gum TUI wizard walks them through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --auto` with the assembled flags. *(See the [Interactive TUI Reference](../reference/interactive-tui.md) for UI mockups).*
+
+The **dispatcher** is the glue. Its routing logic is trivial:
 
 ```bash
 # Any of these flags → bypass interactive, go straight to core
