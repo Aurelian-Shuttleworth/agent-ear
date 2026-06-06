@@ -1,6 +1,6 @@
 # Configure GCS Staging for Large Files
 
-> **Goal**: Enable transcription of audio and video files larger than 100 MB by configuring a Google Cloud Storage staging bucket.
+> **Goal**: Configure a Google Cloud Storage staging bucket for Vertex AI users or files exceeding 2 GB.
 
 ## Prerequisites
 
@@ -9,15 +9,16 @@
 
 ## Why GCS staging is needed
 
-The Gemini API accepts files inline up to **100 MB**. For anything larger, agent-ear uploads the file to a GCS bucket (Vertex AI) or uses the Gemini Files API (AI Studio) and passes the reference to Gemini instead. This happens transparently — you still use the same CLI commands.
+agent-ear handles files of any practical size. Files ≤ 100 MB are uploaded inline for speed. Larger files are automatically routed via GCS (Vertex AI) or the Gemini Files API (AI Studio, up to 2 GB). This happens transparently — you still use the same CLI commands.
 
 ```
-File ≤100 MB  → inline upload → Gemini API
-File >100 MB  → GCS upload (Vertex AI) or Files API (AI Studio) → Gemini API
+File ≤ 100 MB   → inline upload (fastest, automatic)
+File 100 MB–2 GB → Files API (AI Studio) or GCS (Vertex AI)
+File > 2 GB      → GCS required (use --gcs-bucket)
 ```
 
 > [!TIP]
-> If you're using Google AI Studio, files between 100 MB and 2 GB are handled automatically via the Gemini Files API — no GCS setup required. GCS staging is primarily needed for Vertex AI users with large files, or when you want explicit control over file staging.
+> If you're using Google AI Studio, files up to 2 GB are handled automatically via the Gemini Files API — no GCS setup required. GCS staging is primarily needed for Vertex AI users with large files, or when you want explicit control over file staging.
 
 ## Steps
 
@@ -25,12 +26,12 @@ File >100 MB  → GCS upload (Vertex AI) or Files API (AI Studio) → Gemini API
 
 GCS staging is required when:
 
-- You are using **Vertex AI** and your file exceeds **100 MB** (the inline upload limit)
+- You are using **Vertex AI** and need GCS staging for large files
 - You want explicit control over file staging via `--gcs-bucket`
 
 GCS staging is **not required** when:
 
-- Your files are ≤100 MB (uploaded inline automatically)
+- You're using AI Studio and your files are ≤ 2 GB (handled automatically via Files API)
 - You are using **AI Studio** with files ≤2 GB (handled via the Gemini Files API)
 
 If you don't need GCS staging, skip this guide entirely.
@@ -89,7 +90,7 @@ This sets the default location for the auto-derived bucket name. For manually cr
 
 ### 6. Verify large file support
 
-Test with a file over 100 MB:
+Test with a large file:
 
 ```bash
 agent-ear --auto --video ./large-presentation.mp4

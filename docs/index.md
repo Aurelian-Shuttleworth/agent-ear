@@ -39,7 +39,7 @@ How-to guides assume you have a working installation and need to accomplish a pa
 
 - [Set up Google AI Studio](guides/setup-google-ai-studio.md) — Free API key authentication
 - [Set up Vertex AI](guides/setup-vertex-ai.md) — Full-featured GCP authentication
-- [Configure GCS Staging](guides/setup-gcs-staging.md) — Large file support (>100 MB)
+- [Configure GCS Staging](guides/setup-gcs-staging.md) — GCS staging (Vertex AI / files > 2 GB)
 - [TTS Briefing](guides/tts-briefing.md) — Spoken instructions before recording
 - [Meeting Transcription](guides/meeting-transcription.md) — Multi-speaker meetings with action items
 - [Interactive Mode](guides/interactive-mode.md) — Guided setup via the terminal wizard

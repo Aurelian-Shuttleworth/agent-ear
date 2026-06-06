@@ -99,16 +99,16 @@ GOOGLE_API_KEY env var → None
 
 | Feature | Vertex AI | AI Studio |
 |:--------|:---------:|:---------:|
-| Audio transcription (≤100 MB) | ✅ | ✅ |
-| Video transcription (≤100 MB) | ✅ | ✅ |
+| Audio transcription | ✅ | ✅ |
+| Video transcription | ✅ | ✅ |
 | YouTube download + transcribe | ✅ | ✅ |
 | TTS briefing | ✅ | ✅ |
 | Prompt validation | ✅ | ✅ |
-| Large files via Gemini Files API (100 MB–2 GB) | ❌ | ✅ |
-| Large files via GCS staging (>100 MB) | ✅ | ❌ |
+| Files via Gemini Files API (≤ 2 GB) | ❌ | ✅ |
+| Files via GCS staging (any size) | ✅ | ❌ |
 
 > [!IMPORTANT]
-> The 100 MB limit is the Gemini API's inline data upload threshold. AI Studio users can upload files up to 2 GB via the Gemini Files API at no additional cost (files are stored for 48 hours). Vertex AI users route large files through GCS staging instead. Files exceeding 2 GB require Vertex AI mode with GCS.
+> AI Studio handles files up to 2 GB via the Gemini Files API (files ≤ 100 MB go inline for speed; larger files are uploaded automatically and stored for 48 hours). Vertex AI routes files through GCS staging. Files exceeding 2 GB require Vertex AI with GCS.
 
 ---
 

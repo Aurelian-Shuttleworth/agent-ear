@@ -187,7 +187,7 @@ agent-ear --auto --prompt-file complex-analysis.md
 
 | Property | Value |
 |:---------|:------|
-| **Purpose** | GCS bucket name for staging large media files (>100 MB) |
+| **Purpose** | GCS bucket name for staging media files (Vertex AI, or files > 2 GB) |
 | **Default** | `{project}-transcribe-staging` (derived from the resolved project ID) |
 | **Required** | No |
 | **CLI equivalent** | `--gcs-bucket` |
