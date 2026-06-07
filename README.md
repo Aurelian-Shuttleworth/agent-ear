@@ -16,14 +16,24 @@ Agent-ear exposes a full pipeline where an AI agent validates its own 'extractio
 
 ## Quick Start
 
-### With Nix (recommended)
+### Run without installing (from GitHub)
 
 ```bash
-# Run directly from GitHub
-nix run github:aurelianshuttleworth/agent-ear
+nix run github:Aurelian-Shuttleworth/agent-ear
+```
 
-# Or install into your profile
-nix profile install github:aurelianshuttleworth/agent-ear
+### Run locally (from source)
+
+```bash
+git clone https://github.com/Aurelian-Shuttleworth/agent-ear.git
+cd agent-ear
+
+# Run directly
+nix run .
+
+# Or enter the development shell
+nix develop
+agent-ear
 ```
 
 ## Features
@@ -115,6 +125,7 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
 | Type | Document | Description |
 |:-----|:---------|:------------|
 | **Tutorial** | [Your First Transcription](docs/tutorials/first-transcription.md) | Get recording in 5 minutes |
+| **Tutorial** | [Home Manager Setup](docs/tutorials/home-manager-setup.md) | Add agent-ear to a Home Manager flake |
 | **How-to** | [Set up AI Studio](docs/guides/setup-google-ai-studio.md) | Free API key authentication |
 | **How-to** | [Set up Vertex AI](docs/guides/setup-vertex-ai.md) | Full-featured GCP authentication |
 | **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | GCS staging (Vertex AI / files > 2 GB) |
@@ -122,6 +133,7 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
 | **How-to** | [Nix Consumer Integration](docs/guides/nix-consumer-integration.md) | Use agent-ear in your flake |
 | **Reference** | [CLI Flags](docs/reference/cli.md) | Complete flag reference |
 | **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
+| **Reference** | [Interactive TUI](docs/reference/interactive-tui.md) | ASCII mockups and UI flow |
 | **Reference** | [Authentication](docs/reference/authentication.md) | Auth resolution & feature matrix |
 | **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three entry points? Design decisions |
 

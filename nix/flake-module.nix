@@ -232,6 +232,7 @@
       # ── DevShell ────────────────────────────────────────────────
       devShells.default = pkgs.mkShell {
         packages = [
+          dispatcher
           pkgs.uv
           pkgs.gum
           pkgs.ffmpeg
