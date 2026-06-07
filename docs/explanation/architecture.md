@@ -16,7 +16,7 @@ graph TD
     style B fill:#0ea5e9,stroke:#0284c7,color:#fff
 ```
 
-As you can see, agent-ear routes non-interactive calls (made by AI agents, using --auto flag or piped in via non-interactive command line (non-TTY stdin)) directly to agent-ear-core. All interactive calls (by humans) are routed through the TUI wizard using Gum.
+Agent-ear routes non-interactive calls (made by AI agents, using --auto flag or piped in via non-interactive command line (non-TTY stdin)) directly to agent-ear-core. All interactive calls (by humans) are routed through the TUI wizard using Gum.
 
 | Entry point | What it actually is | Purpose |
 |:------------|:-------------------|:--------|
