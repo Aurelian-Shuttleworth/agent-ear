@@ -232,7 +232,7 @@
       # ── DevShell ────────────────────────────────────────────────
       devShells.default = pkgs.mkShell {
         packages = [
-          dispatcher
+          agent-ear-script
           pkgs.uv
           pkgs.gum
           pkgs.ffmpeg
