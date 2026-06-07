@@ -20,7 +20,7 @@ Before we begin, a quick decision:
 | **Best for** | Trying it out, personal use | Production, enterprise, large files |
 | **Setup time** | ~60 seconds | ~5 minutes |
 | **Cost** | Free tier available | Pay-as-you-go |
-| **Limitations** | No GCS uploads (files ≤20 MB only) | Full feature set |
+| **Limitations** | Files up to 2 GB | Full feature set |
 
 > [!TIP]
 > **Just want to try it?** Go with Google AI Studio. You can switch to Vertex AI later — no code changes needed.
@@ -54,7 +54,7 @@ Here's what happens:
 2. 🔔 **Ready sound** — a short ping tells you recording has started (macOS)
 3. 🎙️ **Recording** — speak naturally. A GUI stop button appears, or press `Ctrl+C`
 4. 🛡️ **Safety copy** — your recording is backed up immediately (in case anything goes wrong)
-5. 📤 **Upload** — the audio is sent inline to Gemini (files under 20 MB skip cloud storage)
+5. 📤 **Upload** — the audio is uploaded to Gemini (small files go inline, larger files use the Files API — all automatic)
 6. ✨ **Transcription** — Gemini produces a structured note with frontmatter, summary, and verbatim transcript
 7. 💾 **Saved** — a markdown file lands in your current directory
 
@@ -67,10 +67,10 @@ You'll see output like this:
 💾 Saving recording (12.3s)...
 🛡️  Recording backed up: ./.recovery/recording_2026-05-21_153012.wav
 📤 Inline upload (1.8 MB)
-🧠 Using model: gemini-3.1-flash-lite-preview
-✨ Generating transcription with gemini-3.1-flash-lite-preview...
+🧠 Using model: gemini-3.5-flash
+✨ Generating transcription with gemini-3.5-flash...
 ✅ Note saved: ./2026-05-21_001_your-topic-slug.md
-💰 gemini-3.1-flash-lite-preview: $0.0003 (in: 18,432, out: 512, think: 128)
+💰 gemini-3.5-flash: $0.0003 (in: 18,432, out: 512, think: 128)
 ```
 
 ## Try a YouTube Video (No Mic Needed)
@@ -84,11 +84,11 @@ nix run github:Aurelian-Shuttleworth/agent-ear -- --auto --video "https://youtub
 agent-ear will:
 
 1. ⬇️ Download the video via `yt-dlp` (bundled by Nix — nothing to install)
-2. 📤 Upload it to Gemini (inline if under 20 MB, GCS staging if larger)
+2. 📤 Upload it to Gemini (routing is automatic based on file size and auth backend)
 3. ✨ Produce a timestamped, structured note with executive summary and visual descriptions
 
 > [!NOTE]
-> YouTube videos use `gemini-3-flash-preview` (a more capable model) by default, since video analysis requires multimodal reasoning across both audio and visual content.
+> Both audio and video transcription use `gemini-3.5-flash` by default. For highest-quality video analysis, you can specify `--model gemini-3.1-pro-preview`.
 
 ## Read the Output
 
@@ -121,7 +121,7 @@ You've got the basics working. Here's where to go from here:
 | Guide | What you'll learn |
 |:------|:------------------|
 | [Set up Vertex AI](../guides/setup-vertex-ai.md) | Full-featured auth with GCS uploads for large files |
-| [Set up GCS staging](../guides/setup-gcs-staging.md) | Auto-provisioned cloud storage for files over 20 MB |
+| [Set up GCS staging](../guides/setup-gcs-staging.md) | Cloud storage setup for Vertex AI or files over 2 GB |
 | [TTS briefing mode](../guides/tts-briefing.md) | Have agent-ear speak instructions before recording |
 | [Architecture](../explanation/architecture.md) | Understand why agent-ear is designed the way it is |
 

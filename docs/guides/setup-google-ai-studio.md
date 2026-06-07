@@ -50,11 +50,11 @@ Google AI Studio keys provide most features but have important restrictions:
 | TTS briefing | ✅ | ✅ |
 | Prompt validation | ✅ | ✅ |
 | Video / YouTube transcription | ✅ | ✅ |
-| Files >20 MB (GCS upload) | ❌ | ✅ |
-| Auto-provisioning (buckets, APIs) | ❌ | ✅ |
+| Files ≤ 2 GB | ✅ | ✅ |
+| Files > 2 GB (GCS staging) | ❌ | ✅ |
 | All model variants | ⚠️ Subset | ✅ |
 
-If your audio or video files exceed **20 MB**, you'll need Vertex AI authentication with GCS staging. See [Set up Vertex AI Authentication](setup-vertex-ai.md) and [Configure GCS Staging for Large Files](setup-gcs-staging.md).
+AI Studio supports files up to 2 GB (small files go inline, larger ones use the Gemini Files API — all transparent and at no additional cost). For files exceeding 2 GB, you'll need Vertex AI authentication with GCS staging. See [Set up Vertex AI Authentication](setup-vertex-ai.md) and [Configure GCS Staging for Large Files](setup-gcs-staging.md).
 
 ## How it works
 

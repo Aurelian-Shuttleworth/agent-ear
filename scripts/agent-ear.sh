@@ -1,15 +1,20 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
-# agent-ear-interactive — Gum TUI wrapper for agent-ear
+# agent-ear — Smart dispatcher & Gum TUI wrapper
 #
-# Guides the user through agent-ear's configuration interactively
-# using charmbracelet/gum, then delegates to agent-ear-core --auto.
-#
-# This script should be invoked by the `agent-ear` dispatcher when
-# --auto is not provided and stdin is a TTY, or directly as
-# `agent-ear-interactive`.
+# This is the main entry point. It first checks for non-interactive
+# usage (e.g. --auto or piped input) and delegates directly to the Python core.
+# If interactive, it launches the TUI wizard to guide the user.
 
 set -euo pipefail
+
+# ── Early exit: agent/non-interactive paths ──
+for arg in "$@"; do
+  case "$arg" in
+    --auto|--help|-h) exec agent-ear-core "$@" ;;
+  esac
+done
+[[ ! -t 0 ]] && exec agent-ear-core "$@"
 
 # ── Theme ──────────────────────────────────────────────────────────
 # Consistent styling tokens
@@ -252,7 +257,7 @@ collect_meeting_setup() {
 
     if [[ -z "$MEETING_NAMES" ]]; then
       warn "No names provided — falling back to Person 1, 2, 3..."
-      MEETING_NAMES
+      MEETING_NAMES=""
     else
       success "Participants: $MEETING_NAMES"
     fi

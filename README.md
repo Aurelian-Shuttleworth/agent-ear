@@ -16,14 +16,24 @@ Agent-ear exposes a full pipeline where an AI agent validates its own 'extractio
 
 ## Quick Start
 
-### With Nix (recommended)
+### Run without installing (from GitHub)
 
 ```bash
-# Run directly from GitHub
-nix run github:aurelianshuttleworth/agent-ear
+nix run github:Aurelian-Shuttleworth/agent-ear
+```
 
-# Or install into your profile
-nix profile install github:aurelianshuttleworth/agent-ear
+### Run locally (from source)
+
+```bash
+git clone https://github.com/Aurelian-Shuttleworth/agent-ear.git
+cd agent-ear
+
+# Run directly
+nix run .
+
+# Or enter the development shell
+nix develop
+agent-ear
 ```
 
 ## Features
@@ -35,23 +45,23 @@ nix profile install github:aurelianshuttleworth/agent-ear
 - **🤝 Meeting Mode** - Multi-speaker contextualization with action items and notable quotes
 - **💰 Cost Tracking** — Per-call token usage and estimated dollar cost reporting
 - **📜 Open Source** - Licensed under Apache 2.0.
+- **☁️ Smart Upload** — Files up to 2 GB (auto-routed), or GCS staging for larger files
 
 ## Architecture
 
 ```
-agent-ear (dispatcher)
-├── --auto or non-TTY → agent-ear-core (Python pipeline)
-└── interactive TTY   → agent-ear-interactive (Gum TUI wizard)
+agent-ear (Bash wrapper)
+├── --auto or non-TTY → exec agent-ear-core (Python pipeline)
+└── interactive TTY   → Launch Interactive Mode (Gum TUI wizard)
                              └── exec agent-ear-core --auto
 ```
 
-Three binaries, one tool:
+Two entry points, one tool:
 
 | Binary | Purpose |
 |:-------|:--------|
-| `agent-ear` | Smart dispatcher — routes based on flags and TTY state |
+| `agent-ear` | Main entry point — handles routing and interactive wizard |
 | `agent-ear-core` | Python backend — the pipeline that agents and scripts call |
-| `agent-ear-interactive` | Terminal wizard — guided setup for human users |
 
 ## Usage
 
@@ -93,7 +103,7 @@ CLI flag → Environment variable → Auto-detected → Default
 | Output dir | `--output-dir` | `AGENT_EAR_OUTPUT_DIR` | Current directory |
 | GCP project | `--project-id` | `GOOGLE_CLOUD_PROJECT` | `gcloud config` |
 | GCS bucket | `--gcs-bucket` | `AGENT_EAR_GCS_BUCKET` | `{project}-transcribe-staging` |
-| Model | `--model` | — | `gemini-3.1-flash-lite-preview` |
+| Model | `--model` | — | `gemini-3.5-flash` |
 
 → Full reference: [CLI flags](docs/reference/cli.md) · [Environment variables](docs/reference/environment-variables.md)
 
@@ -110,20 +120,26 @@ agent-ear supports two authentication backends:
 
 ## Documentation
 
-Full documentation follows the [Diátaxis](https://diataxis.fr/) framework:
+Full documentation follows the [Diátaxis](https://diataxis.fr/) framework. Start at the [docs landing page](docs/index.md) or browse the table below:
 
 | Type | Document | Description |
 |:-----|:---------|:------------|
 | **Tutorial** | [Your First Transcription](docs/tutorials/first-transcription.md) | Get recording in 5 minutes |
+| **Tutorial** | [Home Manager Setup](docs/tutorials/home-manager-setup.md) | Add agent-ear to a Home Manager flake |
 | **How-to** | [Set up AI Studio](docs/guides/setup-google-ai-studio.md) | Free API key authentication |
 | **How-to** | [Set up Vertex AI](docs/guides/setup-vertex-ai.md) | Full-featured GCP authentication |
-| **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | Large file support (>20MB) |
+| **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | GCS staging (Vertex AI / files > 2 GB) |
 | **How-to** | [TTS Briefing](docs/guides/tts-briefing.md) | Spoken instructions before recording |
+| **How-to** | [Meeting Transcription](docs/guides/meeting-transcription.md) | Multi-speaker meetings with action items |
+| **How-to** | [Interactive Mode](docs/guides/interactive-mode.md) | Guided setup via the terminal wizard |
 | **How-to** | [Nix Consumer Integration](docs/guides/nix-consumer-integration.md) | Use agent-ear in your flake |
-| **Reference** | [CLI Flags](docs/reference/cli.md) | Complete flag reference |
+| **Reference** | [CLI Flags & Exit Codes](docs/reference/cli.md) | Complete flag and exit code reference |
 | **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
+| **Reference** | [Interactive TUI](docs/reference/interactive-tui.md) | ASCII mockups and UI flow |
 | **Reference** | [Authentication](docs/reference/authentication.md) | Auth resolution & feature matrix |
-| **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three binaries? Design decisions |
+| **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three entry points? Design decisions |
+
+See the [Changelog](CHANGELOG.md) for release history.
 
 ## For Nix Consumers
 

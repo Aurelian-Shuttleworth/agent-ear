@@ -39,7 +39,7 @@ Variables are grouped by function: **authentication**, **project configuration**
 The fallback authentication method. When no GCP project can be resolved (via `--project-id`, `GOOGLE_CLOUD_PROJECT`, or `gcloud config`), agent-ear falls back to this key for Google AI Studio mode.
 
 > [!WARNING]
-> AI Studio mode **cannot** use GCS staging. Files larger than 20 MB will fail. Use Vertex AI mode for large media.
+> AI Studio mode **cannot** use GCS staging. Files up to 2 GB can be uploaded via the Gemini Files API, but files exceeding 2 GB require Vertex AI mode with GCS.
 
 **Example:**
 
@@ -150,19 +150,50 @@ agent-ear --auto  # Output written to ~/transcripts/
 
 ---
 
+## Reasoning Variables
+
+### `AGENT_EAR_THINKING_LEVEL`
+
+| Property | Value |
+|:---------|:------|
+| **Purpose** | Override reasoning depth for the transcription model |
+| **Default** | Auto-determined from prompt complexity and audio duration |
+| **Required** | No |
+| **CLI equivalent** | `--thinking-level` |
+| **Allowed values** | `minimal`, `low`, `medium`, `high` |
+
+Controls how much internal reasoning (chain-of-thought) the transcription model performs. Higher levels improve quality for complex prompts (multi-speaker analysis, cross-referencing) at the cost of increased latency and token usage.
+
+When not set, the thinking level is resolved automatically via a priority chain:
+
+```
+--thinking-level flag → AGENT_EAR_THINKING_LEVEL → Prompt validator hint → Duration-based default
+```
+
+Duration-based defaults: ≤2 min → `low`, 2–10 min → `medium`, >10 min → `high`. Text-heavy video with `--high-res` promotes to `high` regardless.
+
+**Example:**
+
+```bash
+export AGENT_EAR_THINKING_LEVEL="high"
+agent-ear --auto --prompt-file complex-analysis.md
+```
+
+---
+
 ## GCS Variables
 
 ### `AGENT_EAR_GCS_BUCKET`
 
 | Property | Value |
 |:---------|:------|
-| **Purpose** | GCS bucket name for staging large media files (>20 MB) |
+| **Purpose** | GCS bucket name for staging media files (Vertex AI, or files > 2 GB) |
 | **Default** | `{project}-transcribe-staging` (derived from the resolved project ID) |
 | **Required** | No |
 | **CLI equivalent** | `--gcs-bucket` |
 | **Requires** | Vertex AI mode (a resolved project ID) |
 
-The bucket is auto-provisioned if it does not exist. The default naming convention uses the project ID as a prefix to ensure uniqueness.
+The bucket must exist before use. See [[setup-gcs-staging]] for creation instructions. The default naming convention uses the project ID as a prefix to ensure uniqueness.
 
 **Example:**
 
@@ -177,11 +208,11 @@ agent-ear --auto --video ./large-video.mp4
 
 | Property | Value |
 |:---------|:------|
-| **Purpose** | Geographic region for GCS bucket creation during auto-provisioning |
+| **Purpose** | Geographic region for GCS bucket creation |
 | **Default** | `EU` |
 | **Required** | No |
 
-Controls where the auto-provisioned GCS staging bucket is physically located. Only relevant during initial bucket creation — has no effect if the bucket already exists.
+Controls where the GCS staging bucket is physically located. Only relevant during initial bucket creation — has no effect if the bucket already exists.
 
 > [!TIP]
 > Set this to match your primary data residency requirements. Common values: `EU`, `US`, `ASIA`.
@@ -206,6 +237,7 @@ agent-ear --auto --video ./large-recording.mp4 --project-id my-project
 | `AGENT_EAR_OUTPUT_DIR` | Default output directory | Current directory | — |
 | `AGENT_EAR_GCS_BUCKET` | GCS staging bucket name | `{project}-transcribe-staging` | — |
 | `AGENT_EAR_GCS_LOCATION` | GCS bucket region | `EU` | — |
+| `AGENT_EAR_THINKING_LEVEL` | Reasoning depth override | Auto (duration-based) | — |
 
 ## See Also
 

@@ -144,13 +144,12 @@ agent-ear --help
 
 ## Available packages
 
-The flake exposes three packages per system:
+The flake exposes two packages per system:
 
 | Package | Description |
 |:--------|:------------|
-| `agent-ear` (default) | Smart dispatcher — routes to core or interactive based on context |
+| `agent-ear` (default) | Main entry point — handles routing and interactive wizard |
 | `agent-ear-core` | Python backend — the pipeline that agents and scripts call |
-| `agent-ear-interactive` | Terminal wizard — guided setup for human users |
 
 Reference them as `inputs.agent-ear.packages.${system}.<name>`.
 

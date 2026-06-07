@@ -1,6 +1,6 @@
 """Prompt and briefing validation via LLM-as-a-judge pattern.
 
-Uses gemini-3.1-flash-lite-preview for cost-efficient single-shot
+Uses gemini-3.5-flash for cost-efficient single-shot
 evaluation of agent-generated system prompts and TTS briefings.
 
 Design informed by:

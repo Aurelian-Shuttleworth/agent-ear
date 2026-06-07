@@ -64,8 +64,8 @@ def download_youtube(url: str) -> str:
         subprocess.run(cmd, check=True)
         size_mb = os.path.getsize(temp_path) / (1024 * 1024)
         print(f"✅ Download complete: {temp_path} ({size_mb:.1f} MB)")
-        if size_mb > 20:
-            print("⚠️  File exceeds 20MB inline limit — will require GCS staging")
+        if size_mb > 100:
+            print("⚠️  File exceeds 100 MB inline limit — will use GCS or Files API")
         return temp_path
     except subprocess.CalledProcessError as e:
         if os.path.exists(temp_path):
