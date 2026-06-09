@@ -15,7 +15,7 @@ import sys
 from google import genai
 from google.genai import types
 
-from config import DEFAULT_VALIDATION_MODEL
+from config import DEFAULT_VALIDATION_MODEL, SAFETY_SETTINGS
 from cost_tracker import CostTracker
 
 
@@ -186,6 +186,7 @@ def obsidian_final_pass(
             config=types.GenerateContentConfig(
                 system_instruction=OBSIDIAN_WRAP_PROMPT.format(date=safe_date),
                 temperature=0.0,
+                safety_settings=SAFETY_SETTINGS,
             ),
         )
         tracker.track(model, response)

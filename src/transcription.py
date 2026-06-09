@@ -16,6 +16,7 @@ from google import genai
 from google.genai import types
 from google.api_core import exceptions as api_exceptions
 
+from config import SAFETY_SETTINGS
 from cost_tracker import CostTracker
 from upload import detect_mime_type, upload_media
 
@@ -187,6 +188,7 @@ def transcribe(
         system_instruction=system_prompt,
         temperature=0.2,
         max_output_tokens=max_tokens,
+        safety_settings=SAFETY_SETTINGS,
     )
 
     # Resolve thinking configuration via priority chain

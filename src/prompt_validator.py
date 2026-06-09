@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from google import genai
 from google.genai import types
 
-from config import DEFAULT_VALIDATION_MODEL
+from config import DEFAULT_VALIDATION_MODEL, SAFETY_SETTINGS
 
 
 @dataclass
@@ -178,6 +178,7 @@ def validate_prompt(
                 system_instruction=system_instruction,
                 temperature=0.0,  # Deterministic evaluation
                 response_mime_type="application/json",
+                safety_settings=SAFETY_SETTINGS,
             ),
         )
         return _parse_validation_response(response.text, min_score), response
@@ -243,6 +244,7 @@ def validate_briefing(
                 system_instruction=system_instruction,
                 temperature=0.0,
                 response_mime_type="application/json",
+                safety_settings=SAFETY_SETTINGS,
             ),
         )
         result = _parse_briefing_validation_response(response.text, min_score)
