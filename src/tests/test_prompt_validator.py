@@ -14,17 +14,12 @@ class TestStaticBriefingChecks:
         """Markdown headers (##) trigger a warning."""
         warnings, _ = _static_briefing_checks("## This is a header\nSome text", None)
         assert any(
-            "markdown" in w.lower()
-            or "header" in w.lower()
-            or "non-speakable" in w.lower()
-            for w in warnings
+            "markdown" in w.lower() or "header" in w.lower() or "non-speakable" in w.lower() for w in warnings
         ), f"Should detect markdown headers, got warnings: {warnings}"
 
     def test_detects_urls(self):
         """URLs trigger a warning (not speakable in TTS)."""
-        warnings, _ = _static_briefing_checks(
-            "Visit https://example.com for details", None
-        )
+        warnings, _ = _static_briefing_checks("Visit https://example.com for details", None)
         assert any("url" in w.lower() or "link" in w.lower() for w in warnings), (
             f"Should detect URLs, got warnings: {warnings}"
         )
@@ -33,19 +28,16 @@ class TestStaticBriefingChecks:
         """Very long text (>500 words) triggers length warning."""
         long_text = " ".join(["word"] * 600)
         warnings, _ = _static_briefing_checks(long_text, None)
-        assert any(
-            "long" in w.lower() or "length" in w.lower() or "word" in w.lower()
-            for w in warnings
-        ), f"Should warn about length, got warnings: {warnings}"
+        assert any("long" in w.lower() or "length" in w.lower() or "word" in w.lower() for w in warnings), (
+            f"Should warn about length, got warnings: {warnings}"
+        )
 
     def test_clean_text_no_warnings(self):
         """Clean, short spoken text produces no warnings."""
         warnings, _ = _static_briefing_checks(
             "Good morning! Today we'll discuss three important topics.", None
         )
-        assert len(warnings) == 0, (
-            f"Clean text should produce no warnings, got: {warnings}"
-        )
+        assert len(warnings) == 0, f"Clean text should produce no warnings, got: {warnings}"
 
 
 class TestParseValidationResponse:
@@ -108,9 +100,7 @@ class TestThinkingHintsParsing:
         """All fields including thinking hints are parsed correctly."""
         raw = '{"score": 4, "valid": true, "feedback": "Good", "improved_prompt": null, "thinking_level": "high", "extra_tokens": 4096}'
         result = _parse_validation_response(raw, min_score=3)
-        assert result.thinking_level == "high", (
-            f"Expected 'high', got {result.thinking_level}"
-        )
+        assert result.thinking_level == "high", f"Expected 'high', got {result.thinking_level}"
         assert result.extra_tokens == 4096, f"Expected 4096, got {result.extra_tokens}"
 
     def test_backward_compat_missing_hints(self):
@@ -120,38 +110,28 @@ class TestThinkingHintsParsing:
         assert result.thinking_level is None, (
             f"Missing thinking_level should be None, got {result.thinking_level}"
         )
-        assert result.extra_tokens == 0, (
-            f"Missing extra_tokens should be 0, got {result.extra_tokens}"
-        )
+        assert result.extra_tokens == 0, f"Missing extra_tokens should be 0, got {result.extra_tokens}"
 
     def test_invalid_thinking_level_ignored(self):
         """Invalid thinking_level values are treated as None."""
         raw = '{"score": 4, "valid": true, "feedback": "Good", "thinking_level": "maximum"}'
         result = _parse_validation_response(raw, min_score=3)
-        assert result.thinking_level is None, (
-            f"Invalid level should be None, got {result.thinking_level}"
-        )
+        assert result.thinking_level is None, f"Invalid level should be None, got {result.thinking_level}"
 
     def test_extra_tokens_clamped_to_max(self):
         """extra_tokens values above 16384 are clamped."""
         raw = '{"score": 4, "valid": true, "feedback": "Good", "extra_tokens": 99999}'
         result = _parse_validation_response(raw, min_score=3)
-        assert result.extra_tokens == 16384, (
-            f"Should be clamped to 16384, got {result.extra_tokens}"
-        )
+        assert result.extra_tokens == 16384, f"Should be clamped to 16384, got {result.extra_tokens}"
 
     def test_extra_tokens_negative_clamped_to_zero(self):
         """Negative extra_tokens values are clamped to 0."""
         raw = '{"score": 4, "valid": true, "feedback": "Good", "extra_tokens": -100}'
         result = _parse_validation_response(raw, min_score=3)
-        assert result.extra_tokens == 0, (
-            f"Negative should be clamped to 0, got {result.extra_tokens}"
-        )
+        assert result.extra_tokens == 0, f"Negative should be clamped to 0, got {result.extra_tokens}"
 
     def test_extra_tokens_non_numeric_defaults_zero(self):
         """Non-numeric extra_tokens values default to 0."""
         raw = '{"score": 4, "valid": true, "feedback": "Good", "extra_tokens": "many"}'
         result = _parse_validation_response(raw, min_score=3)
-        assert result.extra_tokens == 0, (
-            f"Non-numeric should default to 0, got {result.extra_tokens}"
-        )
+        assert result.extra_tokens == 0, f"Non-numeric should default to 0, got {result.extra_tokens}"

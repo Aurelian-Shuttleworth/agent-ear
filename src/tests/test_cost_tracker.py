@@ -2,13 +2,10 @@
 
 from unittest.mock import MagicMock
 
-
 from cost_tracker import CostTracker
 
 
-def _make_response(
-    input_tokens=100, output_tokens=50, thinking_tokens=0, cached_tokens=0
-):
+def _make_response(input_tokens=100, output_tokens=50, thinking_tokens=0, cached_tokens=0):
     """Helper to create a mock response with usage_metadata."""
     r = MagicMock()
     r.usage_metadata.prompt_token_count = input_tokens
@@ -29,9 +26,7 @@ class TestCostTracker:
             "gemini-2.0-flash-lite",
             _make_response(input_tokens=1000, output_tokens=500),
         )
-        assert tracker.total_cost_usd > 0, (
-            f"Cost should be positive, got {tracker.total_cost_usd}"
-        )
+        assert tracker.total_cost_usd > 0, f"Cost should be positive, got {tracker.total_cost_usd}"
 
     def test_track_with_thinking_tokens(self):
         """Thinking tokens billed at output rate increase total cost."""
@@ -72,24 +67,16 @@ class TestCostTracker:
     def test_total_cost_multiple_calls(self):
         """Total cost sums across multiple tracked calls."""
         tracker = CostTracker()
-        tracker.track(
-            "gemini-2.0-flash-lite", _make_response(input_tokens=100, output_tokens=50)
-        )
+        tracker.track("gemini-2.0-flash-lite", _make_response(input_tokens=100, output_tokens=50))
         first_cost = tracker.total_cost_usd
 
-        tracker.track(
-            "gemini-2.0-flash-lite", _make_response(input_tokens=200, output_tokens=100)
-        )
-        assert tracker.total_cost_usd > first_cost, (
-            "Second call should increase total cost"
-        )
+        tracker.track("gemini-2.0-flash-lite", _make_response(input_tokens=200, output_tokens=100))
+        assert tracker.total_cost_usd > first_cost, "Second call should increase total cost"
 
     def test_zero_tokens(self):
         """Zero tokens should produce zero cost without error."""
         tracker = CostTracker()
-        tracker.track(
-            "gemini-2.0-flash-lite", _make_response(input_tokens=0, output_tokens=0)
-        )
+        tracker.track("gemini-2.0-flash-lite", _make_response(input_tokens=0, output_tokens=0))
         assert tracker.total_cost_usd == 0.0, (
             f"Zero tokens should produce zero cost, got {tracker.total_cost_usd}"
         )
@@ -98,7 +85,5 @@ class TestCostTracker:
         """Unknown model name should not raise — uses fallback pricing."""
         tracker = CostTracker()
         # Should not raise
-        tracker.track(
-            "unknown-model-xyz", _make_response(input_tokens=100, output_tokens=50)
-        )
+        tracker.track("unknown-model-xyz", _make_response(input_tokens=100, output_tokens=50))
         assert tracker.total_cost_usd >= 0, "Should produce a non-negative cost"

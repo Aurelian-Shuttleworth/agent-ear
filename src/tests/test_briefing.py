@@ -21,9 +21,7 @@ class TestParseBriefingFile:
         f = tmp_path / "briefing.md"
         f.write_text("---\nstyle: warm\nvoice: Kore\n---\nBriefing body text here.")
         text, notes = parse_briefing_file(str(f))
-        assert text == "Briefing body text here.", (
-            f"Text should exclude frontmatter, got '{text}'"
-        )
+        assert text == "Briefing body text here.", f"Text should exclude frontmatter, got '{text}'"
         assert notes is not None, "Notes should not be None"
         assert notes.get("style") == "warm", "Should parse style from notes"
 
@@ -48,9 +46,7 @@ class TestBuildTtsPrompt:
 
     def test_custom_style_injected(self):
         """Custom style from director_notes is injected into prompt."""
-        prompt = build_tts_prompt(
-            "Test text", director_notes={"style": "energetic and upbeat"}
-        )
+        prompt = build_tts_prompt("Test text", director_notes={"style": "energetic and upbeat"})
         assert "energetic" in prompt.lower(), "Custom style should appear in prompt"
 
     def test_pace_deliberately_excluded(self):

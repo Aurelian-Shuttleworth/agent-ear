@@ -3,7 +3,6 @@
 import os
 from unittest.mock import MagicMock, patch
 
-
 from config import create_client, resolve_config, resolve_gcs_bucket, resolve_output_dir
 
 
@@ -35,9 +34,7 @@ class TestResolveConfig:
         """CLI project_id is used over env/gcloud."""
         monkeypatch.setenv("GOOGLE_CLOUD_PROJECT", "env-project")
         project, location = resolve_config("cli-project", "us-central1")
-        assert project == "cli-project", (
-            f"CLI project should take priority, got '{project}'"
-        )
+        assert project == "cli-project", f"CLI project should take priority, got '{project}'"
 
     def test_env_fallback(self, env_clean, monkeypatch):
         """GOOGLE_CLOUD_PROJECT env var used when no CLI arg."""
@@ -50,25 +47,19 @@ class TestResolveConfig:
         """Falls back to gcloud config when no CLI/env."""
         mock_run.return_value = MagicMock(returncode=0, stdout="gcloud-project\n")
         project, _ = resolve_config(None, "us-central1")
-        assert project == "gcloud-project", (
-            f"Should fall back to gcloud config, got '{project}'"
-        )
+        assert project == "gcloud-project", f"Should fall back to gcloud config, got '{project}'"
 
     @patch("config.subprocess.run")
     def test_no_project(self, mock_run, env_clean):
         """Returns None when nothing is configured."""
         mock_run.return_value = MagicMock(returncode=1, stdout="")
         project, _ = resolve_config(None, "us-central1")
-        assert project is None, (
-            f"Should return None when nothing configured, got '{project}'"
-        )
+        assert project is None, f"Should return None when nothing configured, got '{project}'"
 
     def test_location_passthrough(self, env_clean):
         """Location is passed through unchanged."""
         _, location = resolve_config(None, "europe-west4")
-        assert location == "europe-west4", (
-            f"Location should pass through, got '{location}'"
-        )
+        assert location == "europe-west4", f"Location should pass through, got '{location}'"
 
 
 class TestResolveGcsBucket:
@@ -82,9 +73,7 @@ class TestResolveGcsBucket:
     def test_derived_from_project(self):
         """Derives bucket name from project ID."""
         result = resolve_gcs_bucket(None, "my-project")
-        assert result == "my-project-transcribe-staging", (
-            f"Should derive from project, got '{result}'"
-        )
+        assert result == "my-project-transcribe-staging", f"Should derive from project, got '{result}'"
 
 
 class TestCreateClient:

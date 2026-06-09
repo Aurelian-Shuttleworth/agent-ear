@@ -9,7 +9,6 @@ Copied from transcribe-tool — separate package to avoid shared library.
 
 from dataclasses import dataclass, field
 
-
 # Pricing per 1M tokens (USD) — update as pricing changes
 PRICING = {
     # Gemini 3.5

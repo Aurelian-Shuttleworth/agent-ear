@@ -293,9 +293,7 @@ _URL_PATTERN = re.compile(r"https?://\S+")
 _SLOW_PACE_KEYWORDS = {"slowly", "slow", "very slowly", "extremely slowly"}
 
 
-def _static_briefing_checks(
-    text: str, notes: dict | None
-) -> tuple[list[str], dict | None]:
+def _static_briefing_checks(text: str, notes: dict | None) -> tuple[list[str], dict | None]:
     """Run fast static checks on briefing content.
 
     Returns:
@@ -314,8 +312,7 @@ def _static_briefing_checks(
     urls = _URL_PATTERN.findall(text)
     if urls:
         warnings.append(
-            f"Non-speakable content: {len(urls)} URL(s) found — "
-            "these will be read character-by-character"
+            f"Non-speakable content: {len(urls)} URL(s) found — these will be read character-by-character"
         )
 
     # Check length
@@ -386,9 +383,7 @@ def _parse_validation_response(text: str, min_score: int) -> ValidationResult:
         )
 
 
-def _parse_briefing_validation_response(
-    text: str, min_score: int
-) -> BriefingValidationResult:
+def _parse_briefing_validation_response(text: str, min_score: int) -> BriefingValidationResult:
     """Parse the LLM briefing judge response."""
     try:
         cleaned = text.strip()

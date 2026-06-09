@@ -36,12 +36,8 @@ class TestValidatePrompt:
     def test_api_error_fails_open(self, mock_genai_client):
         """API error → valid=True, score=3 (fail-open)."""
         mock_genai_client.models.generate_content.side_effect = Exception("API down")
-        vr, _ = validate_prompt(
-            mock_genai_client, "Extract all action items from the meeting."
-        )
-        assert vr.valid is True, (
-            "Should fail open on API error (proceed with recording)"
-        )
+        vr, _ = validate_prompt(mock_genai_client, "Extract all action items from the meeting.")
+        assert vr.valid is True, "Should fail open on API error (proceed with recording)"
         assert vr.score == 3, f"Fail-open score should be 3, got {vr.score}"
 
 

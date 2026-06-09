@@ -286,6 +286,16 @@
             bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
             touch $out
           '';
+
+        # Security: deep secret scanning (CI-only — too slow for pre-commit)
+        trufflehog = pkgs.runCommand "check-trufflehog"
+          {
+            nativeBuildInputs = [ pkgs.trufflehog ];
+          }
+          ''
+            trufflehog filesystem ${../.} --fail
+            touch $out
+          '';
       };
 
       # ── DevShell ────────────────────────────────────────────────
