@@ -277,10 +277,15 @@
           '';
 
         # Bash dispatcher routing tests (TTY detection, flag routing)
-        dispatcher = pkgs.runCommand "check-dispatcher" { nativeBuildInputs = [ pkgs.bash ]; } ''
-          bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
-          touch $out
-        '';
+        dispatcher = pkgs.runCommand "check-dispatcher"
+          {
+            nativeBuildInputs = [ pkgs.bash pkgs.coreutils ];
+            env.BASH_PATH = "${pkgs.bash}/bin/bash";
+          }
+          ''
+            bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
+            touch $out
+          '';
       };
 
       # ── DevShell ────────────────────────────────────────────────
