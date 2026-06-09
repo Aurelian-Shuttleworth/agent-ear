@@ -35,7 +35,7 @@ export GOOGLE_API_KEY="AIza..."
 Run a quick freeform transcription to confirm everything works:
 
 ```bash
-agent-ear --auto --output-format markdown
+agent-ear --non-interactive --output-format markdown
 ```
 
 You should see output confirming the transcription model and a resulting markdown file in the current directory.

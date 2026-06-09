@@ -30,22 +30,22 @@ def build_parser() -> argparse.ArgumentParser:
         epilog="""\
 examples:
   # Standalone mode (identical to 'listen'):
-  agent-ear --auto
+  agent-ear --non-interactive
 
-  # Prompted mode (constrained transcription):
-  agent-ear --prompt-file requirements.txt --auto
+  # Record with a constrained prompt
+  agent-ear --prompt-file requirements.txt --non-interactive
 
-  # Full agentic mode (TTS briefing + constrained transcription):
-  agent-ear --prompt-file requirements.txt --briefing-file brief.md --auto
+  # TTS briefing + constrained recording
+  agent-ear --prompt-file requirements.txt --briefing-file brief.md --non-interactive
 
-  # Video transcription:
-  agent-ear --video recording.mp4 --auto
+  # Transcribe a local video
+  agent-ear --video recording.mp4 --non-interactive
 
-  # YouTube analysis:
-  agent-ear --video "https://youtube.com/watch?v=..." --high-res --auto
+  # Transcribe a YouTube video with high-res mode
+  agent-ear --video "https://youtube.com/watch?v=..." --high-res --non-interactive
 
-  # Save to a specific directory:
-  agent-ear --output-dir ~/Documents/notes --auto
+  # Specify output directory
+  agent-ear --output-dir ~/Documents/notes --non-interactive
 
 environment variables:
   AGENT_EAR_OUTPUT_DIR   Default output directory for saved notes.
@@ -132,9 +132,9 @@ exit codes:
         help="Output format: markdown|json|raw (default: markdown)",
     )
     output.add_argument(
-        "--auto",
+        "--non-interactive",
         action="store_true",
-        help="Skip interactive topic prompt",
+        help="Non-interactive mode. Skips interactive prompts (e.g. topic input).",
     )
 
     # Model/project
@@ -207,7 +207,7 @@ def main():
             project_id=args.project_id,
             location=args.location,
             validate=not args.no_validate,
-            auto=args.auto,
+            non_interactive=args.non_interactive,
             high_res=args.high_res,
             gcs_bucket=args.gcs_bucket,
             max_tokens=args.max_tokens,

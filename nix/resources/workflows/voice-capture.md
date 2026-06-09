@@ -17,10 +17,10 @@ description: Capture structured voice input with optional TTS briefing — one-s
 3. **Execute Capture**
    ```bash
    # With prompt only
-   agent-ear --auto --prompt-file prompt.md
+   agent-ear --non-interactive --prompt-file prompt.md
 
    # With TTS briefing + prompt
-   agent-ear --auto --prompt-file prompt.md --briefing-file briefing.md
+   agent-ear --non-interactive --prompt-file prompt.md --briefing-file briefing.md
    ```
 
 4. **Verify Output**

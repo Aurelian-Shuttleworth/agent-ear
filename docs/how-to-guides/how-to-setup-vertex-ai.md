@@ -54,13 +54,13 @@ export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
 **Option C: CLI flag (per-invocation override)**
 
 ```bash
-agent-ear --auto --project-id YOUR_PROJECT_ID
+agent-ear --non-interactive --project-id YOUR_PROJECT_ID
 ```
 
 ### 5. Verify with a test recording
 
 ```bash
-agent-ear --auto --output-format markdown
+agent-ear --non-interactive --output-format markdown
 ```
 
 Look for the Vertex AI backend confirmation in the output. The transcription should complete and produce a markdown file in the current directory.

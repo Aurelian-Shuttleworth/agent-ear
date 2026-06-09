@@ -13,7 +13,7 @@ This guide shows you how to use the interactive terminal wizard to configure and
 
 ## When to use interactive mode
 
-AI agents skip the wizard with `--auto` and pass flags directly. Running `agent-ear` **without** the `--auto` flag launches the wizard automatically (provided stdin is a TTY). This is preferable for human users. Here's how to run 'agent-ear' without the '--auto' flag:
+AI agents skip the wizard with `--non-interactive` and pass flags directly. Running `agent-ear` **without** the `--non-interactive` flag launches the wizard automatically (provided stdin is a TTY). This is preferable for human users. Here's how to run 'agent-ear' without the '--non-interactive' flag:
 
 ```bash
 agent-ear
@@ -105,11 +105,11 @@ The wizard displays a summary of everything you've configured:
 
 Additional lines appear when relevant (Video, Audio file, Briefing, High-res, GCS bucket).
 
-Press Enter on **"Start recording?"** to launch. The wizard hands off to `agent-ear-core --auto` with the assembled flags and **replaces its own process** (`exec`), so you see core's output directly.
+Press Enter on **"Start recording?"** to launch. The wizard hands off to `agent-ear-core --non-interactive` with the assembled flags and **replaces its own process** (`exec`), so you see core's output directly.
 
 ## Relationship to CLI flags
 
-The wizard is a convenience layer — it builds the same `agent-ear-core --auto` command you could type yourself. Here's the mapping:
+The wizard is a convenience layer — it builds the same `agent-ear-core --non-interactive` command you could type yourself. Here's the mapping:
 
 <!-- REVIEW: Does the wizard-to-CLI mapping table make sense? It shows what happens under the hood. -->
 
@@ -129,9 +129,9 @@ The wizard is a convenience layer — it builds the same `agent-ear-core --auto`
 | GCS staging bucket | `--gcs-bucket <name>` |
 | GCP Project ID | `--project-id <id>` |
 | Gemini API location | `--location <region>` |
-| *(always appended)* | `--auto` |
+| *(always appended)* | `--non-interactive` |
 
-The `--auto` flag is always appended so that `agent-ear-core` runs non-interactively — the wizard has already collected everything it needs.
+The `--non-interactive` flag is always appended so that `agent-ear-core` runs non-interactively — the wizard has already collected everything it needs.
 
 > [!TIP] 🎬 **Terminal recording candidate**
 > A full walkthrough recording (e.g. with `vhs` or `asciinema`) showing the wizard from mode selection through confirmation would be a valuable companion to this guide. Worth creating?

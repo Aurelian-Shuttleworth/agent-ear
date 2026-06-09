@@ -67,7 +67,7 @@ def upload_media(
     project_id,
     bucket_name=None,
     is_vertex=True,
-    auto=False,
+    non_interactive=False,
 ):
     """Upload media via inline, Gemini Files API, or GCS based on context.
 
@@ -85,7 +85,7 @@ def upload_media(
         project_id: GCP project ID (for GCS bucket resolution).
         bucket_name: Explicit GCS bucket name (optional).
         is_vertex: Whether Vertex AI mode is active.
-        auto: If True, skip interactive prompts (retained for CLI compat).
+        non_interactive: If True, skip interactive prompts (retained for CLI compat).
 
     Returns:
         A types.Part or File object suitable for Gemini API content.
