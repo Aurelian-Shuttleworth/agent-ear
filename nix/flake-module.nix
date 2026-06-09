@@ -239,6 +239,7 @@
       devShells.default = pkgs.mkShell {
         packages = [
           agent-ear-script
+          testVenv
           pkgs.uv
           pkgs.gum
           pkgs.ffmpeg
