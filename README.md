@@ -51,9 +51,9 @@ agent-ear
 
 ```
 agent-ear (Bash wrapper)
-├── --auto or non-TTY → exec agent-ear-core (Python pipeline)
+├── --non-interactive or non-TTY → exec agent-ear-core (Python pipeline)
 └── interactive TTY   → Launch Interactive Mode (Gum TUI wizard)
-                             └── exec agent-ear-core --auto
+                             └── exec agent-ear-core --non-interactive
 ```
 
 Two entry points, one tool:
@@ -68,26 +68,26 @@ Two entry points, one tool:
 ### Freeform Recording
 
 ```bash
-agent-ear --auto --output-format markdown
+agent-ear --non-interactive --output-format markdown
 ```
 
 ### Meeting Transcription
 
 ```bash
-agent-ear --auto --prompt "Transcribe this meeting with action items" --model gemini-3.1-pro-preview
+agent-ear --non-interactive --prompt "Transcribe this meeting with action items" --model gemini-3.1-pro-preview
 ```
 
 ### Video / YouTube
 
 ```bash
-agent-ear --auto --video ./presentation.mp4
-agent-ear --auto --video "https://youtube.com/watch?v=..."
+agent-ear --non-interactive --video ./presentation.mp4
+agent-ear --non-interactive --video "https://youtube.com/watch?v=..."
 ```
 
 ### With TTS Briefing
 
 ```bash
-agent-ear --auto --prompt-file ./prompt.md --briefing-file ./briefing.md
+agent-ear --non-interactive --prompt-file ./prompt.md --briefing-file ./briefing.md
 ```
 
 ## Configuration

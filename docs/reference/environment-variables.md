@@ -45,7 +45,7 @@ The fallback authentication method. When no GCP project can be resolved (via `--
 
 ```bash
 export GOOGLE_API_KEY="AIza..."
-agent-ear --auto --prompt "Quick transcription"
+agent-ear --non-interactive --prompt "Quick transcription"
 ```
 
 ---
@@ -67,7 +67,7 @@ In most development setups, ADC resolves credentials automatically from `gcloud`
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/service-account-key.json"
-agent-ear --auto --project-id my-project
+agent-ear --non-interactive --project-id my-project
 ```
 
 ---
@@ -96,7 +96,7 @@ If all three resolve to `None`, agent-ear falls back to AI Studio mode (requires
 
 ```bash
 export GOOGLE_CLOUD_PROJECT="my-gcp-project"
-agent-ear --auto  # Uses Vertex AI mode automatically
+agent-ear --non-interactive  # Uses Vertex AI mode automatically
 ```
 
 ---
@@ -123,7 +123,7 @@ Controls which regional endpoint serves Gemini API requests. The `global` defaul
 
 ```bash
 export GOOGLE_CLOUD_LOCATION="us-central1"
-agent-ear --auto --project-id my-project
+agent-ear --non-interactive --project-id my-project
 ```
 
 ---
@@ -145,7 +145,7 @@ When set, all output files are written to this directory. The directory is creat
 
 ```bash
 export AGENT_EAR_OUTPUT_DIR="$HOME/transcripts"
-agent-ear --auto  # Output written to ~/transcripts/
+agent-ear --non-interactive  # Output written to ~/transcripts/
 ```
 
 ---
@@ -176,7 +176,7 @@ Duration-based defaults: ≤2 min → `low`, 2–10 min → `medium`, >10 min �
 
 ```bash
 export AGENT_EAR_THINKING_LEVEL="high"
-agent-ear --auto --prompt-file complex-analysis.md
+agent-ear --non-interactive --prompt-file complex-analysis.md
 ```
 
 ---
@@ -199,7 +199,7 @@ The bucket must exist before use. See [[setup-gcs-staging]] for creation instruc
 
 ```bash
 export AGENT_EAR_GCS_BUCKET="my-custom-staging-bucket"
-agent-ear --auto --video ./large-video.mp4
+agent-ear --non-interactive --video ./large-video.mp4
 ```
 
 ---
@@ -221,7 +221,7 @@ Controls where the GCS staging bucket is physically located. Only relevant durin
 
 ```bash
 export AGENT_EAR_GCS_LOCATION="US"
-agent-ear --auto --video ./large-recording.mp4 --project-id my-project
+agent-ear --non-interactive --video ./large-recording.mp4 --project-id my-project
 ```
 
 ---

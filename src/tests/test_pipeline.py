@@ -47,7 +47,7 @@ class TestPipeline:
             input_file=str(self.wav),
             output_dir=self.output_dir,
             output_format="markdown",
-            auto=True,
+            non_interactive=True,
             validate=False,
         )
 
@@ -69,7 +69,7 @@ class TestPipeline:
             input_file=str(self.wav),
             output_dir=self.output_dir,
             output_format="json",
-            auto=True,
+            non_interactive=True,
             validate=False,
         )
 
@@ -89,7 +89,7 @@ class TestPipeline:
             input_file=str(self.wav),
             output_dir=self.output_dir,
             output_format="raw",
-            auto=True,
+            non_interactive=True,
             validate=False,
         )
 
@@ -103,7 +103,7 @@ class TestPipeline:
         result = run_pipeline(
             input_file=str(self.wav),
             output_dir=self.output_dir,
-            auto=True,
+            non_interactive=True,
             validate=False,
         )
 
@@ -132,7 +132,7 @@ class TestPipeline:
             prompt_text="process audio",
             input_file=str(self.wav),
             output_dir=self.output_dir,
-            auto=True,
+            non_interactive=True,
             validate=True,
         )
 
@@ -156,7 +156,7 @@ class TestPipeline:
             input_file=str(self.wav),
             output_dir=self.output_dir,
             output_format="markdown",
-            auto=True,
+            non_interactive=True,
             validate=False,
         )
 
@@ -185,7 +185,7 @@ class TestPipeline:
             input_file=str(self.wav),
             output_dir=self.output_dir,
             output_format="markdown",
-            auto=True,
+            non_interactive=True,
             validate=False,
         )
 

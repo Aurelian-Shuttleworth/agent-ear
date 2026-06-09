@@ -12,7 +12,7 @@
 
 ### 1. Launch interactive mode and select Meeting
 
-Run `agent-ear` without the `--auto` flag to start the interactive TUI:
+Run `agent-ear` without the `--non-interactive` flag to start the interactive TUI:
 
 ```bash
 agent-ear
@@ -87,11 +87,11 @@ Charlie: Yes, I'll have a PR up by Thursday.
 - **Action Items** — every commitment or task mentioned, as a checkbox list with an owner
 - **Notable Quotes** — 3–5 impactful or decision-defining quotes from the discussion
 
-## For agents (`--auto` mode)
+## For agents (`--non-interactive` mode)
 
 <!-- REVIEW: This section is the primary value for agentic consumers — keep the prompt template in sync with collect_meeting_setup() -->
 
-Agents can replicate the meeting workflow entirely via `--auto` by passing the meeting prompt with `--prompt`. No interactive TUI is needed.
+Agents can replicate the meeting workflow entirely via `--non-interactive` by passing the meeting prompt with `--prompt`. No interactive TUI is needed.
 
 > [!NOTE] 🔍 **Context for reviewer**
 > The meeting prompt template below is the system instruction that the LLM receives. It constrains the transcription model's output format — enforcing speaker labels, action-item checkboxes, and blockquote-formatted notable quotes. The model has no meeting-specific logic of its own; all structure comes from this prompt.
@@ -99,7 +99,7 @@ Agents can replicate the meeting workflow entirely via `--auto` by passing the m
 ### With named speakers
 
 ```bash
-agent-ear --auto \
+agent-ear --non-interactive \
   --prompt 'You are transcribing a multi-speaker meeting.
 
 <instructions>

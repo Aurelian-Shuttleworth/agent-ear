@@ -57,7 +57,7 @@ class TestUploadMediaInline:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
             mock_part.from_bytes.assert_called_once()
 
@@ -83,7 +83,7 @@ class TestUploadMediaFilesAPI:
             "audio/wav",
             project_id=None,
             is_vertex=False,
-            auto=True,
+            non_interactive=True,
         )
 
         client.files.upload.assert_called_once_with(file=str(large_file))
@@ -115,7 +115,7 @@ class TestUploadMediaFilesAPI:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
 
         assert result is active_file
@@ -145,7 +145,7 @@ class TestUploadMediaFilesAPI:
                     "audio/wav",
                     project_id=None,
                     is_vertex=False,
-                    auto=True,
+                    non_interactive=True,
                 )
 
     def test_files_api_failed_state_raises(self, tmp_path):
@@ -166,7 +166,7 @@ class TestUploadMediaFilesAPI:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
 
     def test_files_api_over_2gb_raises(self, tmp_path, monkeypatch):
@@ -184,7 +184,7 @@ class TestUploadMediaFilesAPI:
                     "audio/wav",
                     project_id=None,
                     is_vertex=False,
-                    auto=True,
+                    non_interactive=True,
                 )
 
 
@@ -210,7 +210,7 @@ class TestUploadMediaGCS:
                 project_id=None,
                 bucket_name="my-bucket",
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
             mock_gcs.assert_called_once()
             mock_part.from_uri.assert_called_once()
@@ -236,7 +236,7 @@ class TestUploadMediaGCS:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
             mock_gcs.assert_called_once()
 
@@ -259,7 +259,7 @@ class TestUploadMediaGCS:
                 "audio/wav",
                 project_id="my-project",
                 is_vertex=True,
-                auto=True,
+                non_interactive=True,
             )
             mock_gcs.assert_called_once()
             client.files.upload.assert_not_called()
@@ -279,5 +279,5 @@ class TestUploadMediaGCS:
                     project_id=None,
                     bucket_name="my-bucket",
                     is_vertex=True,
-                    auto=True,
+                    non_interactive=True,
                 )

@@ -15,10 +15,10 @@ Agentic voice I/O: TTS briefing → mic recording → constrained transcription.
 
 ```bash
 # Installed via Nix (Home Manager or profile)
-agent-ear --auto [flags]
+agent-ear --non-interactive [flags]
 
 # Run without installing
-nix run github:Aurelian-Shuttleworth/agent-ear -- --auto [flags]
+nix run github:Aurelian-Shuttleworth/agent-ear -- --non-interactive [flags]
 ```
 
 ## Authentication
@@ -42,13 +42,13 @@ Resolution order: `--project-id` → `GOOGLE_CLOUD_PROJECT` → `gcloud config` 
 
 | Task             | Command                                                        |
 | :--------------- | :------------------------------------------------------------- |
-| Record audio     | `agent-ear --auto`                                             |
-| Record w/ prompt | `agent-ear --auto --prompt-file prompt.md`                     |
-| Transcribe file  | `agent-ear --auto --input-file recording.wav`                  |
-| Local video      | `agent-ear --auto --video recording.mp4`                       |
-| YouTube          | `agent-ear --auto --video "https://youtube.com/watch?v=..."`   |
-| TTS + Record     | `agent-ear --auto --prompt-file p.md --briefing-file b.md`     |
-| JSON output      | `agent-ear --auto --output-format json`                        |
+| Record audio     | `agent-ear --non-interactive`                                             |
+| Record w/ prompt | `agent-ear --non-interactive --prompt-file prompt.md`                     |
+| Transcribe file  | `agent-ear --non-interactive --input-file recording.wav`                  |
+| Local video      | `agent-ear --non-interactive --video recording.mp4`                       |
+| YouTube          | `agent-ear --non-interactive --video "https://youtube.com/watch?v=..."`   |
+| TTS + Record     | `agent-ear --non-interactive --prompt-file p.md --briefing-file b.md`     |
+| JSON output      | `agent-ear --non-interactive --output-format json`                        |
 
 ## Output Formats
 

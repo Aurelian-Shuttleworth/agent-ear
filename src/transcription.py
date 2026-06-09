@@ -106,7 +106,7 @@ def transcribe(
     gcs_bucket: str | None,
     output_format: str,
     tracker: CostTracker | None = None,
-    auto: bool = False,
+    non_interactive: bool = False,
     max_tokens: int | None = None,
     thinking_level: str | None = None,
     extra_tokens: int = 0,
@@ -127,7 +127,7 @@ def transcribe(
         gcs_bucket: Optional explicit GCS bucket name.
         output_format: Output format (markdown/json/raw).
         tracker: Optional CostTracker for usage tracking.
-        auto: Whether running in auto mode.
+        non_interactive: Whether running in non-interactive mode.
         max_tokens: Optional max output tokens override.
         thinking_level: Optional explicit thinking level override.
         extra_tokens: Additive token budget from validator (0-16384).
@@ -147,7 +147,7 @@ def transcribe(
         project_id,
         gcs_bucket,
         is_vertex,
-        auto=auto,
+        non_interactive=non_interactive,
     )
 
     # Build system prompt

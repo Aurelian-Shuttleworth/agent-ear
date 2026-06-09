@@ -47,7 +47,7 @@ def run_pipeline(
     project_id: str | None = None,
     location: str = DEFAULT_LOCATION,
     validate: bool = True,
-    auto: bool = False,
+    non_interactive: bool = False,
     high_res: bool = False,
     gcs_bucket: str | None = None,
     max_tokens: int | None = None,
@@ -99,7 +99,7 @@ def run_pipeline(
 
     # --- 2. Validate effective prompt and extract thinking hints ---
     # Validation runs on the effective prompt (agent-provided or default).
-    # Only --no-validate suppresses this; --auto has no effect on validation.
+    # Only --no-validate suppresses this; --non-interactive has no effect on validation.
     validator_thinking_hint = None
     validator_extra_tokens = 0
     is_video = bool(video)
@@ -230,7 +230,7 @@ def run_pipeline(
                 gcs_bucket=gcs_bucket,
                 output_format=output_format,
                 tracker=tracker,
-                auto=auto,
+                non_interactive=non_interactive,
                 max_tokens=max_tokens,
                 thinking_level=effective_thinking,
                 extra_tokens=validator_extra_tokens,
@@ -244,7 +244,7 @@ def run_pipeline(
                 )
                 print(
                     f"   Re-run with: agent-ear --input-file '{recovery_path}' "
-                    f"{'--prompt-file ' + prompt_file if prompt_file else ''} --auto",
+                    f"{'--prompt-file ' + prompt_file if prompt_file else ''} --non-interactive",
                     file=sys.stderr,
                 )
             raise
@@ -262,11 +262,17 @@ def run_pipeline(
     os.makedirs(output_dir, exist_ok=True)
 
     if output_format == "json":
-        result["output_path"] = save_json(content, output_dir, safe_date, auto)
+        result["output_path"] = save_json(
+            content, output_dir, safe_date, non_interactive
+        )
     elif output_format == "raw":
-        result["output_path"] = save_raw(content, output_dir, safe_date, auto)
+        result["output_path"] = save_raw(
+            content, output_dir, safe_date, non_interactive
+        )
     else:
-        result["output_path"] = save_markdown(content, output_dir, safe_date, auto)
+        result["output_path"] = save_markdown(
+            content, output_dir, safe_date, non_interactive
+        )
 
     # --- 7. Cost summary ---
     tracker.print_summary()

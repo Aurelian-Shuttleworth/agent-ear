@@ -63,7 +63,7 @@ The project ID determines whether Vertex AI mode activates. It is resolved in th
 
 | Source | Example |
 |:-------|:--------|
-| CLI flag | `agent-ear --auto --project-id my-project` |
+| CLI flag | `agent-ear --non-interactive --project-id my-project` |
 | Environment | `export GOOGLE_CLOUD_PROJECT="my-project"` |
 | gcloud config | `gcloud config set project my-project` |
 
@@ -80,7 +80,7 @@ The location controls which regional Gemini endpoint is used:
 
 | Source | Example |
 |:-------|:--------|
-| CLI flag | `agent-ear --auto --location us-central1` |
+| CLI flag | `agent-ear --non-interactive --location us-central1` |
 | Environment | `export GOOGLE_CLOUD_LOCATION="us-central1"` |
 | gcloud config | `gcloud config set compute/region us-central1` |
 | Default | `global` (routes to nearest available region) |
@@ -233,7 +233,7 @@ Switch to Vertex AI mode:
 ```bash
 export GOOGLE_CLOUD_PROJECT="my-project"
 gcloud auth application-default login
-agent-ear --auto --video ./large-file.mp4
+agent-ear --non-interactive --video ./large-file.mp4
 ```
 
 ---

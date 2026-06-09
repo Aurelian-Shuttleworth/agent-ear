@@ -73,7 +73,7 @@ export AGENT_EAR_GCS_BUCKET="my-custom-staging-bucket"
 **Via CLI flag:**
 
 ```bash
-agent-ear --auto --gcs-bucket my-custom-staging-bucket --video ./large-file.mp4
+agent-ear --non-interactive --gcs-bucket my-custom-staging-bucket --video ./large-file.mp4
 ```
 
 The resolution chain is: `--gcs-bucket` → `AGENT_EAR_GCS_BUCKET` → `{project-id}-transcribe-staging`.
@@ -93,7 +93,7 @@ This sets the default location for the auto-derived bucket name. For manually cr
 Test with a large file:
 
 ```bash
-agent-ear --auto --video ./large-presentation.mp4
+agent-ear --non-interactive --video ./large-presentation.mp4
 ```
 
 You should see a GCS upload step in the output before the transcription begins.

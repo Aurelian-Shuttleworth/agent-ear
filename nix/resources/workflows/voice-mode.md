@@ -5,7 +5,7 @@ description: Enter voice interaction mode — listen, execute, and respond via T
 > **Skills Used:** `@agent-ear`, `@agent-ear-capture`, `@agent-ear-briefing`
 
 1. **Listen**: Record the user's voice request
-   - `agent-ear --auto --output-format json`
+   - `agent-ear --non-interactive --output-format json`
    - Parse the JSON output: `{ "date": "...", "slug": "...", "content": "..." }`
    - If exit code ≠ 0 → report error and retry
 
@@ -23,7 +23,7 @@ description: Enter voice interaction mode — listen, execute, and respond via T
    ```bash
    echo "Acknowledge the response" > /tmp/ae_prompt.md
    echo "---\nvoice: Puck\nstyle: brief, conversational\n---\n\nI have completed the task. The file has been updated." > /tmp/ae_response.md
-   agent-ear --auto --prompt-file /tmp/ae_prompt.md --briefing-file /tmp/ae_response.md
+   agent-ear --non-interactive --prompt-file /tmp/ae_prompt.md --briefing-file /tmp/ae_response.md
    ```
    - Keep responses brief and conversational
 

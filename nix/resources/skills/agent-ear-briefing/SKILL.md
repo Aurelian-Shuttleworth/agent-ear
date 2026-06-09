@@ -53,7 +53,7 @@ What works well, and what could be improved?
 ### 2. Play Briefing
 
 ```bash
-agent-ear --auto --prompt-file prompt.md --briefing-file briefing.md
+agent-ear --non-interactive --prompt-file prompt.md --briefing-file briefing.md
 ```
 
 Flow: TTS plays briefing → user listens → recording starts → user speaks → transcription.
