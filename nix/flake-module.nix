@@ -249,7 +249,7 @@
           # Nix quality tools
           pkgs.deadnix
           pkgs.statix
-          pkgs.nixfmt-rfc-style
+          pkgs.nixfmt
 
           # Python quality tools
           pkgs.ruff
