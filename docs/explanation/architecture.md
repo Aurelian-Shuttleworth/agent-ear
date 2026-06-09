@@ -81,6 +81,8 @@ You can upgrade from AI Studio to Vertex AI by setting GOOGLE_CLOUD_PROJECT and 
 
 ## Prompt Validation: LLM-as-a-Judge
 
+Here you can see a sequence diagram of the prompt validation flow in 'agent-ear'.
+
 ```mermaid
 sequenceDiagram
     participant Agent as AI Agent
