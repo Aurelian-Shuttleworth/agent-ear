@@ -21,7 +21,7 @@ Agent-ear routes non-interactive calls (made by AI agents, using --auto flag or 
 | Entry point | What it actually is | Purpose |
 |:------------|:-------------------|:--------|
 | `agent-ear` | Bash script (Nix `writeShellApplication` wrapping `scripts/agent-ear.sh`) | The main interface. Routes non-interactive calls directly to core, otherwise launches the guided TUI wizard using [Gum](https://github.com/charmbracelet/gum). |
-| `agent-ear-core` | Python package (Nix `makeWrapper` around the Python venv) | The actual pipeline: validate → brief → record → transcribe. |
+| `agent-ear-core` | Python package (Nix `makeWrapper` around the Python venv) | The pipeline: validate → brief → record → transcribe. |
 
 ## agent-ear: Bash dispatcher and Gum TUI
 
@@ -45,11 +45,11 @@ This separation means agents never see the TUI code loading, and humans never ne
 
 ## agent-ear-core: Python pipeline
 
-AI agents work best with `--auto` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They don't have a TTY (no interactive terminal input/output).
+AI agents work best with `--auto` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They do not have a TTY (no interactive terminal input/output).
 
 ## Auth Backend Design
 
-To maximize easy onboarding, agent-ear offers two auth paths. Here you can see a graphical representation of the available auth paths:
+To simplify onboarding, agent-ear offers two auth paths. Here you can see a graphical representation of the available auth paths:
 
 ```mermaid
 flowchart TD
@@ -67,7 +67,7 @@ flowchart TD
     style Fail fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-For most users, Google AI studio will be the optimal choice, with the least amount of onboarding required. Google AI Studio needs one API key and zero infrastructure. It has no GCS support, but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging.
+For most users, Google AI studio will be the optimal choice, with the least complicated onboarding. Google AI Studio needs one API key and zero infrastructure. It has no GCS support, but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging. 
 
 If you're handling large audio/video files (larger than 2GB), you may want to opt for Vertex AI. Vertex AI gives you GCS uploads for large files, project-scoped billing, and enterprise features. However, setting up Vertex AI requires a GCP project, enabled APIs, and Application Default Credentials.
 
@@ -77,7 +77,7 @@ This is order of selection for authentication credentials (= the order in which 
 2. **AI Studio fallback** — if no project but `GOOGLE_API_KEY` is set, use it. Zero friction.
 3. **Fail with clear instructions** — if neither is configured, print exactly what to do.
 
-You can upgrade from AI Studio to Vertex AI by setting one environment variable.
+You can upgrade from AI Studio to Vertex AI by setting GOOGLE_CLOUD_PROJECT and authenticating via gcloud auth application-default login.
 
 ## Prompt Validation: LLM-as-a-Judge
 
