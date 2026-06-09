@@ -67,7 +67,7 @@ flowchart TD
     style Fail fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-For most users, Google AI studio will be the optimal choice, with the least complicated onboarding. Google AI Studio needs one API key and zero infrastructure. It has no GCS support, but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging. 
+For most users, Google AI studio will be the optimal choice, with the least complicated onboarding required. Google AI Studio needs one API key and zero infrastructure. It has no GCS support[^1], but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging.
 
 If you're handling large audio/video files (larger than 2GB), you may want to opt for Vertex AI. Vertex AI gives you GCS uploads for large files, project-scoped billing, and enterprise features. However, setting up Vertex AI requires a GCP project, enabled APIs, and Application Default Credentials.
 
