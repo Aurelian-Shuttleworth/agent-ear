@@ -79,6 +79,60 @@ class TestSaveMarkdown:
             f"Second file should have seq 002, got '{os.path.basename(path2)}'"
         )
 
+    def test_interactive_custom_topic(self, tmp_output_dir, monkeypatch):
+        """Interactive mode: user-provided topic overrides frontmatter slug."""
+        content = "---\nslug: original-slug\n---\nBody"
+        monkeypatch.setattr("builtins.input", lambda _: "My Custom Topic")
+        path = save_markdown(
+            content, str(tmp_output_dir), "2026-05-23", non_interactive=False
+        )
+        assert "my-custom-topic" in os.path.basename(path), (
+            f"Filename should use custom topic slug, got '{os.path.basename(path)}'"
+        )
+
+    def test_interactive_empty_input_uses_frontmatter(
+        self, tmp_output_dir, monkeypatch
+    ):
+        """Interactive mode: pressing Enter (empty input) falls back to frontmatter slug."""
+        content = "---\nslug: frontmatter-slug\n---\nBody"
+        monkeypatch.setattr("builtins.input", lambda _: "")
+        path = save_markdown(
+            content, str(tmp_output_dir), "2026-05-23", non_interactive=False
+        )
+        assert "frontmatter-slug" in os.path.basename(path), (
+            f"Should fall back to frontmatter slug, got '{os.path.basename(path)}'"
+        )
+
+    def test_interactive_eoferror_fallback(self, tmp_output_dir, monkeypatch):
+        """Interactive mode: EOFError (piped stdin exhausted) falls back gracefully."""
+        content = "---\nslug: safe-slug\n---\nBody"
+
+        def raise_eof(_):
+            raise EOFError
+
+        monkeypatch.setattr("builtins.input", raise_eof)
+        path = save_markdown(
+            content, str(tmp_output_dir), "2026-05-23", non_interactive=False
+        )
+        assert "safe-slug" in os.path.basename(path), (
+            f"Should fall back to frontmatter slug on EOFError, got '{os.path.basename(path)}'"
+        )
+
+    def test_interactive_keyboard_interrupt_fallback(self, tmp_output_dir, monkeypatch):
+        """Interactive mode: Ctrl+C falls back gracefully without crashing."""
+        content = "---\nslug: safe-slug\n---\nBody"
+
+        def raise_interrupt(_):
+            raise KeyboardInterrupt
+
+        monkeypatch.setattr("builtins.input", raise_interrupt)
+        path = save_markdown(
+            content, str(tmp_output_dir), "2026-05-23", non_interactive=False
+        )
+        assert "safe-slug" in os.path.basename(path), (
+            f"Should fall back to frontmatter slug on KeyboardInterrupt, got '{os.path.basename(path)}'"
+        )
+
 
 class TestSaveJson:
     """Tests for JSON file saving."""
