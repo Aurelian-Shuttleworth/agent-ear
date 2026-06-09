@@ -229,10 +229,15 @@
         '';
 
         # Bash dispatcher routing tests (TTY detection, flag routing)
-        dispatcher = pkgs.runCommand "check-dispatcher" { nativeBuildInputs = [ pkgs.bash ]; } ''
-          bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
-          touch $out
-        '';
+        dispatcher = pkgs.runCommand "check-dispatcher"
+          {
+            nativeBuildInputs = [ pkgs.bash pkgs.coreutils ];
+            env.BASH_PATH = "${pkgs.bash}/bin/bash";
+          }
+          ''
+            bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
+            touch $out
+          '';
       };
 
       # ── DevShell ────────────────────────────────────────────────
@@ -261,6 +266,11 @@
         shellHook = ''
           unset PYTHONPATH
           unset PYTHONHOME
+
+          # Symlink the Nix venv so IDE tools (Pyrefly, Pylance, PyCharm)
+          # auto-discover project dependencies without manual config.
+          ln -sfn "${testVenv}" .venv
+
           echo "🎙️  agent-ear dev shell"
         '';
       };

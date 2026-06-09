@@ -5,26 +5,30 @@
 # piped stdin detection, and TERM=dumb detection.
 #
 # Requires: agent-ear.sh path as $1 (or auto-detects from script dir)
+# Optional: BASH_PATH env var for Nix sandbox (no /usr/bin/env)
 
 set -euo pipefail
 
 # ── Setup ──────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DISPATCHER="${1:-${SCRIPT_DIR}/agent-ear.sh}"
+# In Nix sandbox, /usr/bin/env doesn't exist. Use BASH_PATH if set.
+MOCK_BASH="${BASH_PATH:-/bin/sh}"
 
 if [[ ! -f "$DISPATCHER" ]]; then
   echo "❌ Dispatcher not found: $DISPATCHER" >&2
   exit 1
 fi
 
-# Create a mock agent-ear-core that prints a sentinel and exits
+# Create a mock agent-ear-core that prints a sentinel and exits.
+# Uses MOCK_BASH for the shebang to work in Nix sandbox (no /usr/bin/env).
 MOCK_DIR="$(mktemp -d)"
 trap 'rm -rf "$MOCK_DIR"' EXIT
 
-cat > "$MOCK_DIR/agent-ear-core" << 'MOCK'
-#!/usr/bin/env bash
+cat > "$MOCK_DIR/agent-ear-core" << MOCK
+#!${MOCK_BASH}
 echo "ROUTED_TO_CORE"
-echo "ARGS=$*"
+echo "ARGS=\$*"
 exit 0
 MOCK
 chmod +x "$MOCK_DIR/agent-ear-core"
