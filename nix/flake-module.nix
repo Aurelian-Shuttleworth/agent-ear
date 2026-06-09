@@ -276,6 +276,11 @@
             touch $out
           '';
 
+        # Bash dispatcher routing tests (TTY detection, flag routing)
+        dispatcher = pkgs.runCommand "check-dispatcher" { nativeBuildInputs = [ pkgs.bash ]; } ''
+          bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
+          touch $out
+        '';
       };
 
       # ── DevShell ────────────────────────────────────────────────

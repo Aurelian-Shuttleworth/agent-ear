@@ -14,6 +14,14 @@ class TestCLIParser:
         args = parser.parse_args(["--non-interactive"])
         assert args.non_interactive is True, "Should parse --non-interactive flag"
 
+    def test_non_interactive_defaults_false(self):
+        """Without --non-interactive, the flag defaults to False."""
+        parser = build_parser()
+        args = parser.parse_args([])
+        assert args.non_interactive is False, (
+            "Should default to False (interactive mode)"
+        )
+
     def test_output_format_choices(self):
         """Invalid format raises SystemExit."""
         parser = build_parser()
