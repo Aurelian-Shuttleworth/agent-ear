@@ -47,3 +47,7 @@ markers = [
     "integration: requires API access and network",
 ]
 testpaths = ["tests"]
+
+[tool.pyrefly]
+# Use the .venv symlink created by shellHook → points to Nix testVenv
+python-interpreter-path = ".venv/bin/python"
