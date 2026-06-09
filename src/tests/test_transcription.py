@@ -30,9 +30,7 @@ class TestBuildDefaultSystemPrompt:
     def test_audio_prompt_requests_verbatim(self):
         """Audio prompt requests verbatim transcription."""
         prompt = build_default_system_prompt("2026-05-23", is_video=False)
-        assert "verbatim" in prompt.lower(), (
-            "Audio prompt should request verbatim transcription"
-        )
+        assert "verbatim" in prompt.lower(), "Audio prompt should request verbatim transcription"
 
     def test_video_prompt_requests_timestamps(self):
         """Video prompt requests timestamps."""
@@ -128,35 +126,27 @@ class TestCallGemini:
     @patch("transcription.time.sleep")
     def test_raises_after_max_retries(self, mock_sleep, mock_genai_client):
         """Raises RuntimeError after 3 transient failures."""
-        mock_genai_client.models.generate_content.side_effect = (
-            api_exceptions.ServiceUnavailable("503")
-        )
+        mock_genai_client.models.generate_content.side_effect = api_exceptions.ServiceUnavailable("503")
         with pytest.raises(RuntimeError, match="unavailable after 3 retries"):
             call_gemini(mock_genai_client, "model", ["content"], {}, "Test")
 
     def test_no_retry_on_quota(self, mock_genai_client):
         """ResourceExhausted raises immediately without retry."""
-        mock_genai_client.models.generate_content.side_effect = (
-            api_exceptions.ResourceExhausted("429")
-        )
+        mock_genai_client.models.generate_content.side_effect = api_exceptions.ResourceExhausted("429")
         with pytest.raises(RuntimeError, match="quota exhausted"):
             call_gemini(mock_genai_client, "model", ["content"], {}, "Test")
         assert mock_genai_client.models.generate_content.call_count == 1
 
     def test_no_retry_on_auth_failure(self, mock_genai_client):
         """Unauthenticated raises immediately without retry."""
-        mock_genai_client.models.generate_content.side_effect = (
-            api_exceptions.Unauthenticated("401")
-        )
+        mock_genai_client.models.generate_content.side_effect = api_exceptions.Unauthenticated("401")
         with pytest.raises(RuntimeError, match="Authentication failed"):
             call_gemini(mock_genai_client, "model", ["content"], {}, "Test")
         assert mock_genai_client.models.generate_content.call_count == 1
 
     def test_no_retry_on_permission_denied(self, mock_genai_client):
         """PermissionDenied raises immediately without retry."""
-        mock_genai_client.models.generate_content.side_effect = (
-            api_exceptions.PermissionDenied("403")
-        )
+        mock_genai_client.models.generate_content.side_effect = api_exceptions.PermissionDenied("403")
         with pytest.raises(RuntimeError, match="Permission denied"):
             call_gemini(mock_genai_client, "model", ["content"], {}, "Test")
         assert mock_genai_client.models.generate_content.call_count == 1
@@ -270,12 +260,8 @@ class TestResolveThinkingConfig:
             is_video=False,
             high_res=False,
         )
-        assert hasattr(config, "thinking_budget"), (
-            "Legacy model should use thinking_budget"
-        )
-        assert config.thinking_budget == 2048, (
-            f"Medium should map to 2048, got {config.thinking_budget}"
-        )
+        assert hasattr(config, "thinking_budget"), "Legacy model should use thinking_budget"
+        assert config.thinking_budget == 2048, f"Medium should map to 2048, got {config.thinking_budget}"
 
     def test_env_var_override(self, monkeypatch):
         """$AGENT_EAR_THINKING_LEVEL env var overrides duration default."""

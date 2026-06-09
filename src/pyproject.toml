@@ -51,3 +51,22 @@ testpaths = ["tests"]
 [tool.pyrefly]
 # Use the .venv symlink created by shellHook → points to Nix testVenv
 python-interpreter-path = ".venv/bin/python"
+[tool.ruff]
+line-length = 110  # accommodate existing codebase style + long prompt strings
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "S", "I"]  # errors, pyflakes, warnings, security, isort
+ignore = [
+    "E501",  # line-too-long — ruff-format handles formatting; prompt strings are naturally long
+    "S603",  # subprocess call — expected in CLI tool
+    "S607",  # partial executable path — expected for system commands (afplay, aplay, ffmpeg)
+    "S110",  # try-except-pass — used for best-effort operations (sound playback)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]      # allow assert in tests (when run from src/)
+"src/tests/*" = ["S101"]  # allow assert in tests (when run from repo root)
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B101"]  # allow assert — ruff S101 handles the test exclusion

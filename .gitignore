@@ -49,3 +49,4 @@ Desktop.ini
 *.bak
 *.log
 .scratch/
+graphify-out/

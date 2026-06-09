@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from config import FILES_API_THRESHOLD, INLINE_THRESHOLD
 from upload import detect_mime_type, upload_media
-from config import INLINE_THRESHOLD, FILES_API_THRESHOLD
 
 
 class TestDetectMimeType:
@@ -198,9 +198,7 @@ class TestUploadMediaGCS:
 
         client = MagicMock()
         with (
-            patch(
-                "upload._upload_to_gcs", return_value="gs://my-bucket/staging/test"
-            ) as mock_gcs,
+            patch("upload._upload_to_gcs", return_value="gs://my-bucket/staging/test") as mock_gcs,
             patch("upload.types.Part") as mock_part,
         ):
             upload_media(
@@ -225,9 +223,7 @@ class TestUploadMediaGCS:
 
         client = MagicMock()
         with (
-            patch(
-                "upload._upload_to_gcs", return_value="gs://env-bucket/staging/test"
-            ) as mock_gcs,
+            patch("upload._upload_to_gcs", return_value="gs://env-bucket/staging/test") as mock_gcs,
             patch("upload.types.Part"),
         ):
             upload_media(
@@ -247,9 +243,7 @@ class TestUploadMediaGCS:
 
         client = MagicMock()
         with (
-            patch(
-                "upload._upload_to_gcs", return_value="gs://proj-bucket/staging/test"
-            ) as mock_gcs,
+            patch("upload._upload_to_gcs", return_value="gs://proj-bucket/staging/test") as mock_gcs,
             patch("upload.types.Part"),
             patch("upload.resolve_gcs_bucket", return_value="proj-bucket"),
         ):

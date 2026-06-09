@@ -18,7 +18,6 @@ from google.genai import types
 from config import DEFAULT_VALIDATION_MODEL, SAFETY_SETTINGS
 from cost_tracker import CostTracker
 
-
 OBSIDIAN_WRAP_PROMPT = """\
 You are an Obsidian Note Formatter fixing the layout of raw text transcriptions.
 
@@ -64,9 +63,7 @@ def extract_slug(content: str, default: str = "untitled") -> str:
     return default
 
 
-def save_markdown(
-    content: str, output_dir: str, safe_date: str, non_interactive: bool
-) -> str:
+def save_markdown(content: str, output_dir: str, safe_date: str, non_interactive: bool) -> str:
     """Save transcription as Obsidian markdown note.
 
     Args:
@@ -100,9 +97,7 @@ def save_markdown(
     return output_path
 
 
-def save_json(
-    content: str, output_dir: str, safe_date: str, non_interactive: bool
-) -> str:
+def save_json(content: str, output_dir: str, safe_date: str, non_interactive: bool) -> str:
     """Save transcription as structured JSON.
 
     Args:
@@ -132,9 +127,7 @@ def save_json(
     return output_path
 
 
-def save_raw(
-    content: str, output_dir: str, safe_date: str, non_interactive: bool
-) -> str:
+def save_raw(content: str, output_dir: str, safe_date: str, non_interactive: bool) -> str:
     """Save raw transcript text.
 
     Args:

@@ -104,6 +104,7 @@
   # ── Per-system outputs ──────────────────────────────────────────
   perSystem =
     {
+      config,
       pkgs,
       lib,
       ...
@@ -170,6 +171,12 @@
         text = builtins.readFile ../scripts/agent-ear.sh;
         meta.mainProgram = "agent-ear";
       };
+
+      # ── Custom safety check script ─────────────────────────────
+      checkGeminiSafety = pkgs.writeShellApplication {
+        name = "check-gemini-safety";
+        text = builtins.readFile ../scripts/check-gemini-safety.sh;
+      };
     in
     {
       # ── Packages ────────────────────────────────────────────────
@@ -179,22 +186,75 @@
         agent-ear-core = core;
       };
 
-      # ── Checks (self-contained quality gates) ───────────────────
+      # ── Pre-commit hooks (run pre-commit + CI via nix flake check) ─
+      pre-commit.settings.hooks = {
+        # ── Nix linters ──
+        deadnix.enable = true;
+        statix.enable = true;
+
+        # ── Python linting + formatting ──
+        ruff-check = {
+          enable = true;
+          entry = "${pkgs.ruff}/bin/ruff check --config src/pyproject.toml --fix";
+          language = "system";
+          types = [ "python" ];
+          pass_filenames = true;
+        };
+        ruff-format = {
+          enable = true;
+          entry = "${pkgs.ruff}/bin/ruff format --config src/pyproject.toml";
+          language = "system";
+          types = [ "python" ];
+          pass_filenames = true;
+        };
+
+        # ── Shell linting ──
+        shellcheck = {
+          enable = true;
+          excludes = [ "\\.envrc$" ];
+        };
+
+        # ── Security: Python static analysis ──
+        bandit = {
+          enable = true;
+          entry = "${pkgs.python313Packages.bandit}/bin/bandit";
+          language = "system";
+          types = [ "python" ];
+          args = [
+            "-c"
+            "src/pyproject.toml"
+            "--quiet"
+            "--skip"
+            "B404,B603,B607,B110"
+          ];
+        };
+
+        # ── Security: secret leak detection ──
+        detect-secrets = {
+          enable = true;
+          entry = "${pkgs.detect-secrets}/bin/detect-secrets-hook";
+          language = "system";
+          types = [ "text" ];
+          args = [
+            "--baseline"
+            ".secrets.baseline"
+          ];
+        };
+
+        # ── Custom: Gemini safety_settings enforcement ──
+        gemini-safety-settings = {
+          enable = true;
+          entry = "${checkGeminiSafety}/bin/check-gemini-safety";
+          language = "system";
+          types = [ "python" ];
+          pass_filenames = true;
+        };
+      };
+
+      # ── Checks (CI-only gates + pre-commit) ─────────────────────
       checks = {
         # Verify the package builds
         build = agent-ear-script;
-
-        # Dead code detection
-        deadnix = pkgs.runCommand "check-deadnix" { nativeBuildInputs = [ pkgs.deadnix ]; } ''
-          deadnix --fail ${../.}
-          touch $out
-        '';
-
-        # Static Nix linting
-        statix = pkgs.runCommand "check-statix" { nativeBuildInputs = [ pkgs.statix ]; } ''
-          statix check ${../.}
-          touch $out
-        '';
 
         # Python test suite (excludes integration tests)
         pytest = pkgs.runCommand "check-pytest"
@@ -215,19 +275,6 @@
             touch $out
           '';
 
-        # Python linting + formatting
-        ruff = pkgs.runCommand "check-ruff" { nativeBuildInputs = [ pkgs.ruff ]; } ''
-          ruff check ${../src}
-          ruff format --check ${../src}
-          touch $out
-        '';
-
-        # Shell script linting
-        shellcheck = pkgs.runCommand "check-shellcheck" { nativeBuildInputs = [ pkgs.shellcheck ]; } ''
-          shellcheck ${../scripts}/*.sh
-          touch $out
-        '';
-
         # Bash dispatcher routing tests (TTY detection, flag routing)
         dispatcher = pkgs.runCommand "check-dispatcher"
           {
@@ -238,10 +285,23 @@
             bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
             touch $out
           '';
+
+        # Security: deep secret scanning (CI-only — too slow for pre-commit)
+        trufflehog = pkgs.runCommand "check-trufflehog"
+          {
+            nativeBuildInputs = [ pkgs.trufflehog ];
+          }
+          ''
+            trufflehog filesystem ${../.} --fail
+            touch $out
+          '';
       };
 
       # ── DevShell ────────────────────────────────────────────────
+      # inputsFrom pulls in all hook tool deps (ruff, deadnix, statix,
+      # shellcheck, bandit, detect-secrets) dynamically from git-hooks.
       devShells.default = pkgs.mkShell {
+        inputsFrom = [ config.pre-commit.devShell ];
         packages = [
           agent-ear-script
           testVenv
@@ -251,17 +311,7 @@
           pkgs.yt-dlp
           pkgs.portaudio
           pkgs.libsndfile
-
-          # Nix quality tools
-          pkgs.deadnix
-          pkgs.statix
           pkgs.nixfmt
-
-          # Python quality tools
-          pkgs.ruff
-
-          # Shell quality tools
-          pkgs.shellcheck
         ];
         shellHook = ''
           unset PYTHONPATH

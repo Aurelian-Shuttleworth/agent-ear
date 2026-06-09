@@ -11,17 +11,16 @@ import os
 import time
 import uuid
 
-from google.genai import types
 from google.cloud import storage as gcs
+from google.genai import types
 
 from config import (
-    INLINE_THRESHOLD,
-    FILES_API_THRESHOLD,
     FILES_API_POLL_INTERVAL,
     FILES_API_POLL_TIMEOUT,
+    FILES_API_THRESHOLD,
+    INLINE_THRESHOLD,
     resolve_gcs_bucket,
 )
-
 
 # MIME type mappings
 VIDEO_MIME_TYPES = {
@@ -136,9 +135,7 @@ def _upload_gcs(media_path, mime_type, bucket_name, project_id):
     """
     resolved_bucket = resolve_gcs_bucket(bucket_name, project_id)
     if not resolved_bucket:
-        raise RuntimeError(
-            "❌ No GCS bucket configured.\nSet --gcs-bucket or $AGENT_EAR_GCS_BUCKET."
-        )
+        raise RuntimeError("❌ No GCS bucket configured.\nSet --gcs-bucket or $AGENT_EAR_GCS_BUCKET.")
     gcs_uri = _upload_to_gcs(media_path, resolved_bucket)
     print(f"✅ GCS upload complete → {gcs_uri}")
     return types.Part.from_uri(file_uri=gcs_uri, mime_type=mime_type)
@@ -201,8 +198,7 @@ def _upload_to_gcs(local_path, bucket_name):
         client = gcs.Client()
     except Exception as e:
         raise RuntimeError(
-            f"Could not initialise GCS client: {e}\n"
-            "Run: gcloud auth application-default login"
+            f"Could not initialise GCS client: {e}\nRun: gcloud auth application-default login"
         ) from e
 
     bucket = client.bucket(bucket_name)

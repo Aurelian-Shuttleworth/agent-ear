@@ -51,9 +51,7 @@ class TestPipeline:
             validate=False,
         )
 
-        assert result["exit_code"] == 0, (
-            f"Should succeed, got exit_code={result['exit_code']}"
-        )
+        assert result["exit_code"] == 0, f"Should succeed, got exit_code={result['exit_code']}"
         assert result["output_path"] is not None, "Should produce output file"
         assert result["output_path"].endswith(".md"), "Should be a .md file"
         assert os.path.exists(result["output_path"]), "File should exist on disk"
@@ -107,9 +105,7 @@ class TestPipeline:
             validate=False,
         )
 
-        assert result["exit_code"] == 1, (
-            f"Should exit with code 1, got {result['exit_code']}"
-        )
+        assert result["exit_code"] == 1, f"Should exit with code 1, got {result['exit_code']}"
 
     @patch("agent_ear.create_client")
     @patch("agent_ear.validate_prompt")
@@ -136,9 +132,7 @@ class TestPipeline:
             validate=True,
         )
 
-        assert result["exit_code"] == 2, (
-            f"Validation failure should exit 2, got {result['exit_code']}"
-        )
+        assert result["exit_code"] == 2, f"Validation failure should exit 2, got {result['exit_code']}"
         assert result["output_path"] is None, "No file should be created on rejection"
 
     @patch("agent_ear.create_client")
@@ -165,21 +159,15 @@ class TestPipeline:
     @patch("agent_ear.create_client")
     @patch("transcription.call_gemini")
     @patch("agent_ear.obsidian_final_pass")
-    def test_obsidian_final_pass_triggers(
-        self, mock_final_pass, mock_gemini, mock_client, mock_response
-    ):
+    def test_obsidian_final_pass_triggers(self, mock_final_pass, mock_gemini, mock_client, mock_response):
         """Raw output without frontmatter triggers Obsidian final pass."""
         mock_client.return_value = (MagicMock(), False)
 
         # Transcription returns content without frontmatter
-        mock_gemini.return_value = mock_response(
-            text="Just raw text without frontmatter"
-        )
+        mock_gemini.return_value = mock_response(text="Just raw text without frontmatter")
 
         # Final pass adds frontmatter
-        mock_final_pass.return_value = (
-            "---\nslug: auto-generated\n---\nJust raw text without frontmatter"
-        )
+        mock_final_pass.return_value = "---\nslug: auto-generated\n---\nJust raw text without frontmatter"
 
         result = run_pipeline(
             input_file=str(self.wav),
@@ -190,6 +178,4 @@ class TestPipeline:
         )
 
         mock_final_pass.assert_called_once()
-        assert result["content"].startswith("---"), (
-            "Final pass should add frontmatter to raw output"
-        )
+        assert result["content"].startswith("---"), "Final pass should add frontmatter to raw output"

@@ -72,12 +72,7 @@ def resolve_config(cli_project=None, cli_location=None):
     Returns:
         tuple: (project_id, location)
     """
-    project = (
-        cli_project
-        or os.environ.get("GOOGLE_CLOUD_PROJECT")
-        or _gcloud_config("project")
-        or None
-    )
+    project = cli_project or os.environ.get("GOOGLE_CLOUD_PROJECT") or _gcloud_config("project") or None
     location = (
         (cli_location if cli_location and cli_location != DEFAULT_LOCATION else None)
         or os.environ.get("GOOGLE_CLOUD_LOCATION")

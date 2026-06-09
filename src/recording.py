@@ -84,9 +84,7 @@ def record_audio() -> str:
             print(f"⚠️ Could not launch GUI button: {e}")
 
     try:
-        with sd.InputStream(
-            samplerate=RECORDING_SAMPLERATE, channels=1, callback=callback
-        ):
+        with sd.InputStream(samplerate=RECORDING_SAMPLERATE, channels=1, callback=callback):
             while True:
                 # Check if Stop button was clicked
                 if btn_process and btn_process.poll() is not None:
