@@ -269,7 +269,10 @@
 
           # Symlink the Nix venv so IDE tools (Pyrefly, Pylance, PyCharm)
           # auto-discover project dependencies without manual config.
+          # Root-level for general tools, src/.venv for Pyrefly (which
+          # discovers project root via src/pyproject.toml).
           ln -sfn "${testVenv}" .venv
+          ln -sfn "${testVenv}" src/.venv
 
           echo "🎙️  agent-ear dev shell"
         '';
