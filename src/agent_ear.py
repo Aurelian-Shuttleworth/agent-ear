@@ -51,6 +51,7 @@ def run_pipeline(
     gcs_bucket: str | None = None,
     max_tokens: int | None = None,
     thinking_level: str | None = None,
+    template_tags: str | None = None,
 ) -> dict:
     """Run the full agentic listening pipeline.
 
@@ -241,7 +242,7 @@ def run_pipeline(
     # --- 5.5 Obsidian final pass (if raw output lacks frontmatter) ---
     if output_format == "markdown" and not content.strip().startswith("---"):
         print("📝 Adding Obsidian frontmatter via final pass...")
-        content = obsidian_final_pass(client, content, safe_date, tracker)
+        content = obsidian_final_pass(client, content, safe_date, tracker, template_tags=template_tags)
 
     result["content"] = content
     result["cost"] = tracker.total_cost_usd

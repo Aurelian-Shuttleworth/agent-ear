@@ -2,6 +2,7 @@
 name: Meeting Notes
 icon: 🤝
 description: Multi-speaker meeting with action items and notable quotes
+tags: meeting, action-items
 ---
 You are transcribing a multi-speaker meeting.
 

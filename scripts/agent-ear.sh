@@ -49,6 +49,7 @@ GCS_BUCKET=""
 PROJECT_ID=""
 LOCATION=""
 NO_VALIDATE=""
+TEMPLATE_TAGS=""
 
 # ── Helpers ────────────────────────────────────────────────────────
 
@@ -91,11 +92,12 @@ cancelled() {
 TEMPLATES_DIR="${AGENT_EAR_TEMPLATES_DIR:-}"
 
 # Parse YAML frontmatter fields from a template file.
-# Sets globals: TMPL_NAME, TMPL_ICON
+# Sets globals: TMPL_NAME, TMPL_ICON, TMPL_TAGS
 parse_template_frontmatter() {
   local file="$1"
   TMPL_NAME=""
   TMPL_ICON=""
+  TMPL_TAGS=""
   local in_frontmatter=false
   while IFS= read -r line; do
     if [[ "$line" == "---" ]]; then
@@ -107,6 +109,7 @@ parse_template_frontmatter() {
       case "$line" in
         name:*)  TMPL_NAME="${line#name: }" ;;
         icon:*)  TMPL_ICON="${line#icon: }" ;;
+        tags:*)  TMPL_TAGS="${line#tags: }" ;;
       esac
     fi
   done < "$file"
@@ -144,6 +147,7 @@ load_template() {
   PROMPT_TEXT=$(read_template_body "$path")
   PROMPT_LABEL="${TMPL_ICON} ${TMPL_NAME}"
   NO_VALIDATE="true"  # Curated templates skip prompt validation
+  TEMPLATE_TAGS="${TMPL_TAGS}"  # Pass tags for Obsidian frontmatter merging
 }
 
 # Load an internal template (auto-applied, not user-selectable)
@@ -157,6 +161,7 @@ load_internal_template() {
   PROMPT_TEXT=$(read_template_body "$path")
   PROMPT_LABEL="${TMPL_ICON} ${TMPL_NAME}"
   NO_VALIDATE="true"  # Curated templates skip prompt validation
+  TEMPLATE_TAGS="${TMPL_TAGS}"  # Pass tags for Obsidian frontmatter merging
 }
 
 # ── Screen 1: Mode Selection (two-tier) ───────────────────────────
@@ -585,6 +590,7 @@ confirm_and_run() {
   [[ -n "$INPUT_FILE" ]] && ARGS+=(--input-file "$INPUT_FILE")
   [[ -n "$HIGH_RES" ]] && ARGS+=(--high-res)
   [[ -n "$NO_VALIDATE" ]] && ARGS+=(--no-validate)
+  [[ -n "$TEMPLATE_TAGS" ]] && ARGS+=(--template-tags "$TEMPLATE_TAGS")
   [[ -n "$GCS_BUCKET" ]] && ARGS+=(--gcs-bucket "$GCS_BUCKET")
   [[ -n "$PROJECT_ID" ]] && ARGS+=(--project-id "$PROJECT_ID")
   [[ -n "$LOCATION" ]] && ARGS+=(--location "$LOCATION")
