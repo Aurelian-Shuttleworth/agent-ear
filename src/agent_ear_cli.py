@@ -189,12 +189,27 @@ exit codes:
         help="Max output tokens for transcription (default: 8192 audio, 16384 video)",
     )
 
+    # Utility
+    utility = parser.add_argument_group("utility")
+    utility.add_argument(
+        "--fetch-pricing",
+        action="store_true",
+        help="Fetch live pricing from PriceToken API, print model menu, and exit",
+    )
+
     return parser
 
 
 def main():
     parser = build_parser()
     args = parser.parse_args()
+
+    # --fetch-pricing: fetch, write cache, print menu, exit
+    if args.fetch_pricing:
+        from pricing import cli_fetch_pricing
+
+        cli_fetch_pricing()
+        sys.exit(0)
 
     # Validation
     if args.briefing_file and not (args.prompt_file or args.prompt):
