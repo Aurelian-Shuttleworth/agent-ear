@@ -41,7 +41,7 @@ OUTPUT_DIR=""
 TOPIC=""
 PROMPT_TEXT=""
 PROMPT_FILE=""
-BRIEFING_FILE=""
+PROMPT_LABEL=""
 VIDEO=""
 INPUT_FILE=""
 HIGH_RES=""
@@ -49,7 +49,6 @@ GCS_BUCKET=""
 PROJECT_ID=""
 LOCATION=""
 NO_VALIDATE=""
-MEETING_NAMES=""
 
 # ── Helpers ────────────────────────────────────────────────────────
 
@@ -84,28 +83,192 @@ cancelled() {
   exit 0
 }
 
-# ── Screen 1: Mode Selection ──────────────────────────────────────
+# ── Template Engine ────────────────────────────────────────────────
+# Templates are .md files with YAML frontmatter (name, icon, description)
+# and a prompt body. The AGENT_EAR_TEMPLATES_DIR env var points to the
+# templates directory (set by the Nix wrapper).
+
+TEMPLATES_DIR="${AGENT_EAR_TEMPLATES_DIR:-}"
+
+# Parse YAML frontmatter fields from a template file.
+# Sets globals: TMPL_NAME, TMPL_ICON
+parse_template_frontmatter() {
+  local file="$1"
+  TMPL_NAME=""
+  TMPL_ICON=""
+  local in_frontmatter=false
+  while IFS= read -r line; do
+    if [[ "$line" == "---" ]]; then
+      if $in_frontmatter; then break; fi
+      in_frontmatter=true
+      continue
+    fi
+    if $in_frontmatter; then
+      case "$line" in
+        name:*)  TMPL_NAME="${line#name: }" ;;
+        icon:*)  TMPL_ICON="${line#icon: }" ;;
+      esac
+    fi
+  done < "$file"
+}
+
+# Extract prompt body (everything after the closing --- frontmatter delimiter).
+read_template_body() {
+  local file="$1"
+  local found_start=false
+  local found_end=false
+  while IFS= read -r line; do
+    if [[ "$line" == "---" ]]; then
+      if ! $found_start; then
+        found_start=true
+        continue
+      elif ! $found_end; then
+        found_end=true
+        continue
+      fi
+    fi
+    if $found_end; then
+      echo "$line"
+    fi
+  done < "$file"
+}
+
+# Load a user-facing template by filename from templates/
+load_template() {
+  local filename="$1"
+  local path="${TEMPLATES_DIR}/${filename}"
+  if [[ ! -f "$path" ]]; then
+    die "Template not found: $filename"
+  fi
+  parse_template_frontmatter "$path"
+  PROMPT_TEXT=$(read_template_body "$path")
+  PROMPT_LABEL="${TMPL_ICON} ${TMPL_NAME}"
+  NO_VALIDATE="true"  # Curated templates skip prompt validation
+}
+
+# Load an internal template (auto-applied, not user-selectable)
+load_internal_template() {
+  local filename="$1"
+  local path="${TEMPLATES_DIR}/internal/${filename}"
+  if [[ ! -f "$path" ]]; then
+    die "Internal template not found: $filename"
+  fi
+  parse_template_frontmatter "$path"
+  PROMPT_TEXT=$(read_template_body "$path")
+  PROMPT_LABEL="${TMPL_ICON} ${TMPL_NAME}"
+  NO_VALIDATE="true"  # Curated templates skip prompt validation
+}
+
+# ── Screen 1: Mode Selection (two-tier) ───────────────────────────
 
 select_mode() {
   gum style --bold --foreground "$ACCENT_COLOR" \
     "  What would you like to do?"
   echo ""
 
-  MODE=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
-    "🎤 Record Audio — Freeform voice note" \
-    "🤝 Record Meeting — Multi-speaker, action points & quotes" \
-    "📝 Record Audio — With a custom prompt" \
-    "🗣️ Full Agentic — TTS briefing + recording" \
-    "🎬 Transcribe Video — Local file" \
-    "📺 Transcribe YouTube — From URL" \
-    "📂 Transcribe File — Existing audio file" \
+  local top_choice
+  top_choice=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
+    "🎤 Record Now — Start recording immediately" \
+    "📝 Custom Prompt — Write or load your own prompt" \
+    "📋 Templates ▸ — Choose a premade prompt template" \
+    "🎬 Transcribe ▸ — Video, YouTube, or audio file" \
     "❌ Cancel" \
   ) || cancelled
 
-  [[ "$MODE" == "❌ Cancel" ]] && cancelled
+  [[ "$top_choice" == "❌ Cancel" ]] && cancelled
+
+  case "$top_choice" in
+    *"Record Now"*)
+      MODE="🎤 Record Now"
+      load_template "quick-transcript.md"
+      ;;
+    *"Custom Prompt"*)
+      MODE="📝 Custom Prompt"
+      ;;
+    *"Templates"*)
+      select_template
+      ;;
+    *"Transcribe"*)
+      select_transcribe_source
+      ;;
+  esac
 
   echo ""
-  success "Mode: ${MODE%% —*}"
+  success "Mode: ${MODE}"
+}
+
+select_template() {
+  echo ""
+  gum style --bold --foreground "$ACCENT_COLOR" \
+    "  📋 Choose a template"
+  echo ""
+
+  if [[ -z "$TEMPLATES_DIR" ]] || [[ ! -d "$TEMPLATES_DIR" ]]; then
+    die "Templates directory not found. Is AGENT_EAR_TEMPLATES_DIR set?"
+  fi
+
+  # Scan templates dir for .md files (top-level only, not internal/)
+  local -a labels=()
+  local -a files=()
+  for f in "${TEMPLATES_DIR}"/*.md; do
+    [[ -f "$f" ]] || continue
+    parse_template_frontmatter "$f"
+    labels+=("${TMPL_ICON} ${TMPL_NAME}")
+    files+=("$(basename "$f")")
+  done
+
+  if [[ ${#labels[@]} -eq 0 ]]; then
+    die "No templates found in $TEMPLATES_DIR"
+  fi
+
+  labels+=("↩️  Back")
+
+  local choice
+  choice=$(printf '%s\n' "${labels[@]}" | \
+    gum choose --cursor.foreground "$ACCENT_COLOR") || cancelled
+
+  [[ "$choice" == "↩️  Back" ]] && select_mode && return
+
+  # Find which file was selected
+  for i in "${!labels[@]}"; do
+    if [[ "${labels[$i]}" == "$choice" ]]; then
+      load_template "${files[$i]}"
+      MODE="📋 ${TMPL_NAME}"
+      return
+    fi
+  done
+}
+
+select_transcribe_source() {
+  echo ""
+  gum style --bold --foreground "$ACCENT_COLOR" \
+    "  🎬 Choose a source to transcribe"
+  echo ""
+
+  local choice
+  choice=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
+    "🎬 Transcribe Video — Local file" \
+    "📺 Transcribe YouTube — From URL" \
+    "📂 Transcribe File — Existing audio file" \
+    "↩️  Back" \
+  ) || cancelled
+
+  [[ "$choice" == "↩️  Back" ]] && select_mode && return
+
+  case "$choice" in
+    *"Transcribe Video"*)
+      MODE="🎬 Transcribe Video"
+      load_internal_template "video-transcription.md"
+      ;;
+    *"Transcribe YouTube"*)
+      MODE="📺 Transcribe YouTube"
+      load_internal_template "youtube-transcription.md"
+      ;;
+    *"Transcribe File"*)
+      MODE="📂 Transcribe File"
+      load_internal_template "audio-transcription.md"
+      ;;
+  esac
 }
 
 # ── Screen 2: Configuration ───────────────────────────────────────
@@ -237,76 +400,6 @@ configure_advanced() {
 
 # ── Screen 3: Conditional Inputs ──────────────────────────────────
 
-collect_meeting_setup() {
-  echo ""
-  gum style --bold --foreground "$ACCENT_COLOR" \
-    "  🤝 Meeting Configuration"
-  echo ""
-
-  info "Agent-ear will transcribe a multi-speaker conversation,"
-  info "extract action points, and capture notable quotes."
-  echo ""
-
-  # Named speakers or generic?
-  local speaker_choice
-  speaker_choice=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
-    --header "How should speakers be identified?" \
-    "👤 By name — I'll provide participant names" \
-    "🔢 By number — Person 1, Person 2, Person 3, ..." \
-  ) || cancelled
-
-  if [[ "$speaker_choice" == *"By name"* ]]; then
-    MEETING_NAMES=$(gum input --cursor.foreground "$ACCENT_COLOR" \
-      --header "Participant names (comma-separated):" \
-      --placeholder "Alice, Bob, Charlie" \
-    ) || cancelled
-
-    if [[ -z "$MEETING_NAMES" ]]; then
-      warn "No names provided — falling back to Person 1, 2, 3..."
-      MEETING_NAMES=""
-    else
-      success "Participants: $MEETING_NAMES"
-    fi
-  else
-    success "Speakers: numbered (Person 1, 2, 3...)"
-  fi
-
-  # Build the meeting system prompt
-  local speaker_instruction
-  if [[ -n "$MEETING_NAMES" ]]; then
-    speaker_instruction="Identify each speaker by their name: ${MEETING_NAMES}. If you cannot distinguish a speaker, label them as 'Unknown Speaker'."
-  else
-    speaker_instruction="Label speakers as Person 1, Person 2, Person 3, etc. based on distinct voices."
-  fi
-
-  PROMPT_TEXT="You are transcribing a multi-speaker meeting.
-
-<instructions>
-1. SPEAKER IDENTIFICATION: ${speaker_instruction}
-2. TRANSCRIPTION: Provide a full, accurate transcription with speaker labels.
-3. ACTION ITEMS: After the transcription, list all action items mentioned.
-   Format each as: '- [ ] [Owner]: [Action item description]'
-4. NOTABLE QUOTES: Extract 3-5 notable, impactful, or decision-defining quotes.
-   Format each as: '> \"[Quote]\" — [Speaker]'
-</instructions>
-
-<output_structure>
-## Meeting Transcription
-
-[Full speaker-labeled transcription here]
-
-## Action Items
-
-- [ ] [Owner]: [Description]
-
-## Notable Quotes
-
-> \"[Quote]\" — [Speaker]
-</output_structure>
-
-Stay grounded in the audio. Do not infer action items or quotes that were not explicitly spoken."
-}
-
 collect_prompt() {
   echo ""
   gum style --bold --foreground "$ACCENT_COLOR" \
@@ -337,7 +430,8 @@ collect_prompt() {
     if [[ -z "$PROMPT_TEXT" ]]; then
       die "Prompt cannot be empty for this mode."
     fi
-    success "Prompt: inline (${#PROMPT_TEXT} chars)"
+    PROMPT_LABEL="inline (${#PROMPT_TEXT} chars)"
+    success "Prompt: $PROMPT_LABEL"
   else
     info "Select a prompt file..."
     PROMPT_FILE=$(gum file --cursor.foreground "$ACCENT_COLOR" \
@@ -347,27 +441,9 @@ collect_prompt() {
     if [[ ! -f "$PROMPT_FILE" ]]; then
       die "File not found: $PROMPT_FILE"
     fi
-    success "Prompt file: $PROMPT_FILE"
+    PROMPT_LABEL="file: $(basename "$PROMPT_FILE")"
+    success "Prompt: $PROMPT_LABEL"
   fi
-}
-
-collect_briefing() {
-  echo ""
-  gum style --bold --foreground "$ACCENT_COLOR" \
-    "  🗣️ TTS Briefing"
-  echo ""
-
-  info "Select a briefing file to be read aloud before recording."
-  echo ""
-
-  BRIEFING_FILE=$(gum file --cursor.foreground "$ACCENT_COLOR" \
-    --all \
-  ) || cancelled
-
-  if [[ ! -f "$BRIEFING_FILE" ]]; then
-    die "File not found: $BRIEFING_FILE"
-  fi
-  success "Briefing file: $BRIEFING_FILE"
 }
 
 collect_video() {
@@ -435,12 +511,13 @@ confirm_and_run() {
   echo ""
 
   # Build summary
-  local mode_display="${MODE%% —*}"
   local model_display="$MODEL"
   local topic_display="${TOPIC:-[auto-generated]}"
   local prompt_display=""
 
-  if [[ -n "$PROMPT_FILE" ]]; then
+  if [[ -n "$PROMPT_LABEL" ]]; then
+    prompt_display="$PROMPT_LABEL"
+  elif [[ -n "$PROMPT_FILE" ]]; then
     prompt_display="file: $PROMPT_FILE"
   elif [[ -n "$PROMPT_TEXT" ]]; then
     local preview="${PROMPT_TEXT:0:60}"
@@ -451,7 +528,7 @@ confirm_and_run() {
   fi
 
   gum style --foreground "$DIM_COLOR" \
-    "  Mode:     $mode_display" \
+    "  Mode:     $MODE" \
     "  Model:    $model_display" \
     "  Format:   $FORMAT" \
     "  Output:   $OUTPUT_DIR" \
@@ -460,15 +537,40 @@ confirm_and_run() {
 
   [[ -n "$VIDEO" ]] && gum style --foreground "$DIM_COLOR" "  Video:    $VIDEO"
   [[ -n "$INPUT_FILE" ]] && gum style --foreground "$DIM_COLOR" "  Audio:    $INPUT_FILE"
-  [[ -n "$BRIEFING_FILE" ]] && gum style --foreground "$DIM_COLOR" "  Briefing: $BRIEFING_FILE"
   [[ -n "$HIGH_RES" ]] && gum style --foreground "$DIM_COLOR" "  High-res: ON"
   [[ -n "$GCS_BUCKET" ]] && gum style --foreground "$DIM_COLOR" "  GCS:      $GCS_BUCKET"
 
   echo ""
 
-  if ! gum confirm "Start recording?"; then
-    cancelled
-  fi
+  # Confirmation with optional prompt preview
+  local confirm_choice
+  confirm_choice=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
+    "✅ Start" \
+    "🔍 View prompt" \
+    "❌ Cancel" \
+  ) || cancelled
+
+  case "$confirm_choice" in
+    *"View prompt"*)
+      echo ""
+      if [[ -n "$PROMPT_TEXT" ]]; then
+        echo "$PROMPT_TEXT" | gum pager --border rounded \
+          --border-foreground "$DIM_COLOR"
+      elif [[ -n "$PROMPT_FILE" ]]; then
+        gum pager --border rounded \
+          --border-foreground "$DIM_COLOR" < "$PROMPT_FILE"
+      else
+        info "No prompt to display."
+      fi
+      echo ""
+      # Re-show confirmation after viewing
+      confirm_and_run
+      return
+      ;;
+    *"Cancel"*)
+      cancelled
+      ;;
+  esac
 
   echo ""
 
@@ -479,7 +581,6 @@ confirm_and_run() {
 
   [[ -n "$PROMPT_FILE" ]] && ARGS+=(--prompt-file "$PROMPT_FILE")
   [[ -n "$PROMPT_TEXT" ]] && ARGS+=(--prompt "$PROMPT_TEXT")
-  [[ -n "$BRIEFING_FILE" ]] && ARGS+=(--briefing-file "$BRIEFING_FILE")
   [[ -n "$VIDEO" ]] && ARGS+=(--video "$VIDEO")
   [[ -n "$INPUT_FILE" ]] && ARGS+=(--input-file "$INPUT_FILE")
   [[ -n "$HIGH_RES" ]] && ARGS+=(--high-res)
@@ -506,15 +607,8 @@ main() {
 
   # Conditional input screens based on mode
   case "$MODE" in
-    *"Record Meeting"*)
-      collect_meeting_setup
-      ;;
-    *"With a custom prompt"*)
+    *"Custom Prompt"*)
       collect_prompt
-      ;;
-    *"Full Agentic"*)
-      collect_prompt
-      collect_briefing
       ;;
     *"Transcribe Video"*)
       collect_video
@@ -525,7 +619,7 @@ main() {
     *"Transcribe File"*)
       collect_audio_file
       ;;
-    # "Freeform voice note" — no extra input needed
+    # Record Now and Templates — prompt already loaded, no extra input
   esac
 
   confirm_and_run
