@@ -263,10 +263,12 @@ select_transcribe_source() {
   case "$choice" in
     *"Transcribe Video"*)
       MODE="🎬 Transcribe Video"
+      HIGH_RES="true"  # Descriptive transcription needs high-quality frames
       load_internal_template "video-transcription.md"
       ;;
     *"Transcribe YouTube"*)
       MODE="📺 Transcribe YouTube"
+      HIGH_RES="true"  # Descriptive transcription needs high-quality frames
       load_internal_template "youtube-transcription.md"
       ;;
     *"Transcribe File"*)
