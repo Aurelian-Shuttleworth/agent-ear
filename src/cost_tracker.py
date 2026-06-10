@@ -9,8 +9,10 @@ Copied from transcribe-tool — separate package to avoid shared library.
 
 from dataclasses import dataclass, field
 
-# Pricing per 1M tokens (USD) — last verified 2026-06-10
-PRICING = {
+# Fallback pricing per 1M tokens (USD) — last verified 2026-06-10
+# This dict is the safety net when PriceToken API is unavailable,
+# and the sole source of truth for cache token rates.
+FALLBACK_PRICING = {
     # Gemini 3.5
     "gemini-3.5-flash": {"input": 1.50, "output": 9.00, "cache": 0.15},
     # Gemini 3.x
@@ -45,6 +47,7 @@ class UsageReport:
 @dataclass
 class CostTracker:
     reports: list[UsageReport] = field(default_factory=list)
+    pricing_cache: str | None = None
 
     @property
     def total_cost_usd(self) -> float:
@@ -52,13 +55,15 @@ class CostTracker:
 
     def track(self, model, response):
         """Track usage from a generate_content response."""
+        from pricing import get_rates
+
         usage = response.usage_metadata
         input_tokens = getattr(usage, "prompt_token_count", 0) or 0
         output_tokens = getattr(usage, "candidates_token_count", 0) or 0
         thinking_tokens = getattr(usage, "thoughts_token_count", 0) or 0
         cached_tokens = getattr(usage, "cached_content_token_count", 0) or 0
 
-        rates = PRICING.get(model, PRICING["gemini-3.5-flash"])
+        rates = get_rates(model, cache_path=self.pricing_cache)
         billable_input = input_tokens - cached_tokens
         cost = (
             (billable_input / 1_000_000) * rates["input"]

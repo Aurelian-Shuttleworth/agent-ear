@@ -294,14 +294,35 @@ configure_options() {
   ) || cancelled
   success "Format: $FORMAT"
 
-  # Model selection
+  # Model selection — fetch live pricing (graceful fallback to static labels)
+  local pricing_output pricing_cache_line
+  # Try agent-ear-core first (Nix package), fall back to python from src/
+  if agent-ear-core --fetch-pricing 2>/tmp/agent-ear-pricing-stderr-$$ 1>/tmp/agent-ear-pricing-stdout-$$; then
+    pricing_output=$(cat /tmp/agent-ear-pricing-stdout-$$ 2>/dev/null || true)
+  else
+    pricing_output=""
+  fi
+  pricing_cache_line=$(cat /tmp/agent-ear-pricing-stderr-$$ 2>/dev/null || true)
+  rm -f /tmp/agent-ear-pricing-stderr-$$ /tmp/agent-ear-pricing-stdout-$$
+
+  # Extract cache path from stderr (format: PRICETOKEN_CACHE=/path/to/file)
+  if [[ "$pricing_cache_line" == PRICETOKEN_CACHE=* ]]; then
+    export PRICETOKEN_CACHE="${pricing_cache_line#PRICETOKEN_CACHE=}"
+  fi
+
   local model_choice
-  model_choice=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
-    --header "Transcription model:" \
-    "🟢 Flash — fast, balanced (default)" \
-    "🟡 Flash-Lite — cheapest, lower quality" \
-    "🔴 Pro — premium, expensive" \
-  ) || cancelled
+  if [[ -n "$pricing_output" ]]; then
+    # Use live pricing in model chooser
+    model_choice=$(echo "$pricing_output" | gum choose --cursor.foreground "$ACCENT_COLOR" \
+      --header "Transcription model:") || cancelled
+  else
+    # Fallback to static labels
+    model_choice=$(gum choose --cursor.foreground "$ACCENT_COLOR" \
+      --header "Transcription model:" \
+      "🟢 Flash — fast, balanced (default)" \
+      "🟡 Flash-Lite — cheapest, lower quality" \
+      "🔴 Pro — premium, expensive") || cancelled
+  fi
 
   case "$model_choice" in
     *Flash-Lite*) MODEL="gemini-3.1-flash-lite-preview" ;;

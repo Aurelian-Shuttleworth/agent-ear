@@ -68,7 +68,19 @@ def run_pipeline(
     }
 
     # Global cost tracker — threads through all Gemini calls
-    tracker = CostTracker()
+    # Resolve pricing cache: shell may have set PRICETOKEN_CACHE,
+    # otherwise fetch pricing directly for non-interactive mode.
+    pricing_cache = os.environ.get("PRICETOKEN_CACHE")
+    if not pricing_cache:
+        try:
+            from pricing import fetch_pricing, write_pricing_cache
+
+            pricing = fetch_pricing()
+            pricing_cache = write_pricing_cache(pricing)
+        except Exception:
+            pricing_cache = None  # Graceful fallback to hardcoded rates
+
+    tracker = CostTracker(pricing_cache=pricing_cache)
 
     # --- 0. Config resolution ---
     resolved_project, resolved_location = resolve_config(project_id, location)
