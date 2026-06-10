@@ -17,7 +17,7 @@ from google import genai
 from google.api_core import exceptions as api_exceptions
 from google.genai import types
 
-from config import SAFETY_SETTINGS
+from config import SAFETY_SETTINGS, model_supports_high_res_video
 from cost_tracker import CostTracker
 from upload import detect_mime_type, upload_media
 
@@ -199,8 +199,12 @@ def transcribe(
         config_kwargs["thinking_config"] = thinking_config
 
     if is_video and high_res:
-        config_kwargs["media_resolution"] = types.MediaResolution.MEDIA_RESOLUTION_HIGH
-        print("🔍 Using MEDIA_RESOLUTION_HIGH for text-heavy video")
+        if model_supports_high_res_video(model_name):
+            config_kwargs["media_resolution"] = types.MediaResolution.MEDIA_RESOLUTION_HIGH
+            print("🔍 Using MEDIA_RESOLUTION_HIGH for text-heavy video")
+        else:
+            print(f"⚠️  --high-res requested but {model_name} does not support HIGH video resolution")
+            print("   Auto-downgrading to standard resolution (only gemini-3.5+ supports HIGH for video)")
 
     print(f"✨ Generating transcription with {model_name}...")
 

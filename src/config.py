@@ -65,6 +65,23 @@ TTS_SAMPLE_WIDTH = 2  # 16-bit signed PCM
 # Default TTS voice
 DEFAULT_TTS_VOICE = "Kore"  # Proven in Daily Smart Briefing production
 
+# Models supporting MEDIA_RESOLUTION_HIGH for video (not just single images).
+# Discovered empirically 2026-06-10:
+#   - gemini-3.5-flash: ✅ supports HIGH for video
+#   - gemini-2.5-flash: ❌ 400 INVALID_ARGUMENT ("HIGH media resolution only for single images")
+#   - gemini-3.1-flash-lite-preview: ❌ untested, assumed incompatible
+#   - gemini-2.5-pro: ❌ assumed same limitation as 2.5-flash
+_HIGH_RES_VIDEO_PREFIXES = ("gemini-3.5-", "gemini-4")
+
+
+def model_supports_high_res_video(model_name: str) -> bool:
+    """Check whether a model supports MEDIA_RESOLUTION_HIGH for video content.
+
+    Only Gemini 3.5+ models support high-resolution video processing.
+    Older model families return 400 INVALID_ARGUMENT when this is set.
+    """
+    return any(model_name.startswith(prefix) for prefix in _HIGH_RES_VIDEO_PREFIXES)
+
 
 def resolve_config(cli_project=None, cli_location=None):
     """Resolve project and location via 4-tier chain: CLI → env → gcloud → default.
