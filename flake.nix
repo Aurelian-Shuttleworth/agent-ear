@@ -4,6 +4,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    git-hooks-nix = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Python packaging (all public nix-community / pyproject-nix repos)
     pyproject-nix.url = "github:pyproject-nix/pyproject.nix";
@@ -26,6 +30,7 @@
       ];
 
       imports = [
+        inputs.git-hooks-nix.flakeModule
         ./nix/flake-module.nix
       ];
     };
