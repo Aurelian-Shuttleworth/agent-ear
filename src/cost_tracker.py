@@ -9,14 +9,19 @@ Copied from transcribe-tool — separate package to avoid shared library.
 
 from dataclasses import dataclass, field
 
-# Pricing per 1M tokens (USD) — update as pricing changes
+# Pricing per 1M tokens (USD) — last verified 2026-06-10
 PRICING = {
     # Gemini 3.5
     "gemini-3.5-flash": {"input": 1.50, "output": 9.00, "cache": 0.15},
     # Gemini 3.x
-    "gemini-3-flash-preview": {"input": 1.00, "output": 4.00, "cache": 0.10},
-    "gemini-3.1-flash-lite-preview": {"input": 0.30, "output": 1.50, "cache": 0.03},
-    "gemini-3.1-pro-preview": {"input": 1.25, "output": 10.00, "cache": 0.125},
+    "gemini-3-flash-preview": {"input": 0.50, "output": 3.00, "cache": 0.05},
+    "gemini-3.1-flash-lite-preview": {"input": 0.25, "output": 1.50, "cache": 0.025},
+    "gemini-3.1-flash-lite": {
+        "input": 0.25,
+        "output": 1.50,
+        "cache": 0.025,
+    },  # GA (replaces preview Jul 9 2026)
+    "gemini-3.1-pro-preview": {"input": 2.00, "output": 12.00, "cache": 0.20},
     # Gemini 2.x (legacy)
     "gemini-2.5-pro": {"input": 1.25, "output": 10.00, "cache": 0.125},
     "gemini-2.5-flash": {"input": 0.30, "output": 2.50, "cache": 0.03},
