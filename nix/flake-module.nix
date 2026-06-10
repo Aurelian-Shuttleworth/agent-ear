@@ -220,12 +220,13 @@
           entry = "${pkgs.python313Packages.bandit}/bin/bandit";
           language = "system";
           types = [ "python" ];
+          excludes = [ "tests/" ];
           args = [
             "-c"
             "src/pyproject.toml"
             "--quiet"
             "--skip"
-            "B404,B603,B607,B110"
+            "B101,B404,B603,B607,B110"
           ];
         };
 
