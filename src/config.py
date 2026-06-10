@@ -8,12 +8,39 @@ import os
 import subprocess
 
 from google import genai
+from google.genai import types
 
 # Model constants — verified against Google model catalog 2026-05-25
 DEFAULT_TRANSCRIPTION_MODEL = "gemini-3.5-flash"
 DEFAULT_TTS_MODEL = "gemini-2.5-flash-tts"
 DEFAULT_VALIDATION_MODEL = "gemini-3.5-flash"
 DEFAULT_LOCATION = "global"
+
+# Safety settings — disable all content filters.
+# Agent-ear transcribes arbitrary audio (medical, legal, heated discussions)
+# where legitimate content can trip safety classifiers.
+SAFETY_SETTINGS = [
+    types.SafetySetting(
+        category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
+    ),
+    types.SafetySetting(
+        category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
+    ),
+    types.SafetySetting(
+        category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
+    ),
+    types.SafetySetting(
+        category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
+    ),
+    types.SafetySetting(
+        category=types.HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
+        threshold=types.HarmBlockThreshold.BLOCK_NONE,
+    ),
+]
 
 
 def resolve_output_dir(cli_output_dir=None):
