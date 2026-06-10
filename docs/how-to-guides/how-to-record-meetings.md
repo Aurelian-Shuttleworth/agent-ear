@@ -1,76 +1,122 @@
-# Transcribe a Meeting with Speaker Labels
+# How to Brief Users with Spoken Instructions
 
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
-- Authentication configured — either [Google AI Studio](setup-google-ai-studio.md) or [Vertex AI](setup-vertex-ai.md)
-- Working microphone (built-in or external)
+- Authentication configured: either [Google AI Studio](setup-google-ai-studio.md) or [Vertex AI](setup-vertex-ai.md)
+- Working audio output (speakers or headphones)
 
 ## Steps
 
-### 1. Launch interactive mode and select Templates --> Meeting notes
+### 1. Create a briefing file
 
-Run `agent-ear` without the `--non-interactive` flag to start the interactive TUI:
-
-```bash
-agent-ear
-```
-
-From the mode selection menu, choose:
-
-```
-📋 Templates ▸ — Choose a premade prompt template
-```
-
-Then choose:
-
-```
-🤝 Record Meeting
-```
-### 2. Configure and record
-
-Choose your preferred output format, transcription model and output directory (see also: how-to-use-interactive-mode.md). Then confirm to start recording. Speak naturally — `agent-ear` captures audio until you stop (press `Ctrl+C` or the designated stop key).
-
-> [!NOTE]
-> **Automatic Recovery**: If the transcription fails (e.g., due to a lost internet connection or API error), your raw audio is safely preserved in the `.recovery/` directory so it can be retrieved or processed later.
-
-### 3. Understand the output structure
-
-Agent-ear's output is written as a Markdown file with three sections:
+Write the text you want agent-ear to speak aloud. This is what the user will hear before the microphone activates.
 
 ```markdown
-## Meeting Transcription
-
-Alice: I think we should ship the v2 API this week.
-Bob: Agreed, but we need to finalize the auth middleware first.
-Alice: Right — Charlie, can you handle the token refresh logic?
-Charlie: Yes, I'll have a PR up by Thursday.
-
-## Action Items
-
-- [ ] Charlie: Implement token refresh logic and open PR by Thursday
-- [ ] Bob: Finalize auth middleware before v2 API ship
-
-## Notable Quotes
-
-> "I think we should ship the v2 API this week." — Alice
-> "I'll have a PR up by Thursday." — Charlie
+<!-- briefing.md -->
+Hello! I need you to describe the current status of the project.
+Please cover what's been completed, any blockers you're facing,
+and your priorities for the rest of the week.
+Take your time — there's no rush.
 ```
 
-- **Meeting Transcription** — full speaker-labeled transcript, preserving conversation flow
-- **Action Items** — every commitment or task mentioned, as a checkbox list with an owner
-- **Notable Quotes** — 3–5 impactful or decision-defining quotes from the discussion
+### 2. Create a prompt file
 
-Speakers are differentiated by the AI agent by the sound of their voice. If a speaker can't be distinguished, the transcript falls back to `Unknown Speaker` or numbered speakers (speaker 1, speaker 2, etc.).
+Write the transcription constraints that guide how the recording is processed.
 
-## For agents (`--non-interactive` mode)
+```markdown
+<!-- prompt.md -->
+Transcribe this project status update. Structure the output as:
+- **Completed**: Items finished since last update
+- **Blockers**: Issues preventing progress
+- **Priorities**: Focus areas for the remaining week
 
-Agents can replicate the meeting workflow entirely via `--non-interactive` by passing the meeting prompt with `--prompt`. No interactive TUI is needed.
+Use bullet points. Preserve the speaker's meaning but clean up filler words.
+```
 
-## Tips
+### 3. Run with briefing and prompt
 
-- **Quiet environment** — background noise degrades speaker separation. Close windows and mute notifications.
-- **Single microphone** — one shared mic (e.g. a conference mic in the centre of the table) works better than multiple individual mics. The model distinguishes speakers by voice characteristics, not by input channel.
-- **Speaker pauses** — brief pauses between speakers help the model identify transitions. Avoid talking over each other when possible.
-- **Use named speakers** — named identification produces more useful transcripts, especially for action items. The model can confidently assign owners to tasks when it knows who's who.
-- **Review action items** — the model extracts action items grounded in the audio, but always review the list for completeness. Implicit commitments may be missed if they weren't stated explicitly.
+```bash
+agent-ear --non-interactive \
+  --prompt-file prompt.md \
+  --briefing-file briefing.md
+```
+
+The flow is:
+
+1. 🎙️ **TTS speaks** the briefing text aloud
+2. ⏳ Brief pause for the user to prepare
+3. 🔴 **Recording starts**: microphone captures the response
+4. 📝 **Transcription runs** using the prompt constraints
+
+### 4. Control prosody with Director's Notes
+
+Add YAML frontmatter to the briefing file to control voice style:
+
+```markdown
+---
+style: calm, professional
+pace: slowly
+voice: Kore
+---
+Hello! I need you to describe the current status of the project.
+Please cover what's been completed, any blockers you're facing,
+and your priorities for the rest of the week.
+```
+
+#### Supported frontmatter fields
+
+| Field | Purpose | Default | Example |
+|:------|:--------|:--------|:--------|
+| `style` | Tone and delivery style (controls TTS prosody) | `warm and natural` | `calm, professional` |
+| `pace` | Documents intended pacing (for human reference) | — | `slowly` |
+| `voice` | Gemini TTS voice name | `Kore` | `Puck`, `Charon`, `Kore` |
+| `language_code` | BCP-47 language code | `en-US` | `en-GB`, `nl-NL` |
+
+#### How Director's Notes work
+
+The TTS prompt is constructed as a **style prefix** separated by a colon from the spoken text:
+
+```
+Say the following in a calm, professional tone: Hello! I need you to...
+```
+
+Everything before the colon is a stage direction (never spoken). 
+
+### 5. Model and auth
+
+TTS uses the `gemini-2.5-flash-tts` model with the same authentication as main transcription, no additional setup is required. If you have either an AI Studio key or Vertex AI credentials configured, TTS works automatically.
+
+## Example: agent-driven voice capture
+
+A common pattern for AI agents calling agent-ear:
+
+```bash
+# Agent writes context-specific briefing
+cat > /tmp/briefing.md << 'EOF'
+---
+style: warm, encouraging
+voice: Kore
+---
+Hi! I've reviewed the pull request and have a few questions.
+Could you walk me through the design decisions behind the new caching layer?
+Specifically, why you chose an LRU strategy over TTL-based expiration.
+EOF
+
+# Agent writes structured transcription prompt
+cat > /tmp/prompt.md << 'EOF'
+Transcribe this technical explanation. Extract:
+- Design rationale for LRU cache
+- Trade-offs considered
+- Any follow-up decisions mentioned
+
+Format as structured notes with headers.
+EOF
+
+# Agent runs the capture
+agent-ear --non-interactive \
+  --prompt-file /tmp/prompt.md \
+  --briefing-file /tmp/briefing.md \
+  --output-dir ./notes/ \
+  --output-format markdown
+```
