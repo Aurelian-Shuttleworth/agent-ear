@@ -46,6 +46,13 @@ def download_youtube(url: str) -> str:
     temp_path = tf.name
     tf.close()
 
+    import shutil
+
+    ffmpeg_path = shutil.which("ffmpeg")
+    if not ffmpeg_path:
+        print("⚠️  ffmpeg not found on PATH — HLS/DASH streams may produce corrupted video")
+        print("   Install ffmpeg or ensure it is on PATH for reliable video downloads")
+
     try:
         cmd = [
             "yt-dlp",
@@ -60,6 +67,12 @@ def download_youtube(url: str) -> str:
             temp_path,
             url,
         ]
+        # Explicitly tell yt-dlp where ffmpeg lives (wrapper PATH may not propagate)
+        if ffmpeg_path:
+            ffmpeg_dir = os.path.dirname(ffmpeg_path)
+            cmd.insert(1, "--ffmpeg-location")
+            cmd.insert(2, ffmpeg_dir)
+
         subprocess.run(cmd, check=True)
         size_mb = os.path.getsize(temp_path) / (1024 * 1024)
         print(f"✅ Download complete: {temp_path} ({size_mb:.1f} MB)")
