@@ -102,6 +102,12 @@ exit codes:
         action="store_true",
         help="Skip prompt validation step",
     )
+    agentic.add_argument(
+        "--template-tags",
+        metavar="TAGS",
+        default=None,
+        help="Comma-separated tags from template (merged into Obsidian frontmatter)",
+    )
 
     # Media inputs
     media = parser.add_argument_group("media inputs")
@@ -212,6 +218,7 @@ def main():
             gcs_bucket=args.gcs_bucket,
             max_tokens=args.max_tokens,
             thinking_level=args.thinking_level,
+            template_tags=args.template_tags,
         )
         sys.exit(result.get("exit_code", 0))
 
