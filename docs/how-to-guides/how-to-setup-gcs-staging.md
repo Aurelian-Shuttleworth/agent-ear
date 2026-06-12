@@ -1,10 +1,10 @@
-# Configure GCS Staging for Large Files
+# How to Set Up GCS Staging for Large Files
 
 > **Goal**: Configure a Google Cloud Storage staging bucket for Vertex AI users or files exceeding 2 GB.
 
 ## Prerequisites
 
-- Vertex AI authentication configured — see [Set up Vertex AI Authentication](setup-vertex-ai.md)
+- Vertex AI authentication configured — see [Set up Vertex AI Authentication](how-to-setup-vertex-ai.md)
 - [Google Cloud CLI (`gcloud`)](https://cloud.google.com/sdk/docs/install) installed
 
 ## Why GCS staging is needed

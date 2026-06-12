@@ -264,6 +264,15 @@
           types = [ "python" ];
           pass_filenames = true;
         };
+
+        # ── Docs: internal link integrity (offline-only — ADR 002) ──
+        lychee = {
+          enable = true;
+          entry = "${pkgs.lychee}/bin/lychee --offline --no-progress";
+          language = "system";
+          types = [ "markdown" ];
+          pass_filenames = true;
+        };
       };
 
       # ── Checks (CI-only gates + pre-commit) ─────────────────────

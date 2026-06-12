@@ -11,7 +11,7 @@ category: Resource
 # CLI Reference
 
 > [!NOTE] Diátaxis: Reference
-> This is **information-oriented** documentation. It describes the complete CLI interface exhaustively and accurately. For task-oriented usage, see the [[How-to Guides]].
+> This is **information-oriented** documentation. It describes the complete CLI interface exhaustively and accurately. For task-oriented usage, see the [How-to Guides](../how-to-guides/).
 
 ## Synopsis
 
@@ -136,7 +136,7 @@ Flags that configure the Gemini model and Google Cloud project.
 | Flag | Type | Default | Env Var | Description |
 |:-----|:-----|:--------|:--------|:------------|
 | `--model MODEL` | `string` | `gemini-3.5-flash` | — | Gemini model name for transcription and prompt validation. |
-| `--project-id ID` | `string` | Auto-detected | `GOOGLE_CLOUD_PROJECT` | Google Cloud project ID. Enables Vertex AI mode. See [[authentication]]. |
+| `--project-id ID` | `string` | Auto-detected | `GOOGLE_CLOUD_PROJECT` | Google Cloud project ID. Enables Vertex AI mode. See [Authentication](authentication.md). |
 | `--location LOC` | `string` | `global` | `GOOGLE_CLOUD_LOCATION` | Gemini API region. Falls back through: flag → env var → `gcloud config get-value compute/region` → `global`. |
 | `--gcs-bucket BUCKET` | `string` | `{project}-transcribe-staging` | `AGENT_EAR_GCS_BUCKET` | GCS bucket name for staging media files (Vertex AI, or files > 2 GB). Must exist before use. |
 | `--thinking-level LEVEL` | `string` | `auto` | `AGENT_EAR_THINKING_LEVEL` | Reasoning depth for transcription: `minimal`, `low`, `medium`, `high`. Auto-resolved from prompt complexity and audio duration if not set. |
@@ -194,11 +194,9 @@ All settings follow a consistent resolution chain:
 CLI flag → Environment variable → Auto-detected (gcloud) → Default
 ```
 
-See [[environment-variables]] for the complete environment variable reference.
+See [Environment Variables](environment-variables.md) for the complete environment variable reference.
 
 ## Exit Codes
-
-<!-- REVIEW: Lara — is this section clear enough for a developer building an agent that calls agent-ear? The key insight is that exit code 2 is recoverable. -->
 
 agent-ear uses three exit codes. Agents **must** handle all three to implement robust voice capture workflows.
 
@@ -241,8 +239,8 @@ The validator evaluates five criteria:
 3. Retry with `--prompt "improved prompt text"`.
 4. Alternatively, pass `--no-validate` to skip validation (use with caution).
 
-> [!NOTE] 🔍 **Context for reviewer**
-> Exit code 2 is the key innovation for agent integration. Most CLI tools use only 0 (success) and 1 (failure). Exit code 2 means "your input was bad, try again" — it lets agents implement a retry loop where they improve their prompt based on validator feedback, rather than just failing. This is why it gets its own section.
+> [!NOTE] Why exit code 2 matters
+> Most CLI tools use only 0 (success) and 1 (failure). Exit code 2 means "your input was bad, try again" — it lets agents implement a retry loop where they improve their prompt based on validator feedback, rather than just failing.
 
 ```bash
 # Example: agent retry loop (pseudocode)
@@ -262,5 +260,5 @@ fi
 
 ## See Also
 
-- [[environment-variables]] — Complete environment variable reference
-- [[authentication]] — Auth backend selection and troubleshooting
+- [Environment Variables](environment-variables.md) — Complete environment variable reference
+- [Authentication](authentication.md) — Auth backend selection and troubleshooting

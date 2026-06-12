@@ -1,137 +1,36 @@
-# How to use the Interactive Wizard
+# How to Use the Interactive Wizard
 
-This guide shows you how to use the interactive terminal wizard to configure and run agent-ear without memorising CLI flags. 
-
-> [!NOTE] 🔍 **Context for reviewer**
-> The wizard is powered by [Gum](https://github.com/charmbracelet/gum) — a CLI tool from Charm that renders interactive prompts, selections, and styled text in the terminal. Think of it as a TUI framework but lighter: no persistent application loop, just composable widgets (choose, input, confirm, file picker) that your shell script calls sequentially.
+This guide shows you how to use the interactive terminal wizard to configure and run agent-ear without memorising CLI flags. For the complete list of every screen, menu option, and flag mapping, see the [Interactive Wizard Screens reference](../reference/interactive-tui.md).
 
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md)) — Nix recommended
-- Authentication configured — either [Google AI Studio](setup-google-ai-studio.md) or [Vertex AI](setup-vertex-ai.md)
+- Authentication configured — either [Google AI Studio](how-to-setup-google-ai-studio.md) or [Vertex AI](how-to-setup-vertex-ai.md)
 - A terminal with a TTY (interactive stdin) — the wizard cannot run inside pipes or headless CI
 
 ## When to use interactive mode
 
-AI agents skip the wizard with `--non-interactive` and pass flags directly. Running `agent-ear` **without** the `--non-interactive` flag launches the wizard automatically (provided stdin is a TTY). This is preferable for human users. Here's how to run 'agent-ear' without the '--non-interactive' flag:
+AI agents skip the wizard with `--non-interactive` and pass flags directly. Running `agent-ear` **without** that flag launches the wizard automatically (provided stdin is a TTY) — this is the preferred path for human users:
 
 ```bash
 agent-ear
 ```
 
-## How to interact with the wizard: 
+## Walkthrough: record a quick voice note
 
-The wizard walks you through four screens in sequence. You can cancel at any point — the script exits cleanly without starting a recording.
+1. **Pick a mode.** The wizard opens with **"What would you like to do?"**. For the fastest path, choose **🎤 Record Now** — it uses the built-in Quick Transcript template, so you skip prompt-writing entirely. Prefer a purpose-built prompt? Choose **📋 Templates ▸** and pick one (Meeting Notes, Brain Dump, Dictation, Interview, Lecture Notes), or **📝 Custom Prompt** to write your own.
 
-### Screen 1 — Mode selection
+2. **Configure the basics.** The wizard asks for output format (`markdown` for Obsidian notes), transcription model (live $/min pricing is shown next to each — 🟢 Flash is the default), output directory, and an optional topic for the filename. Most users accept the defaults; **⚙️ Advanced Options** (GCS bucket, high-res video, validation skip) is there if you need it.
 
-The wizard asks **"What would you like to do?"** and presents seven modes:
+3. **Provide mode-specific input.** Only some modes ask for more: Custom Prompt collects your prompt (inline or from a file); the Transcribe modes collect a video file, YouTube URL, or audio file. Record Now and template modes go straight to confirmation.
 
-| Mode | Description |
-|:-----|:------------|
-| 🎤 Record Audio | Freeform voice note — no prompt, just capture and transcribe |
-| 🤝 Record Meeting | Multi-speaker conversation with action points and notable quotes |
-| 📝 Record Audio (with prompt) | Voice note constrained by a custom system prompt |
-| 🗣️ Full Agentic | TTS briefing spoken aloud, then recording with a prompt |
-| 🎬 Transcribe Video | Transcribe a local video file |
-| 📺 Transcribe YouTube | Transcribe a video from a YouTube URL |
-| 📂 Transcribe File | Transcribe an existing audio file (no live recording) |
+4. **Confirm and record.** Review the summary screen. Choose **🔍 View prompt** to read the exact prompt that will steer the transcription, then **✅ Start**. The wizard hands off to `agent-ear-core` and you see the pipeline's output directly: recording starts, and pressing the stop control ends it and begins transcription.
 
-Use the arrow keys to highlight a mode and press Enter to select it.
+Your note lands in the output directory as `{date}_{seq}_{slug}.md`, ready for Obsidian.
 
-> [!TIP] 📸 **Screenshot candidate**
-> A screenshot of the Gum mode picker here would help — the styled, emoji-labelled list is much easier to parse visually than a table. Would that be useful?
+## Tips
 
-### Screen 2 — Configuration
-
-After choosing a mode, the wizard prompts for four settings:
-
-1. **Output format** — Choose `markdown`, `json`, or `raw`
-2. **Transcription model** — Choose from three tiers:
-   - 🟢 Flash-Lite — fast and cheap (default)
-   - 🟡 Flash — balanced quality and cost
-   - 🔴 Pro — premium, most expensive
-
-   <!-- REVIEW: The model names in the wizard are being updated to match the current defaults. Verify after the fix lands. -->
-
-3. **Output directory** — Defaults to `$AGENT_EAR_OUTPUT_DIR` or the current working directory. Edit inline or accept the default.
-4. **Topic slug** — Optional. Leave blank for auto-generation, or type a slug like `sprint-retro-2026-04` to name the output file predictably.
-
-After these four settings, the wizard offers a choice:
-
-- **✅ Continue** — proceed to mode-specific inputs
-- **⚙️ Advanced Options** — open the advanced configuration sub-menu (Screen 2b)
-
-### Screen 2b — Advanced options
-
-Most users never need these. Open this sub-menu when you need to:
-
-| Option | What it does | Default |
-|:-------|:-------------|:--------|
-| Skip prompt validation | Bypass prompt safety checks (`--no-validate`) | Off (validation enabled) |
-| High-resolution mode | Send higher-quality frames for text-heavy video (`--high-res`) | Off |
-| GCS staging bucket | Override the auto-derived GCS bucket for video staging | Auto-derived from project |
-| GCP Project ID | Override `$GOOGLE_CLOUD_PROJECT` / `gcloud config` | Auto-detected |
-| Gemini API location | Override the Gemini API regional endpoint | `global` |
-
-### Screen 3 — Mode-specific inputs
-
-Depending on the mode you chose in Screen 1, the wizard collects additional information:
-
-| Mode | What's collected |
-|:-----|:-----------------|
-| 🎤 Record Audio | *(nothing — straight to confirmation)* |
-| 🤝 Record Meeting | Speaker identification method (by name or numbered), participant names if applicable |
-| 📝 Record Audio (with prompt) | System prompt — typed inline or selected from a file |
-| 🗣️ Full Agentic | System prompt (inline or file) **and** a briefing file (via file picker) |
-| 🎬 Transcribe Video | Local video file (via file picker) |
-| 📺 Transcribe YouTube | YouTube URL (typed inline) |
-| 📂 Transcribe File | Local audio file (via file picker) |
-
-### Screen 4 — Confirmation
-
-The wizard displays a summary of everything you've configured:
-
-```
-✅ Ready to go
-
-  Mode:     🎤 Record Audio
-  Model:    gemini-3.1-flash-lite-preview
-  Format:   markdown
-  Output:   /Users/me/notes
-  Topic:    [auto-generated]
-  Prompt:   [none]
-```
-
-Additional lines appear when relevant (Video, Audio file, Briefing, High-res, GCS bucket).
-
-Press Enter on **"Start recording?"** to launch. The wizard hands off to `agent-ear-core --non-interactive` with the assembled flags and **replaces its own process** (`exec`), so you see core's output directly.
-
-## Relationship to CLI flags
-
-The wizard is a convenience layer — it builds the same `agent-ear-core --non-interactive` command you could type yourself. Here's the mapping:
-
-<!-- REVIEW: Does the wizard-to-CLI mapping table make sense? It shows what happens under the hood. -->
-
-| Wizard choice | CLI flag passed to `agent-ear-core` |
-|:--------------|:------------------------------------|
-| Output format selection | `--output-format <markdown\|json\|raw>` |
-| Model tier selection | `--model <model-id>` |
-| Output directory | `--output-dir <path>` |
-| Topic slug | `--topic <slug>` |
-| Inline prompt text | `--prompt "<text>"` |
-| Prompt from file | `--prompt-file <path>` |
-| Briefing file | `--briefing-file <path>` |
-| Video file / YouTube URL | `--video <path-or-url>` |
-| Audio input file | `--input-file <path>` |
-| High-resolution mode | `--high-res` |
-| Skip prompt validation | `--no-validate` |
-| GCS staging bucket | `--gcs-bucket <name>` |
-| GCP Project ID | `--project-id <id>` |
-| Gemini API location | `--location <region>` |
-| *(always appended)* | `--non-interactive` |
-
-The `--non-interactive` flag is always appended so that `agent-ear-core` runs non-interactively — the wizard has already collected everything it needs.
-
-> [!TIP] 🎬 **Terminal recording candidate**
-> A full walkthrough recording (e.g. with `vhs` or `asciinema`) showing the wizard from mode selection through confirmation would be a valuable companion to this guide. Worth creating?
+- **Templates skip validation.** Curated templates are pre-validated, so template runs start faster than custom prompts (which pass through the LLM-as-a-judge check first).
+- **Video and YouTube modes enable high-res automatically** for faithful transcription of slides and on-screen text.
+- **You can cancel at any screen** — the wizard exits cleanly without recording.
+- **Everything the wizard does maps to CLI flags.** Once a flow feels repetitive, lift the equivalent flags from the [mapping table](../reference/interactive-tui.md#wizard-to-cli-flag-mapping) and script it.

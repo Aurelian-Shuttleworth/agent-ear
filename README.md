@@ -116,7 +116,7 @@ agent-ear supports two authentication backends:
 | **Vertex AI** | Application Default Credentials + GCP project | Full (GCS uploads, all models) |
 | **Google AI Studio** | `GOOGLE_API_KEY` only | Most features (no GCS) |
 
-→ Setup guides: [Google AI Studio](docs/guides/setup-google-ai-studio.md) · [Vertex AI](docs/guides/setup-vertex-ai.md) · [Auth reference](docs/reference/authentication.md)
+→ Setup guides: [Google AI Studio](docs/how-to-guides/how-to-setup-google-ai-studio.md) · [Vertex AI](docs/how-to-guides/how-to-setup-vertex-ai.md) · [Auth reference](docs/reference/authentication.md)
 
 ## Documentation
 
@@ -126,18 +126,19 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework. Star
 |:-----|:---------|:------------|
 | **Tutorial** | [Your First Transcription](docs/tutorials/first-transcription.md) | Get recording in 5 minutes |
 | **Tutorial** | [Home Manager Setup](docs/tutorials/home-manager-setup.md) | Add agent-ear to a Home Manager flake |
-| **How-to** | [Set up AI Studio](docs/guides/setup-google-ai-studio.md) | Free API key authentication |
-| **How-to** | [Set up Vertex AI](docs/guides/setup-vertex-ai.md) | Full-featured GCP authentication |
-| **How-to** | [Configure GCS Staging](docs/guides/setup-gcs-staging.md) | GCS staging (Vertex AI / files > 2 GB) |
-| **How-to** | [TTS Briefing](docs/guides/tts-briefing.md) | Spoken instructions before recording |
-| **How-to** | [Meeting Transcription](docs/guides/meeting-transcription.md) | Multi-speaker meetings with action items |
-| **How-to** | [Interactive Mode](docs/guides/interactive-mode.md) | Guided setup via the terminal wizard |
-| **How-to** | [Nix Consumer Integration](docs/guides/nix-consumer-integration.md) | Use agent-ear in your flake |
+| **How-to** | [How to Set Up Google AI Studio](docs/how-to-guides/how-to-setup-google-ai-studio.md) | Free API key authentication |
+| **How-to** | [How to Set Up Vertex AI](docs/how-to-guides/how-to-setup-vertex-ai.md) | Full-featured GCP authentication |
+| **How-to** | [How to Use the Interactive Wizard](docs/how-to-guides/how-to-use-interactive-mode.md) | Guided setup via the terminal wizard |
+| **How-to** | [How to Record Meetings](docs/how-to-guides/how-to-record-meetings.md) | Multi-speaker meetings with action items |
+| **How-to** | [How to Write Your Own Prompt Template](docs/how-to-guides/how-to-write-your-own-prompt-template.md) | Custom templates for the wizard |
+| **How-to** | [How to Set Up GCS Staging](docs/how-to-guides/how-to-setup-gcs-staging.md) | GCS staging (Vertex AI / files > 2 GB) |
+| **How-to** | [How to Brief Users with Spoken Instructions](docs/how-to-guides/how-to-use-tts-briefing.md) | TTS briefings before recording |
+| **How-to** | [How to Add agent-ear to Your Nix Flake](docs/how-to-guides/how-to-add-agent-ear-to-nix-flake.md) | Use agent-ear in your flake |
+| **Explanation** | [Architecture](docs/explanation/architecture.md) | Dispatcher design, pipeline flow, cost model |
 | **Reference** | [CLI Flags & Exit Codes](docs/reference/cli.md) | Complete flag and exit code reference |
+| **Reference** | [Interactive Wizard Screens](docs/reference/interactive-tui.md) | Screen-by-screen wizard specification |
 | **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
-| **Reference** | [Interactive TUI](docs/reference/interactive-tui.md) | ASCII mockups and UI flow |
 | **Reference** | [Authentication](docs/reference/authentication.md) | Auth resolution & feature matrix |
-| **Explanation** | [Architecture](docs/explanation/architecture.md) | Why three entry points? Design decisions |
 
 See the [Changelog](CHANGELOG.md) for release history.
 
@@ -197,7 +198,7 @@ This places:
 | `agent-ear.workflows.enable` | `true` | Install voice-mode workflow |
 | `agent-ear.configDir` | `".gemini/config"` | Base path for skills/workflows (change to `".agents"` for Antigravity 2.0) |
 
-→ Full guide: [Nix Consumer Integration](docs/guides/nix-consumer-integration.md)
+→ Full guide: [Nix Consumer Integration](docs/how-to-guides/how-to-add-agent-ear-to-nix-flake.md)
 
 ## Development
 

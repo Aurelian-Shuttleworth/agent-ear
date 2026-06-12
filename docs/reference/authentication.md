@@ -11,7 +11,7 @@ category: Resource
 # Authentication
 
 > [!NOTE] Diátaxis: Reference
-> This is **information-oriented** documentation. It describes the complete authentication resolution logic, backend capabilities, and error diagnostics. For setup instructions, see the [[How-to Guides]].
+> This is **information-oriented** documentation. It describes the complete authentication resolution logic, backend capabilities, and error diagnostics. For setup instructions, see the [How-to Guides](../how-to-guides/).
 
 ## Overview
 
@@ -129,7 +129,7 @@ gcloud auth application-default login
 
 For CI/CD and headless environments, use a service account key (step 1) or workload identity (step 4).
 
-See [[environment-variables#GOOGLE_APPLICATION_CREDENTIALS]] for details on the service account key path.
+See [Environment Variables](environment-variables.md#google_application_credentials) for details on the service account key path.
 
 ---
 
@@ -260,7 +260,7 @@ flowchart TD
 
 ## See Also
 
-- [[cli#model--project]] — CLI flags for project and model configuration
-- [[environment-variables]] — Complete environment variable reference
-- [[environment-variables#GOOGLE_API_KEY]] — AI Studio key setup
-- [[environment-variables#GOOGLE_CLOUD_PROJECT]] — GCP project configuration
+- [CLI Reference](cli.md) — CLI flags for project and model configuration
+- [Environment Variables](environment-variables.md) — Complete environment variable reference
+- [Environment Variables](environment-variables.md#google_api_key) — AI Studio key setup
+- [Environment Variables](environment-variables.md#google_cloud_project) — GCP project configuration

@@ -1,4 +1,4 @@
-# Set up Google AI Studio Authentication
+# How to Set Up Google AI Studio Authentication
 
 > **Goal**: Get agent-ear transcribing in under 5 minutes using a free API key — no GCP project required.
 
@@ -54,7 +54,7 @@ Google AI Studio keys provide most features but have important restrictions:
 | Files > 2 GB (GCS staging) | ❌ | ✅ |
 | All model variants | ⚠️ Subset | ✅ |
 
-AI Studio supports files up to 2 GB (small files go inline, larger ones use the Gemini Files API — all transparent and at no additional cost). For files exceeding 2 GB, you'll need Vertex AI authentication with GCS staging. See [Set up Vertex AI Authentication](setup-vertex-ai.md) and [Configure GCS Staging for Large Files](setup-gcs-staging.md).
+AI Studio supports files up to 2 GB (small files go inline, larger ones use the Gemini Files API — all transparent and at no additional cost). For files exceeding 2 GB, you'll need Vertex AI authentication with GCS staging. See [Set up Vertex AI Authentication](how-to-setup-vertex-ai.md) and [Configure GCS Staging for Large Files](how-to-setup-gcs-staging.md).
 
 ## How it works
 

@@ -228,6 +228,6 @@ Here's a minimal, self-contained `flake.nix` that sets up Home Manager with agen
 | Guide | What you'll learn |
 |:------|:------------------|
 | [Your First Transcription](first-transcription.md) | Full walkthrough of recording and output |
-| [Set up Vertex AI](../guides/setup-vertex-ai.md) | Full-featured auth with GCS uploads |
-| [TTS briefing mode](../guides/tts-briefing.md) | Have agent-ear speak instructions before recording |
-| [Nix Consumer Integration](../guides/nix-consumer-integration.md) | Other consumption patterns (overlay, flake-parts) |
+| [Set up Vertex AI](../how-to-guides/how-to-setup-vertex-ai.md) | Full-featured auth with GCS uploads |
+| [TTS briefing mode](../how-to-guides/how-to-use-tts-briefing.md) | Have agent-ear speak instructions before recording |
+| [Nix Consumer Integration](../how-to-guides/how-to-add-agent-ear-to-nix-flake.md) | Other consumption patterns (overlay, flake-parts) |

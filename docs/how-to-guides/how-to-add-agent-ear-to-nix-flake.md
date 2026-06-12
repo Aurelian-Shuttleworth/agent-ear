@@ -1,4 +1,4 @@
-# Consume agent-ear in Your Nix Flake
+# How to Add agent-ear to Your Nix Flake
 
 > **Goal**: Add agent-ear as a dependency in a downstream Nix project using one of three consumption patterns.
 
@@ -155,5 +155,5 @@ Reference them as `inputs.agent-ear.packages.${system}.<name>`.
 
 ## Next steps
 
-- [Set up Google AI Studio Authentication](setup-google-ai-studio.md) — quickest path to get transcribing
-- [Set up Vertex AI Authentication](setup-vertex-ai.md) — full feature set with GCS support
+- [Set up Google AI Studio Authentication](how-to-setup-google-ai-studio.md) — quickest path to get transcribing
+- [Set up Vertex AI Authentication](how-to-setup-vertex-ai.md) — full feature set with GCS support

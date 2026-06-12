@@ -1,11 +1,11 @@
-# Brief Users with Spoken Instructions
+# How to Brief Users with Spoken Instructions
 
 > **Goal**: Use text-to-speech to speak a briefing to the user before recording their response, creating a guided voice capture experience.
 
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
-- Authentication configured — either [Google AI Studio](setup-google-ai-studio.md) or [Vertex AI](setup-vertex-ai.md)
+- Authentication configured — either [Google AI Studio](how-to-setup-google-ai-studio.md) or [Vertex AI](how-to-setup-vertex-ai.md)
 - Working audio output (speakers or headphones)
 
 ## Steps
