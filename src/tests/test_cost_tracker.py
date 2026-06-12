@@ -1,8 +1,11 @@
 """Tests for cost_tracker.py — token billing arithmetic."""
 
+import json
 from unittest.mock import MagicMock
 
-from cost_tracker import CostTracker
+import pytest
+
+from cost_tracker import FALLBACK_PRICING, CostTracker
 
 
 def _make_response(input_tokens=100, output_tokens=50, thinking_tokens=0, cached_tokens=0):
@@ -87,3 +90,29 @@ class TestCostTracker:
         # Should not raise
         tracker.track("unknown-model-xyz", _make_response(input_tokens=100, output_tokens=50))
         assert tracker.total_cost_usd >= 0, "Should produce a non-negative cost"
+
+    def test_pricing_cache_parameter(self, tmp_path):
+        """CostTracker with pricing_cache should use rates from cache file."""
+        cache = {
+            "test-model": {"input": 10.0, "output": 50.0, "cache": 1.0},
+        }
+        cache_path = tmp_path / "pricing.json"
+        cache_path.write_text(json.dumps(cache))
+
+        tracker = CostTracker(pricing_cache=str(cache_path))
+        tracker.track("test-model", _make_response(input_tokens=1_000_000, output_tokens=500_000))
+
+        # Expected: (1M / 1M) * 10.0 + (500K / 1M) * 50.0 = 10.0 + 25.0 = 35.0
+        assert tracker.total_cost_usd == pytest.approx(35.0, rel=0.01)
+
+    def test_pricing_cache_fallback_on_missing_file(self):
+        """CostTracker with invalid cache path should fall back to hardcoded rates."""
+        tracker = CostTracker(pricing_cache="/nonexistent/pricing.json")
+        tracker.track("gemini-3.5-flash", _make_response(input_tokens=1000, output_tokens=500))
+        assert tracker.total_cost_usd > 0
+
+    def test_fallback_pricing_dict_has_expected_models(self):
+        """FALLBACK_PRICING should contain our primary models."""
+        assert "gemini-3.5-flash" in FALLBACK_PRICING
+        assert "gemini-3.1-pro-preview" in FALLBACK_PRICING
+        assert "gemini-3.1-flash-lite-preview" in FALLBACK_PRICING

@@ -162,15 +162,29 @@
         '';
 
       # ── Binary 2: agent-ear (Gum TUI & Dispatcher) ────────────
-      agent-ear-script = pkgs.writeShellApplication {
-        name = "agent-ear";
+      # Two-stage build:
+      #   1. writeShellApplication → shellcheck + set -euo pipefail
+      #   2. makeWrapper → inject AGENT_EAR_TEMPLATES_DIR env var
+      agent-ear-unwrapped = pkgs.writeShellApplication {
+        name = "agent-ear-unwrapped";
         runtimeInputs = [
           pkgs.gum
           core
         ];
         text = builtins.readFile ../scripts/agent-ear.sh;
-        meta.mainProgram = "agent-ear";
       };
+
+      agent-ear-script = pkgs.runCommand "agent-ear"
+        {
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          meta.mainProgram = "agent-ear";
+        }
+        ''
+          mkdir -p $out/bin $out/share
+          cp -r ${../templates} $out/share/agent-ear-templates
+          makeWrapper ${agent-ear-unwrapped}/bin/agent-ear-unwrapped $out/bin/agent-ear \
+            --set AGENT_EAR_TEMPLATES_DIR "$out/share/agent-ear-templates"
+        '';
 
       # ── Custom safety check script ─────────────────────────────
       checkGeminiSafety = pkgs.writeShellApplication {

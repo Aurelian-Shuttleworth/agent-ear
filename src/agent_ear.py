@@ -51,6 +51,7 @@ def run_pipeline(
     gcs_bucket: str | None = None,
     max_tokens: int | None = None,
     thinking_level: str | None = None,
+    template_tags: str | None = None,
 ) -> dict:
     """Run the full agentic listening pipeline.
 
@@ -67,7 +68,19 @@ def run_pipeline(
     }
 
     # Global cost tracker — threads through all Gemini calls
-    tracker = CostTracker()
+    # Resolve pricing cache: shell may have set PRICETOKEN_CACHE,
+    # otherwise fetch pricing directly for non-interactive mode.
+    pricing_cache = os.environ.get("PRICETOKEN_CACHE")
+    if not pricing_cache:
+        try:
+            from pricing import fetch_pricing, write_pricing_cache
+
+            pricing = fetch_pricing()
+            pricing_cache = write_pricing_cache(pricing)
+        except Exception:
+            pricing_cache = None  # Graceful fallback to hardcoded rates
+
+    tracker = CostTracker(pricing_cache=pricing_cache)
 
     # --- 0. Config resolution ---
     resolved_project, resolved_location = resolve_config(project_id, location)
@@ -241,7 +254,7 @@ def run_pipeline(
     # --- 5.5 Obsidian final pass (if raw output lacks frontmatter) ---
     if output_format == "markdown" and not content.strip().startswith("---"):
         print("📝 Adding Obsidian frontmatter via final pass...")
-        content = obsidian_final_pass(client, content, safe_date, tracker)
+        content = obsidian_final_pass(client, content, safe_date, tracker, template_tags=template_tags)
 
     result["content"] = content
     result["cost"] = tracker.total_cost_usd

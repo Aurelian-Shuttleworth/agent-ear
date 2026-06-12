@@ -35,7 +35,7 @@ status: inbox
 category: To Process
 ---
 [EXACT ORIGINAL CONTENT]
-
+{template_tags_hint}
 GUIDELINES:
 - Output MUST start with `---` (YAML frontmatter delimiter).
 - Preserve the original content EXACTLY character-for-character.
@@ -155,6 +155,7 @@ def obsidian_final_pass(
     content: str,
     safe_date: str,
     tracker: CostTracker,
+    template_tags: str | None = None,
 ) -> str:
     """Wrap raw transcription output in Obsidian frontmatter.
 
@@ -166,18 +167,30 @@ def obsidian_final_pass(
         content: Raw transcription text lacking frontmatter.
         safe_date: Date string for frontmatter.
         tracker: CostTracker for usage tracking.
+        template_tags: Optional comma-separated tags from template frontmatter.
 
     Returns:
         Content with YAML frontmatter prepended, or original content on failure.
     """
     model = DEFAULT_VALIDATION_MODEL  # flash-lite — cheapest option
 
+    # Build template tags hint for the system prompt
+    if template_tags:
+        tag_list = [t.strip() for t in template_tags.split(",") if t.strip()]
+        tags_hint = (
+            "\nTEMPLATE TAGS (REQUIRED):\n"
+            f"- The following tags MUST be included in the tags list: {', '.join('#' + t for t in tag_list)}\n"
+            "- Add these IN ADDITION to #audio-note and #inbox.\n"
+        )
+    else:
+        tags_hint = "\n"
+
     try:
         response = client.models.generate_content(
             model=model,
             contents=f"<content>\n{content}\n</content>",
             config=types.GenerateContentConfig(
-                system_instruction=OBSIDIAN_WRAP_PROMPT.format(date=safe_date),
+                system_instruction=OBSIDIAN_WRAP_PROMPT.format(date=safe_date, template_tags_hint=tags_hint),
                 temperature=0.0,
                 safety_settings=SAFETY_SETTINGS,
             ),
