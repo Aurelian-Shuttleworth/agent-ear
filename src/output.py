@@ -55,12 +55,31 @@ def extract_slug(content: str, default: str = "untitled") -> str:
         default: Fallback slug if none found.
 
     Returns:
-        Slug string.
+        Slug string (raw — sanitize before filesystem use).
     """
     match = re.search(r"^slug:\s*(.+)$", content, re.MULTILINE)
     if match:
         return match.group(1).strip()
     return default
+
+
+def sanitize_slug(slug: str, default: str = "untitled") -> str:
+    """Normalize a slug into a filesystem-safe kebab-case token.
+
+    Single choke point for all slug sources (LLM frontmatter, manual
+    topic input) at filename construction — see ADR 001. LLM-generated
+    slugs may contain path separators, spaces, or unicode that would
+    break or misplace the output file.
+
+    Args:
+        slug: Raw slug from any source.
+        default: Fallback if nothing survives sanitization.
+
+    Returns:
+        Lowercase kebab-case string safe for filenames, never empty.
+    """
+    cleaned = re.sub(r"[^a-z0-9]+", "-", slug.lower()).strip("-")
+    return cleaned or default
 
 
 def save_markdown(content: str, output_dir: str, safe_date: str, non_interactive: bool) -> str:
@@ -81,9 +100,11 @@ def save_markdown(content: str, output_dir: str, safe_date: str, non_interactive
         try:
             topic = input("\n📝 Topic (press Enter for auto): ").strip()
             if topic:
-                slug = re.sub(r"[^a-z0-9]+", "-", topic.lower()).strip("-")
+                slug = topic
         except (EOFError, KeyboardInterrupt):
             pass
+
+    slug = sanitize_slug(slug)
 
     # Count existing notes for numbering
     existing = [f for f in os.listdir(output_dir) if f.startswith(safe_date)]
@@ -109,7 +130,7 @@ def save_json(content: str, output_dir: str, safe_date: str, non_interactive: bo
     Returns:
         Path to saved file.
     """
-    slug = extract_slug(content, "untitled")
+    slug = sanitize_slug(extract_slug(content, "untitled"))
     existing = [f for f in os.listdir(output_dir) if f.startswith(safe_date)]
     seq = len(existing) + 1
     filename = f"{safe_date}_{seq:03d}_{slug}.json"
