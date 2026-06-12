@@ -276,6 +276,26 @@
             touch $out
           '';
 
+        # Bash dispatcher routing tests (TTY detection, flag routing)
+        dispatcher = pkgs.runCommand "check-dispatcher"
+          {
+            nativeBuildInputs = [ pkgs.bash pkgs.coreutils ];
+            env.BASH_PATH = "${pkgs.bash}/bin/bash";
+          }
+          ''
+            bash ${../scripts/test-dispatcher.sh} ${../scripts/agent-ear.sh}
+            touch $out
+          '';
+
+        # Security: deep secret scanning (CI-only — too slow for pre-commit)
+        trufflehog = pkgs.runCommand "check-trufflehog"
+          {
+            nativeBuildInputs = [ pkgs.trufflehog ];
+          }
+          ''
+            trufflehog filesystem ${../.} --fail
+            touch $out
+          '';
       };
 
       # ── DevShell ────────────────────────────────────────────────

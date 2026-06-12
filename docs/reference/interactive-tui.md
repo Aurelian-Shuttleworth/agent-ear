@@ -1,6 +1,6 @@
 # Interactive TUI Reference
 
-`agent-ear-interactive` provides a guided Terminal UI (TUI) wizard built with [Gum](https://github.com/charmbracelet/gum). This wizard walks human users through configuring and running the transcription pipeline, before delegating to `agent-ear-core --auto`.
+`agent-ear` provides a guided Terminal UI (TUI) wizard built with [Gum](https://github.com/charmbracelet/gum). When invoked interactively (no `--non-interactive` flag, TTY detected), it walks human users through configuring and running the transcription pipeline, then delegates to `agent-ear-core --non-interactive`.
 
 This document maps the flow of the interactive wizard and provides layout references.
 
@@ -117,4 +117,4 @@ The final screen before `agent-ear-core` is launched. Summarizes all resolved co
 
 **Widget Spec:**
 - Rendered via: `gum confirm`
-- Action: Assembles `ARGS+=("--output-format" "$FORMAT" ...)` and executes `agent-ear-core "${ARGS[@]}" --auto`
+- Action: Assembles `ARGS+=("--output-format" "$FORMAT" ...)` and executes `agent-ear-core "${ARGS[@]}" --non-interactive`

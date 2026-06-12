@@ -3,7 +3,7 @@
 # agent-ear — Smart dispatcher & Gum TUI wrapper
 #
 # This is the main entry point. It first checks for non-interactive
-# usage (e.g. --auto or piped input) and delegates directly to the Python core.
+# usage (e.g. --non-interactive or piped input) and delegates directly to the Python core.
 # If interactive, it launches the TUI wizard to guide the user.
 
 set -euo pipefail
@@ -11,10 +11,16 @@ set -euo pipefail
 # ── Early exit: agent/non-interactive paths ──
 for arg in "$@"; do
   case "$arg" in
-    --auto|--help|-h) exec agent-ear-core "$@" ;;
+    --non-interactive|--help|-h) exec agent-ear-core "$@" ;;
   esac
 done
-[[ ! -t 0 ]] && exec agent-ear-core "$@"
+
+# Not a real interactive terminal → skip TUI, go straight to core.
+# Checks: stdin not a TTY (piped/cron/agent), stdout not a TTY (captured),
+# or TERM is dumb/unset (CI runners, editors, agent sandboxes).
+if [[ ! -t 0 ]] || [[ ! -t 1 ]] || [[ -z "${TERM:-}" ]] || [[ "${TERM:-}" == "dumb" ]]; then
+  exec agent-ear-core "$@"
+fi
 
 # ── Theme ──────────────────────────────────────────────────────────
 # Consistent styling tokens
@@ -482,8 +488,8 @@ confirm_and_run() {
   [[ -n "$PROJECT_ID" ]] && ARGS+=(--project-id "$PROJECT_ID")
   [[ -n "$LOCATION" ]] && ARGS+=(--location "$LOCATION")
 
-  # Always use --auto to skip Python-side interactive prompts
-  ARGS+=(--auto)
+  # Always use --non-interactive to skip Python-side interactive prompts
+  ARGS+=(--non-interactive)
 
   success "Launching agent-ear-core..."
   echo ""

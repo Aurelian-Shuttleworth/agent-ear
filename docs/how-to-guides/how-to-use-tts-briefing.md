@@ -39,7 +39,7 @@ Use bullet points. Preserve the speaker's meaning but clean up filler words.
 ### 3. Run with briefing and prompt
 
 ```bash
-agent-ear --auto \
+agent-ear --non-interactive \
   --prompt-file prompt.md \
   --briefing-file briefing.md
 ```
@@ -119,7 +119,7 @@ Format as structured notes with headers.
 EOF
 
 # Agent runs the capture
-agent-ear --auto \
+agent-ear --non-interactive \
   --prompt-file /tmp/prompt.md \
   --briefing-file /tmp/briefing.md \
   --output-dir ./notes/ \

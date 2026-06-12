@@ -18,7 +18,6 @@ from google.genai import types
 from config import DEFAULT_VALIDATION_MODEL, SAFETY_SETTINGS
 from cost_tracker import CostTracker
 
-
 OBSIDIAN_WRAP_PROMPT = """\
 You are an Obsidian Note Formatter fixing the layout of raw text transcriptions.
 
@@ -64,21 +63,21 @@ def extract_slug(content: str, default: str = "untitled") -> str:
     return default
 
 
-def save_markdown(content: str, output_dir: str, safe_date: str, auto: bool) -> str:
+def save_markdown(content: str, output_dir: str, safe_date: str, non_interactive: bool) -> str:
     """Save transcription as Obsidian markdown note.
 
     Args:
         content: Transcription content.
         output_dir: Directory to save to.
         safe_date: Date string for filename.
-        auto: If False, prompt for topic interactively.
+        non_interactive: If True, skip interactive topic prompt.
 
     Returns:
         Path to saved file.
     """
     slug = extract_slug(content, "untitled")
 
-    if not auto:
+    if not non_interactive:
         try:
             topic = input("\n📝 Topic (press Enter for auto): ").strip()
             if topic:
@@ -98,14 +97,14 @@ def save_markdown(content: str, output_dir: str, safe_date: str, auto: bool) -> 
     return output_path
 
 
-def save_json(content: str, output_dir: str, safe_date: str, auto: bool) -> str:
+def save_json(content: str, output_dir: str, safe_date: str, non_interactive: bool) -> str:
     """Save transcription as structured JSON.
 
     Args:
         content: Transcription content.
         output_dir: Directory to save to.
         safe_date: Date string for filename.
-        auto: If False, reserved for future interactive features.
+        non_interactive: If True, reserved for future interactive features.
 
     Returns:
         Path to saved file.
@@ -128,14 +127,14 @@ def save_json(content: str, output_dir: str, safe_date: str, auto: bool) -> str:
     return output_path
 
 
-def save_raw(content: str, output_dir: str, safe_date: str, auto: bool) -> str:
+def save_raw(content: str, output_dir: str, safe_date: str, non_interactive: bool) -> str:
     """Save raw transcript text.
 
     Args:
         content: Raw transcription content.
         output_dir: Directory to save to.
         safe_date: Date string for filename.
-        auto: If False, reserved for future interactive features.
+        non_interactive: If True, reserved for future interactive features.
 
     Returns:
         Path to saved file.

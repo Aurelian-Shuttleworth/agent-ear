@@ -49,13 +49,13 @@ DO NOT: produce a brief summary. Be thorough.
 
 ```bash
 # Freeform (no prompt)
-agent-ear --auto
+agent-ear --non-interactive
 
 # Constrained by prompt
-agent-ear --auto --prompt-file prompt.md
+agent-ear --non-interactive --prompt-file prompt.md
 
 # From existing file (skip recording)
-agent-ear --auto --input-file recording.wav
+agent-ear --non-interactive --input-file recording.wav
 ```
 
 > [!WARNING] Recording Behavior

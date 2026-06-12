@@ -8,20 +8,18 @@ Handles:
   - Audio duration detection via soundfile
 """
 
+import os
 import sys
 import time
 
 import soundfile as sf
 from google import genai
-from google.genai import types
 from google.api_core import exceptions as api_exceptions
+from google.genai import types
 
+from config import SAFETY_SETTINGS
 from cost_tracker import CostTracker
 from upload import detect_mime_type, upload_media
-
-
-import os
-
 
 # Thinking level hierarchy for promotion comparisons
 _THINKING_LEVELS = ("minimal", "low", "medium", "high")
@@ -106,7 +104,7 @@ def transcribe(
     gcs_bucket: str | None,
     output_format: str,
     tracker: CostTracker | None = None,
-    auto: bool = False,
+    non_interactive: bool = False,
     max_tokens: int | None = None,
     thinking_level: str | None = None,
     extra_tokens: int = 0,
@@ -127,7 +125,7 @@ def transcribe(
         gcs_bucket: Optional explicit GCS bucket name.
         output_format: Output format (markdown/json/raw).
         tracker: Optional CostTracker for usage tracking.
-        auto: Whether running in auto mode.
+        non_interactive: Whether running in non-interactive mode.
         max_tokens: Optional max output tokens override.
         thinking_level: Optional explicit thinking level override.
         extra_tokens: Additive token budget from validator (0-16384).
@@ -147,7 +145,7 @@ def transcribe(
         project_id,
         gcs_bucket,
         is_vertex,
-        auto=auto,
+        non_interactive=non_interactive,
     )
 
     # Build system prompt
@@ -168,9 +166,7 @@ def transcribe(
                 # ~50 tokens/minute of speech, with generous headroom for structure
                 estimated = int(duration_s / 60 * 200)
                 max_tokens = min(max(estimated, 8192), 65536)
-                print(
-                    f"📏 Dynamic token budget: {max_tokens} (for {duration_s:.0f}s recording)"
-                )
+                print(f"📏 Dynamic token budget: {max_tokens} (for {duration_s:.0f}s recording)")
             else:
                 max_tokens = 8192
     else:
@@ -187,6 +183,7 @@ def transcribe(
         system_instruction=system_prompt,
         temperature=0.2,
         max_output_tokens=max_tokens,
+        safety_settings=SAFETY_SETTINGS,
     )
 
     # Resolve thinking configuration via priority chain
@@ -323,9 +320,7 @@ def call_gemini(client, model_name, contents, config, phase_label):
     max_attempts = 3
     for attempt in range(1, max_attempts + 1):
         try:
-            return client.models.generate_content(
-                model=model_name, contents=contents, config=config
-            )
+            return client.models.generate_content(model=model_name, contents=contents, config=config)
         except _TRANSIENT as e:
             if attempt < max_attempts:
                 delay = 2 * attempt
@@ -336,9 +331,7 @@ def call_gemini(client, model_name, contents, config, phase_label):
                 )
                 time.sleep(delay)
             else:
-                raise RuntimeError(
-                    f"❌ {phase_label}: Gemini unavailable after 3 retries."
-                )
+                raise RuntimeError(f"❌ {phase_label}: Gemini unavailable after 3 retries.")
         except api_exceptions.ResourceExhausted:
             raise RuntimeError(
                 f"❌ {phase_label}: Gemini quota exhausted. "
@@ -346,13 +339,10 @@ def call_gemini(client, model_name, contents, config, phase_label):
             )
         except api_exceptions.Unauthenticated:
             raise RuntimeError(
-                f"❌ {phase_label}: Authentication failed. "
-                "Run: gcloud auth application-default login"
+                f"❌ {phase_label}: Authentication failed. Run: gcloud auth application-default login"
             )
         except api_exceptions.PermissionDenied:
-            raise RuntimeError(
-                f"❌ {phase_label}: Permission denied. Ensure Vertex AI API is enabled."
-            )
+            raise RuntimeError(f"❌ {phase_label}: Permission denied. Ensure Vertex AI API is enabled.")
         except Exception:
             raise
 

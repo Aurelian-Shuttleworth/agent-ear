@@ -11,6 +11,7 @@ Design informed by:
   - Google Vertex AI TTS docs (docs.cloud.google.com/text-to-speech/docs/gemini-tts)
 """
 
+import logging
 import os
 import subprocess
 import sys
@@ -21,13 +22,12 @@ import yaml
 from google import genai
 from google.genai import types
 from tenacity import (
+    before_sleep_log,
     retry,
     retry_if_exception,
     stop_after_attempt,
     wait_exponential,
-    before_sleep_log,
 )
-import logging
 
 from config import (
     DEFAULT_TTS_MODEL,
@@ -43,10 +43,7 @@ logger = logging.getLogger(__name__)
 def _is_transient_error(exc: BaseException) -> bool:
     """Check if an exception is a transient server error worth retrying."""
     err_str = str(exc)
-    return any(
-        code in err_str
-        for code in ["500", "503", "INTERNAL", "UNAVAILABLE", "DEADLINE"]
-    )
+    return any(code in err_str for code in ["500", "503", "INTERNAL", "UNAVAILABLE", "DEADLINE"])
 
 
 def parse_briefing_file(briefing_path: str) -> tuple[str, dict | None]:
@@ -158,11 +155,7 @@ def _generate_tts_audio(
         contents=prompt,
         config=config,
     ):
-        if (
-            chunk.candidates
-            and chunk.candidates[0].content
-            and chunk.candidates[0].content.parts
-        ):
+        if chunk.candidates and chunk.candidates[0].content and chunk.candidates[0].content.parts:
             part = chunk.candidates[0].content.parts[0]
             if part.inline_data and part.inline_data.data:
                 pcm_data += part.inline_data.data

@@ -11,7 +11,6 @@ import re
 import subprocess
 import tempfile
 
-
 # YouTube URL detection
 YOUTUBE_PATTERN = re.compile(r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+")
 

@@ -43,9 +43,7 @@ def mock_response():
         response.usage_metadata.candidates_token_count = output_tokens
         response.usage_metadata.thoughts_token_count = thinking_tokens
         response.usage_metadata.cached_content_token_count = cached_tokens
-        response.usage_metadata.total_token_count = (
-            input_tokens + output_tokens + thinking_tokens
-        )
+        response.usage_metadata.total_token_count = input_tokens + output_tokens + thinking_tokens
         return response
 
     return _make

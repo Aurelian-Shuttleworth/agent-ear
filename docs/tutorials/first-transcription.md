@@ -45,7 +45,7 @@ export GOOGLE_API_KEY="your-key-here"
 One command. Nix fetches everything — Python, audio libraries, the lot.
 
 ```bash
-nix run github:Aurelian-Shuttleworth/agent-ear -- --auto
+nix run github:Aurelian-Shuttleworth/agent-ear -- --non-interactive
 ```
 
 Here's what happens:
@@ -78,7 +78,7 @@ You'll see output like this:
 Don't have a microphone, or just want to see the output without speaking? Transcribe a YouTube video instead:
 
 ```bash
-nix run github:Aurelian-Shuttleworth/agent-ear -- --auto --video "https://youtube.com/watch?v=dQw4w9WgXcQ"
+nix run github:Aurelian-Shuttleworth/agent-ear -- --non-interactive --video "https://youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
 agent-ear will:
@@ -126,4 +126,4 @@ You've got the basics working. Here's where to go from here:
 | [Architecture](../explanation/architecture.md) | Understand why agent-ear is designed the way it is |
 
 > [!TIP]
-> If you're using agent-ear from an AI agent (not interactively), always pass `--auto`. This skips interactive prompts and ensures clean JSON-compatible output. See the [CLI reference](../reference/cli.md) for the full flag list.
+> If you're using agent-ear from an AI agent (not interactively), always pass `--non-interactive`. This skips interactive prompts and ensures clean JSON-compatible output. See the [CLI reference](../reference/cli.md) for the full flag list.

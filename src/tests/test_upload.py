@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from config import FILES_API_THRESHOLD, INLINE_THRESHOLD
 from upload import detect_mime_type, upload_media
-from config import INLINE_THRESHOLD, FILES_API_THRESHOLD
 
 
 class TestDetectMimeType:
@@ -57,7 +57,7 @@ class TestUploadMediaInline:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
             mock_part.from_bytes.assert_called_once()
 
@@ -83,7 +83,7 @@ class TestUploadMediaFilesAPI:
             "audio/wav",
             project_id=None,
             is_vertex=False,
-            auto=True,
+            non_interactive=True,
         )
 
         client.files.upload.assert_called_once_with(file=str(large_file))
@@ -115,7 +115,7 @@ class TestUploadMediaFilesAPI:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
 
         assert result is active_file
@@ -145,7 +145,7 @@ class TestUploadMediaFilesAPI:
                     "audio/wav",
                     project_id=None,
                     is_vertex=False,
-                    auto=True,
+                    non_interactive=True,
                 )
 
     def test_files_api_failed_state_raises(self, tmp_path):
@@ -166,7 +166,7 @@ class TestUploadMediaFilesAPI:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
 
     def test_files_api_over_2gb_raises(self, tmp_path, monkeypatch):
@@ -184,7 +184,7 @@ class TestUploadMediaFilesAPI:
                     "audio/wav",
                     project_id=None,
                     is_vertex=False,
-                    auto=True,
+                    non_interactive=True,
                 )
 
 
@@ -198,9 +198,7 @@ class TestUploadMediaGCS:
 
         client = MagicMock()
         with (
-            patch(
-                "upload._upload_to_gcs", return_value="gs://my-bucket/staging/test"
-            ) as mock_gcs,
+            patch("upload._upload_to_gcs", return_value="gs://my-bucket/staging/test") as mock_gcs,
             patch("upload.types.Part") as mock_part,
         ):
             upload_media(
@@ -210,7 +208,7 @@ class TestUploadMediaGCS:
                 project_id=None,
                 bucket_name="my-bucket",
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
             mock_gcs.assert_called_once()
             mock_part.from_uri.assert_called_once()
@@ -225,9 +223,7 @@ class TestUploadMediaGCS:
 
         client = MagicMock()
         with (
-            patch(
-                "upload._upload_to_gcs", return_value="gs://env-bucket/staging/test"
-            ) as mock_gcs,
+            patch("upload._upload_to_gcs", return_value="gs://env-bucket/staging/test") as mock_gcs,
             patch("upload.types.Part"),
         ):
             upload_media(
@@ -236,7 +232,7 @@ class TestUploadMediaGCS:
                 "audio/wav",
                 project_id=None,
                 is_vertex=False,
-                auto=True,
+                non_interactive=True,
             )
             mock_gcs.assert_called_once()
 
@@ -247,9 +243,7 @@ class TestUploadMediaGCS:
 
         client = MagicMock()
         with (
-            patch(
-                "upload._upload_to_gcs", return_value="gs://proj-bucket/staging/test"
-            ) as mock_gcs,
+            patch("upload._upload_to_gcs", return_value="gs://proj-bucket/staging/test") as mock_gcs,
             patch("upload.types.Part"),
             patch("upload.resolve_gcs_bucket", return_value="proj-bucket"),
         ):
@@ -259,7 +253,7 @@ class TestUploadMediaGCS:
                 "audio/wav",
                 project_id="my-project",
                 is_vertex=True,
-                auto=True,
+                non_interactive=True,
             )
             mock_gcs.assert_called_once()
             client.files.upload.assert_not_called()
@@ -279,5 +273,5 @@ class TestUploadMediaGCS:
                     project_id=None,
                     bucket_name="my-bucket",
                     is_vertex=True,
-                    auto=True,
+                    non_interactive=True,
                 )

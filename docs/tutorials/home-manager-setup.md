@@ -174,7 +174,7 @@ Get a key from [Google AI Studio → API Keys](https://aistudio.google.com/apike
 ## 7. Record your first note
 
 ```bash
-agent-ear --auto
+agent-ear --non-interactive
 ```
 
 Speak naturally, then press `Ctrl+C` to stop. A structured markdown note appears in your current directory.

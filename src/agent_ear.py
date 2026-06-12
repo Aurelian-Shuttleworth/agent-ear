@@ -15,7 +15,6 @@ Design informed by:
 import os
 import shutil
 import sys
-
 from datetime import datetime
 
 from briefing import parse_briefing_file, play_briefing
@@ -47,7 +46,7 @@ def run_pipeline(
     project_id: str | None = None,
     location: str = DEFAULT_LOCATION,
     validate: bool = True,
-    auto: bool = False,
+    non_interactive: bool = False,
     high_res: bool = False,
     gcs_bucket: str | None = None,
     max_tokens: int | None = None,
@@ -87,11 +86,7 @@ def run_pipeline(
         result["exit_code"] = 1
         return result
 
-    mode_label = (
-        f"Vertex AI (Project: {resolved_project})"
-        if is_vertex
-        else "Google AI Studio (API key)"
-    )
+    mode_label = f"Vertex AI (Project: {resolved_project})" if is_vertex else "Google AI Studio (API key)"
     print(f"🔑 Auth: {mode_label}")
 
     # --- 1. Load agent prompt ---
@@ -99,7 +94,7 @@ def run_pipeline(
 
     # --- 2. Validate effective prompt and extract thinking hints ---
     # Validation runs on the effective prompt (agent-provided or default).
-    # Only --no-validate suppresses this; --auto has no effect on validation.
+    # Only --no-validate suppresses this; --non-interactive has no effect on validation.
     validator_thinking_hint = None
     validator_extra_tokens = 0
     is_video = bool(video)
@@ -107,9 +102,7 @@ def run_pipeline(
     if validate:
         # Determine the effective prompt that will be sent to the model
         safe_date_for_prompt = datetime.now().strftime("%Y-%m-%d")
-        effective_prompt = agent_prompt or build_default_system_prompt(
-            safe_date_for_prompt, is_video
-        )
+        effective_prompt = agent_prompt or build_default_system_prompt(safe_date_for_prompt, is_video)
 
         print("🔍 Validating prompt...")
         vr, vr_response = validate_prompt(client, effective_prompt)
@@ -165,9 +158,7 @@ def run_pipeline(
                 print(f"   ✏️  Auto-fixing director notes: {bvr.improved_notes}")
                 director_notes = {**(director_notes or {}), **bvr.improved_notes}
 
-            print(
-                f"{'✅' if bvr.valid else '⚠️'} Briefing validated (score: {bvr.score}/5)"
-            )
+            print(f"{'✅' if bvr.valid else '⚠️'} Briefing validated (score: {bvr.score}/5)")
 
     # --- 3. TTS briefing (if briefing text available) ---
     if briefing_text:
@@ -202,9 +193,7 @@ def run_pipeline(
             recovery_dir = os.path.join(resolved_out, ".recovery")
             os.makedirs(recovery_dir, exist_ok=True)
             safe_date_for_recovery = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-            recovery_path = os.path.join(
-                recovery_dir, f"recording_{safe_date_for_recovery}.wav"
-            )
+            recovery_path = os.path.join(recovery_dir, f"recording_{safe_date_for_recovery}.wav")
             shutil.copy2(media_path, recovery_path)
             print(f"🛡️  Recording backed up: {recovery_path}")
 
@@ -230,7 +219,7 @@ def run_pipeline(
                 gcs_bucket=gcs_bucket,
                 output_format=output_format,
                 tracker=tracker,
-                auto=auto,
+                non_interactive=non_interactive,
                 max_tokens=max_tokens,
                 thinking_level=effective_thinking,
                 extra_tokens=validator_extra_tokens,
@@ -244,7 +233,7 @@ def run_pipeline(
                 )
                 print(
                     f"   Re-run with: agent-ear --input-file '{recovery_path}' "
-                    f"{'--prompt-file ' + prompt_file if prompt_file else ''} --auto",
+                    f"{'--prompt-file ' + prompt_file if prompt_file else ''} --non-interactive",
                     file=sys.stderr,
                 )
             raise
@@ -262,11 +251,11 @@ def run_pipeline(
     os.makedirs(output_dir, exist_ok=True)
 
     if output_format == "json":
-        result["output_path"] = save_json(content, output_dir, safe_date, auto)
+        result["output_path"] = save_json(content, output_dir, safe_date, non_interactive)
     elif output_format == "raw":
-        result["output_path"] = save_raw(content, output_dir, safe_date, auto)
+        result["output_path"] = save_raw(content, output_dir, safe_date, non_interactive)
     else:
-        result["output_path"] = save_markdown(content, output_dir, safe_date, auto)
+        result["output_path"] = save_markdown(content, output_dir, safe_date, non_interactive)
 
     # --- 7. Cost summary ---
     tracker.print_summary()

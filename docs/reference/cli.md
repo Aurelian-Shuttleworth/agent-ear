@@ -19,7 +19,7 @@ category: Resource
 agent-ear [-h] [--prompt-file FILE] [--prompt TEXT]
            [--briefing-file FILE] [--no-validate] [--input-file FILE]
            [--video FILE_OR_URL] [--output-dir DIR]
-           [--output-format FMT] [--auto] [--model MODEL]
+           [--output-format FMT] [--non-interactive] [--model MODEL]
            [--project-id ID] [--location LOC] [--gcs-bucket BUCKET]
            [--thinking-level LEVEL] [--high-res] [--max-tokens N]
 ```
@@ -30,11 +30,11 @@ agent-ear [-h] [--prompt-file FILE] [--prompt TEXT]
 
 | Condition | Backend |
 |:----------|:--------|
-| `--auto` flag present | `agent-ear-core` (non-interactive Python pipeline) |
+| `--non-interactive` flag present | `agent-ear-core` (non-interactive Python pipeline) |
 | Non-TTY stdin/stdout | `agent-ear-core` (non-interactive Python pipeline) |
-| Interactive TTY, no `--auto` | Interactive Mode (Gum TUI wizard) |
+| Interactive TTY, no `--non-interactive` | Interactive Mode (Gum TUI wizard) |
 
-Agents **must** always pass `--auto` to bypass the interactive wizard.
+Agents **must** always pass `--non-interactive` to bypass the interactive wizard.
 
 ---
 
@@ -55,16 +55,16 @@ Flags that control the agent's instructions and prompt validation.
 
 ```bash
 # Inline prompt
-agent-ear --auto --prompt "Transcribe this standup meeting with action items"
+agent-ear --non-interactive --prompt "Transcribe this standup meeting with action items"
 
 # Prompt from file
-agent-ear --auto --prompt-file ./prompts/meeting.md
+agent-ear --non-interactive --prompt-file ./prompts/meeting.md
 
 # With TTS briefing
-agent-ear --auto --prompt-file ./prompt.md --briefing-file ./briefing.md
+agent-ear --non-interactive --prompt-file ./prompt.md --briefing-file ./briefing.md
 
 # Skip validation (agent is confident in its prompt)
-agent-ear --auto --prompt "Raw capture" --no-validate
+agent-ear --non-interactive --prompt "Raw capture" --no-validate
 ```
 
 ---
@@ -85,13 +85,13 @@ Flags that specify pre-recorded media instead of live microphone capture.
 
 ```bash
 # Transcribe a pre-recorded audio file
-agent-ear --auto --input-file ./recording.wav
+agent-ear --non-interactive --input-file ./recording.wav
 
 # Transcribe a local video
-agent-ear --auto --video ./presentation.mp4
+agent-ear --non-interactive --video ./presentation.mp4
 
 # Transcribe a YouTube video
-agent-ear --auto --video "https://youtube.com/watch?v=dQw4w9WgXcQ"
+agent-ear --non-interactive --video "https://youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
 ---
@@ -104,7 +104,7 @@ Flags that control where and how results are written.
 |:-----|:-----|:--------|:--------|:------------|
 | `--output-dir DIR` | `path` | Current directory | `AGENT_EAR_OUTPUT_DIR` | Directory to write output files. Created if it does not exist. |
 | `--output-format FMT` | `string` | `markdown` | — | Output format. One of: `markdown`, `json`, `raw`. |
-| `--auto` | `flag` | `false` | — | Non-interactive mode. Skips the TUI wizard and runs the pipeline directly. **Required for agent-driven usage.** |
+| `--non-interactive` | `flag` | `false` | — | Non-interactive mode. Skips the TUI wizard and runs the pipeline directly. **Required for agent-driven usage.** |
 
 #### Output Formats
 
@@ -118,13 +118,13 @@ Flags that control where and how results are written.
 
 ```bash
 # JSON output for programmatic consumption
-agent-ear --auto --output-format json --output-dir ./transcripts
+agent-ear --non-interactive --output-format json --output-dir ./transcripts
 
 # Raw text to stdout-friendly directory
-agent-ear --auto --output-format raw --output-dir /tmp/scratch
+agent-ear --non-interactive --output-format raw --output-dir /tmp/scratch
 
 # Default markdown
-agent-ear --auto --output-dir ./notes
+agent-ear --non-interactive --output-dir ./notes
 ```
 
 ---
@@ -148,16 +148,16 @@ Flags that configure the Gemini model and Google Cloud project.
 
 ```bash
 # Use a specific model
-agent-ear --auto --model gemini-3.1-pro-preview
+agent-ear --non-interactive --model gemini-3.1-pro-preview
 
 # Explicit project and location
-agent-ear --auto --project-id my-project --location us-central1
+agent-ear --non-interactive --project-id my-project --location us-central1
 
 # Custom GCS bucket
-agent-ear --auto --gcs-bucket my-custom-bucket --project-id my-project
+agent-ear --non-interactive --gcs-bucket my-custom-bucket --project-id my-project
 
 # Control reasoning depth
-agent-ear --auto --thinking-level high
+agent-ear --non-interactive --thinking-level high
 ```
 
 ---
@@ -175,13 +175,13 @@ Flags that control audio/video recording quality and token limits.
 
 ```bash
 # High-res recording for detailed transcription
-agent-ear --auto --high-res
+agent-ear --non-interactive --high-res
 
 # Increase token limit for long meetings
-agent-ear --auto --max-tokens 16384
+agent-ear --non-interactive --max-tokens 16384
 
 # High-res video with extended token limit
-agent-ear --auto --video ./long-meeting.mp4 --high-res --max-tokens 32768
+agent-ear --non-interactive --video ./long-meeting.mp4 --high-res --max-tokens 32768
 ```
 
 ---
@@ -246,14 +246,14 @@ The validator evaluates five criteria:
 
 ```bash
 # Example: agent retry loop (pseudocode)
-agent-ear --auto --prompt "$PROMPT" 2>validator_feedback.txt
+agent-ear --non-interactive --prompt "$PROMPT" 2>validator_feedback.txt
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 2 ]; then
   # Read feedback, revise prompt, retry
   FEEDBACK=$(cat validator_feedback.txt)
   # ... agent revises PROMPT based on FEEDBACK ...
-  agent-ear --auto --prompt "$REVISED_PROMPT"
+  agent-ear --non-interactive --prompt "$REVISED_PROMPT"
 elif [ $EXIT_CODE -eq 1 ]; then
   echo "Fatal error — check logs"
   exit 1

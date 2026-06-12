@@ -7,16 +7,16 @@ Here is a graphical overview of the agent-ear architecture:
 
 ```mermaid
 graph TD
-    A["agent-ear<br/>(Bash dispatcher & Gum TUI)"] -->|"--auto flag<br/>or non-TTY stdin"| B["agent-ear-core<br/>(Python pipeline)"]
-    A -->|"interactive TTY<br/>no --auto flag"| A_TUI["Interactive Mode<br/>(Gum TUI wizard)"]
-    A_TUI -->|"exec agent-ear-core --auto"| B
+    A["agent-ear<br/>(Bash dispatcher & Gum TUI)"] -->|"--non-interactive flag<br/>or non-TTY stdin"| B["agent-ear-core<br/>(Python pipeline)"]
+    A -->|"interactive TTY<br/>no --non-interactive flag"| A_TUI["Interactive Mode<br/>(Gum TUI wizard)"]
+    A_TUI -->|"exec agent-ear-core --non-interactive"| B
 
     style A fill:#6366f1,stroke:#4f46e5,color:#fff
     style A_TUI fill:#8b5cf6,stroke:#7c3aed,color:#fff
     style B fill:#0ea5e9,stroke:#0284c7,color:#fff
 ```
 
-Agent-ear routes non-interactive calls (made by AI agents, using --auto flag or piped in via non-interactive command line (non-TTY stdin)) directly to agent-ear-core. All interactive calls (by humans) are routed through the TUI wizard using Gum.
+Agent-ear routes non-interactive calls (made by AI agents, using --non-interactive flag or piped in via non-interactive command line (non-TTY stdin)) directly to agent-ear-core. All interactive calls (by humans) are routed through the TUI wizard using Gum.
 
 | Entry point | What it actually is | Purpose |
 |:------------|:-------------------|:--------|
@@ -25,7 +25,7 @@ Agent-ear routes non-interactive calls (made by AI agents, using --auto flag or 
 
 ## agent-ear: Bash dispatcher and Gum TUI
 
-To handle the different needs of humans and AI agents cleanly, `agent-ear` acts as a smart dispatcher. The Gum TUI wizard walks human users through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --auto` with the assembled flags.
+To handle the different needs of humans and AI agents cleanly, `agent-ear` acts as a smart dispatcher. The Gum TUI wizard walks human users through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --non-interactive` with the assembled flags.
 
 Agent-ear's routing logic at the very top of the script is trivial:
 
@@ -33,7 +33,7 @@ Agent-ear's routing logic at the very top of the script is trivial:
 # Any of these flags → bypass interactive, go straight to core
 for arg in "$@"; do
   case "$arg" in
-    --auto|--help|-h) exec agent-ear-core "$@" ;;
+    --non-interactive|--help|-h) exec agent-ear-core "$@" ;;
   esac
 done
 
@@ -45,7 +45,7 @@ This separation means agents never see the TUI code loading, and humans never ne
 
 ## agent-ear-core: Python pipeline
 
-AI agents work best with `--auto` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They do not have a TTY (no interactive terminal input/output).
+AI agents work best with `--non-interactive` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They do not have a TTY (no interactive terminal input/output).
 
 ## Auth Backend Design
 
@@ -91,7 +91,7 @@ sequenceDiagram
     participant Mic as Microphone
     participant Trans as Gemini (transcription)
 
-    Agent->>Ear: --prompt-file requirements.txt --auto
+    Agent->>Ear: --prompt-file requirements.txt --non-interactive
 
     %% Validation phase — judge evaluates AND improves
     Ear->>Judge: "Evaluate this transcription prompt"
