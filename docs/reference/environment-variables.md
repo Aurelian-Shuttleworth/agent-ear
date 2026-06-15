@@ -202,27 +202,8 @@ export AGENT_EAR_GCS_BUCKET="my-custom-staging-bucket"
 agent-ear --non-interactive --video ./large-video.mp4
 ```
 
----
-
-### `AGENT_EAR_GCS_LOCATION`
-
-| Property | Value |
-|:---------|:------|
-| **Purpose** | Geographic region for GCS bucket creation |
-| **Default** | `EU` |
-| **Required** | No |
-
-Controls where the GCS staging bucket is physically located. Only relevant during initial bucket creation — has no effect if the bucket already exists.
-
-> [!TIP]
-> Set this to match your primary data residency requirements. Common values: `EU`, `US`, `ASIA`.
-
-**Example:**
-
-```bash
-export AGENT_EAR_GCS_LOCATION="US"
-agent-ear --non-interactive --video ./large-recording.mp4 --project-id my-project
-```
+> [!NOTE]
+> agent-ear stages files into an **existing** bucket; it does not create buckets. Choose the bucket's region when you create it (see [How to Set Up GCS Staging](../how-to-guides/how-to-setup-gcs-staging.md)).
 
 ---
 
@@ -236,7 +217,6 @@ agent-ear --non-interactive --video ./large-recording.mp4 --project-id my-projec
 | `GOOGLE_APPLICATION_CREDENTIALS` | ADC service account key path | — | — |
 | `AGENT_EAR_OUTPUT_DIR` | Default output directory | Current directory | — |
 | `AGENT_EAR_GCS_BUCKET` | GCS staging bucket name | `{project}-transcribe-staging` | — |
-| `AGENT_EAR_GCS_LOCATION` | GCS bucket region | `EU` | — |
 | `AGENT_EAR_THINKING_LEVEL` | Reasoning depth override | Auto (duration-based) | — |
 
 ## See Also

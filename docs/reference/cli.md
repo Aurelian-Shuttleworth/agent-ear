@@ -22,19 +22,20 @@ agent-ear [-h] [--prompt-file FILE] [--prompt TEXT]
            [--output-format FMT] [--non-interactive] [--model MODEL]
            [--project-id ID] [--location LOC] [--gcs-bucket BUCKET]
            [--thinking-level LEVEL] [--high-res] [--max-tokens N]
+           [--template-tags TAGS] [--fetch-pricing]
 ```
 
 ## Dispatch Behaviour
 
-`agent-ear` is a smart dispatcher. It selects the mode based on context:
+`agent-ear` is the **Shell** — it routes to a backend based on context:
 
 | Condition | Backend |
 |:----------|:--------|
-| `--non-interactive` flag present | `agent-ear-core` (non-interactive Python pipeline) |
-| Non-TTY stdin/stdout | `agent-ear-core` (non-interactive Python pipeline) |
-| Interactive TTY, no `--non-interactive` | Interactive Mode (Gum TUI wizard) |
+| `--non-interactive` flag present | `agent-ear-core` (the Engine — Python Pipeline) |
+| Non-TTY stdin/stdout, or `TERM` unset/`dumb` | `agent-ear-core` (the Engine — Python Pipeline) |
+| Interactive TTY, no `--non-interactive` | The Wizard (Gum TUI) |
 
-Agents **must** always pass `--non-interactive` to bypass the interactive wizard.
+Agents **must** always pass `--non-interactive` to bypass the Wizard.
 
 ---
 
@@ -104,7 +105,7 @@ Flags that control where and how results are written.
 |:-----|:-----|:--------|:--------|:------------|
 | `--output-dir DIR` | `path` | Current directory | `AGENT_EAR_OUTPUT_DIR` | Directory to write output files. Created if it does not exist. |
 | `--output-format FMT` | `string` | `markdown` | — | Output format. One of: `markdown`, `json`, `raw`. |
-| `--non-interactive` | `flag` | `false` | — | Non-interactive mode. Skips the TUI wizard and runs the pipeline directly. **Required for agent-driven usage.** |
+| `--non-interactive` | `flag` | `false` | — | Skips the Wizard and runs the Pipeline directly. **Required for agent-driven usage.** |
 
 #### Output Formats
 
@@ -168,14 +169,14 @@ Flags that control audio/video recording quality and token limits.
 
 | Flag | Type | Default | Env Var | Description |
 |:-----|:-----|:--------|:--------|:------------|
-| `--high-res` | `flag` | `false` | — | Enable high-resolution audio capture. Increases quality at the cost of larger file size and higher token usage. |
+| `--high-res` | `flag` | `false` | — | Use `MEDIA_RESOLUTION_HIGH` for text-heavy **video** (denser visual sampling — better for slides and on-screen text). Only effective for video on supported models (Gemini 3.5+); ignored otherwise. |
 | `--max-tokens N` | `integer` | Auto-scaled | — | Maximum output token count for the Gemini response. Auto-scaled (~200 tokens/min of speech, floor 8192, cap 65536). Video defaults to 32768. Overridable. |
 
 #### Examples
 
 ```bash
-# High-res recording for detailed transcription
-agent-ear --non-interactive --high-res
+# High-res sampling for a text-heavy video (slides, code on screen)
+agent-ear --non-interactive --video ./slides-talk.mp4 --high-res
 
 # Increase token limit for long meetings
 agent-ear --non-interactive --max-tokens 16384
@@ -183,6 +184,17 @@ agent-ear --non-interactive --max-tokens 16384
 # High-res video with extended token limit
 agent-ear --non-interactive --video ./long-meeting.mp4 --high-res --max-tokens 32768
 ```
+
+---
+
+### Utility
+
+Flags for tooling and metadata. These are rarely typed by hand.
+
+| Flag | Type | Default | Env Var | Description |
+|:-----|:-----|:--------|:--------|:------------|
+| `--template-tags TAGS` | `string` | — | — | Comma-separated tags merged into the output's Obsidian frontmatter. Set automatically when a Prompt Template is selected in the Wizard. |
+| `--fetch-pricing` | `flag` | `false` | — | Fetch live per-model pricing from the PriceToken API, print the model menu, and exit (exit code 0). Used by the Wizard to display current prices. |
 
 ---
 
@@ -227,11 +239,11 @@ An unrecoverable error occurred. Common causes:
 The LLM-as-a-Judge prompt validator scored the prompt below the quality threshold. This is a **recoverable** condition — the agent should revise its prompt and retry.
 
 The validator evaluates five criteria:
-1. **Specificity** — Does the prompt describe what to extract?
-2. **Actionability** — Can the model act on the instructions?
-3. **Scope** — Is the task appropriately bounded?
-4. **Format guidance** — Does the prompt specify output structure?
-5. **Grounding** — Does it reference the audio input?
+1. **Instruction clarity** — Does the prompt specify what information to extract?
+2. **Output structure** — Does it define the expected output format?
+3. **Grounding** — Does it instruct the model to stay grounded in the audio?
+4. **Negative constraints** — Does it provide explicit DO NOT guidelines?
+5. **Completeness** — Does it handle edge cases (multiple speakers, silence, noise)?
 
 **Agent response:**
 1. Read the validation feedback from stderr.

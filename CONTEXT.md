@@ -66,7 +66,7 @@ A Diátaxis task-oriented document in `docs/how-to-guides/`. Convention: filenam
 - The **Shell** wraps the **Engine**; the Engine can run standalone, the Wizard cannot produce output without exec-ing the Engine.
 - A **Prompt Template** belongs to exactly one templates directory; the Wizard discovers user-facing templates by scanning `AGENT_EAR_TEMPLATES_DIR/*.md` at runtime.
 - The **Validator** and the **transcription model** are two separate Gemini calls; the Validator's verdict (score, thinking level, extra tokens) configures the transcription call.
-- Each Wizard fact lives in exactly one doc: `docs/reference/interactive-tui.md` is the canonical screen-by-screen spec; `docs/how-to-guides/how-to-use-interactive-mode.md` is a slim task walkthrough that links to the reference.
+- Each Wizard fact lives in exactly one doc: `docs/reference/interactive-tui.md` is the canonical screen-by-screen spec; `docs/how-to-guides/how-to-use-interactive-terminal-wizard.md` is a slim task walkthrough that links to the reference.
 - Doc reading order (index + README): README → Tutorials → How-to Guides → Explanation → Reference.
 
 ## Open Questions

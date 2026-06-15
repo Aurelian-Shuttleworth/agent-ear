@@ -8,9 +8,9 @@ This guide shows you how to use the interactive terminal wizard to configure and
 - Authentication configured — either [Google AI Studio](how-to-setup-google-ai-studio.md) or [Vertex AI](how-to-setup-vertex-ai.md)
 - A terminal with a TTY (interactive stdin) — the wizard cannot run inside pipes or headless CI
 
-## When to use interactive mode
+## When to use the Wizard
 
-AI agents skip the wizard with `--non-interactive` and pass flags directly. Running `agent-ear` **without** that flag launches the wizard automatically (provided stdin is a TTY) — this is the preferred path for human users:
+AI agents skip the Wizard with `--non-interactive` and pass flags directly. Running `agent-ear` **without** that flag launches the Wizard automatically (provided stdin is a TTY) — this is the preferred path for human users:
 
 ```bash
 agent-ear
