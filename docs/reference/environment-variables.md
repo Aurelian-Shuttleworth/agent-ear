@@ -193,7 +193,7 @@ agent-ear --non-interactive --prompt-file complex-analysis.md
 | **CLI equivalent** | `--gcs-bucket` |
 | **Requires** | Vertex AI mode (a resolved project ID) |
 
-The bucket must exist before use. See [[setup-gcs-staging]] for creation instructions. The default naming convention uses the project ID as a prefix to ensure uniqueness.
+The bucket must exist before use. See [How to Set Up GCS Staging](../how-to-guides/how-to-setup-gcs-staging.md) for creation instructions. The default naming convention uses the project ID as a prefix to ensure uniqueness.
 
 **Example:**
 
@@ -241,5 +241,5 @@ agent-ear --non-interactive --video ./large-recording.mp4 --project-id my-projec
 
 ## See Also
 
-- [[cli]] — Complete CLI flag reference
-- [[authentication]] — Auth backend selection and troubleshooting
+- [CLI Reference](cli.md) — Complete CLI flag reference
+- [Authentication](authentication.md) — Auth backend selection and troubleshooting

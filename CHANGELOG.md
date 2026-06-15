@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Removed
 
-- **GCS auto-provisioning** — Buckets are no longer created automatically. Users must create staging buckets manually before use. See the [GCS staging guide](docs/guides/setup-gcs-staging.md).
+- **GCS auto-provisioning** — Buckets are no longer created automatically. Users must create staging buckets manually before use. See the [GCS staging guide](docs/how-to-guides/how-to-setup-gcs-staging.md).
 
 ### Fixed
 

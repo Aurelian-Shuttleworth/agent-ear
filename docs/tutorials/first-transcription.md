@@ -25,7 +25,7 @@ Before we begin, a quick decision:
 > [!TIP]
 > **Just want to try it?** Go with Google AI Studio. You can switch to Vertex AI later — no code changes needed.
 
-If you already have a GCP project with Vertex AI enabled, see the [Vertex AI setup guide](../guides/setup-vertex-ai.md) and skip ahead to [Run your first transcription](#run-your-first-transcription).
+If you already have a GCP project with Vertex AI enabled, see the [Vertex AI setup guide](../how-to-guides/how-to-setup-vertex-ai.md) and skip ahead to [Run your first transcription](#run-your-first-transcription).
 
 ## Get a Google AI Studio API Key
 
@@ -120,9 +120,9 @@ You've got the basics working. Here's where to go from here:
 
 | Guide | What you'll learn |
 |:------|:------------------|
-| [Set up Vertex AI](../guides/setup-vertex-ai.md) | Full-featured auth with GCS uploads for large files |
-| [Set up GCS staging](../guides/setup-gcs-staging.md) | Cloud storage setup for Vertex AI or files over 2 GB |
-| [TTS briefing mode](../guides/tts-briefing.md) | Have agent-ear speak instructions before recording |
+| [Set up Vertex AI](../how-to-guides/how-to-setup-vertex-ai.md) | Full-featured auth with GCS uploads for large files |
+| [Set up GCS staging](../how-to-guides/how-to-setup-gcs-staging.md) | Cloud storage setup for Vertex AI or files over 2 GB |
+| [TTS briefing mode](../how-to-guides/how-to-use-tts-briefing.md) | Have agent-ear speak instructions before recording |
 | [Architecture](../explanation/architecture.md) | Understand why agent-ear is designed the way it is |
 
 > [!TIP]

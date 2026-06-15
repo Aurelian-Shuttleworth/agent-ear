@@ -8,8 +8,10 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.venv
 .venv/
 venv/
+src/.venv
 *.egg-info/
 *.egg
 dist/
@@ -50,3 +52,4 @@ Desktop.ini
 *.log
 .scratch/
 graphify-out/
+.pre-commit-config.yaml

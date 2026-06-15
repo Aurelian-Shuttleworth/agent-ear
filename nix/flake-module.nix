@@ -191,6 +191,19 @@
         name = "check-gemini-safety";
         text = builtins.readFile ../scripts/check-gemini-safety.sh;
       };
+
+      # ── Offline link checker (ADR 002) ──────────────────────────
+      # lychee builds an HTTP client even in --offline mode and aborts
+      # without CA certs in the Nix sandbox; point it at the nixpkgs
+      # bundle so the client constructs, then no network is used.
+      lycheeOffline = pkgs.writeShellApplication {
+        name = "lychee-offline";
+        runtimeInputs = [ pkgs.lychee ];
+        text = ''
+          export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+          exec lychee --offline --no-progress "$@"
+        '';
+      };
     in
     {
       # ── Packages ────────────────────────────────────────────────
@@ -262,6 +275,15 @@
           entry = "${checkGeminiSafety}/bin/check-gemini-safety";
           language = "system";
           types = [ "python" ];
+          pass_filenames = true;
+        };
+
+        # ── Docs: internal link integrity (offline-only — ADR 002) ──
+        lychee = {
+          enable = true;
+          entry = "${lycheeOffline}/bin/lychee-offline";
+          language = "system";
+          types = [ "markdown" ];
           pass_filenames = true;
         };
       };
