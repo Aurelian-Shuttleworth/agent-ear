@@ -1,11 +1,9 @@
 # How to Brief Users with Spoken Instructions
 
-> **Goal**: Use text-to-speech to speak a briefing to the user before recording their response, creating a guided voice capture experience.
-
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
-- Authentication configured — either [Google AI Studio](how-to-setup-google-ai-studio.md) or [Vertex AI](how-to-setup-vertex-ai.md)
+- Authentication configured: either [Google AI Studio](how-to-setup-google-ai-studio.md) or [Vertex AI](how-to-setup-vertex-ai.md)
 - Working audio output (speakers or headphones)
 
 ## Steps
@@ -24,7 +22,7 @@ Take your time — there's no rush.
 
 ### 2. Create a prompt file
 
-Write the transcription constraints that guide how the recording is processed. This is **not spoken** — it instructs the transcription model.
+Write the transcription constraints that guide how the recording is processed.
 
 ```markdown
 <!-- prompt.md -->
@@ -48,7 +46,7 @@ The flow is:
 
 1. 🎙️ **TTS speaks** the briefing text aloud
 2. ⏳ Brief pause for the user to prepare
-3. 🔴 **Recording starts** — microphone captures the response
+3. 🔴 **Recording starts**: microphone captures the response
 4. 📝 **Transcription runs** using the prompt constraints
 
 ### 4. Control prosody with Director's Notes
@@ -75,9 +73,6 @@ and your priorities for the rest of the week.
 | `voice` | Gemini TTS voice name | `Kore` | `Puck`, `Charon`, `Kore` |
 | `language_code` | BCP-47 language code | `en-US` | `en-GB`, `nl-NL` |
 
-> [!NOTE]
-> The `pace` field is intentionally **not passed** to the TTS model. Gemini interprets pace directives too literally, producing syllable-by-syllable speech. The `style` description alone carries natural pacing — for example, `calm, professional` already implies a measured delivery.
-
 #### How Director's Notes work
 
 The TTS prompt is constructed as a **style prefix** separated by a colon from the spoken text:
@@ -86,11 +81,11 @@ The TTS prompt is constructed as a **style prefix** separated by a colon from th
 Say the following in a calm, professional tone: Hello! I need you to...
 ```
 
-Everything before the colon is a stage direction (never spoken). Everything after is the spoken content.
+Everything before the colon is a stage direction (never spoken). 
 
 ### 5. Model and auth
 
-TTS uses the `gemini-2.5-flash-tts` model with the same authentication as main transcription — no additional setup required. If you have either an AI Studio key or Vertex AI credentials configured, TTS works automatically.
+TTS uses the `gemini-2.5-flash-tts` model with the same authentication as main transcription, no additional setup is required. If you have either an AI Studio key or Vertex AI credentials configured, TTS works automatically.
 
 ## Example: agent-driven voice capture
 

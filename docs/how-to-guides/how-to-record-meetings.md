@@ -1,4 +1,7 @@
-# How to Record Meetings with Speaker Labels
+
+# Transcribe a Meeting with Speaker Labels
+
+This how-to guide shows you how to use interactive mode to record, transcribe and contextualize meetings with agent ear.
 
 ## Prerequisites
 
@@ -29,7 +32,7 @@ Then choose:
 ```
 ### 2. Configure and record
 
-Choose your preferred output format, transcription model and output directory (see also: how-to-use-interactive-mode.md). Then confirm to start recording. Speak naturally — `agent-ear` captures audio until you stop (press `Ctrl+C` or the designated stop key).
+Choose your preferred output format, transcription model and output directory (see also: how-to-use-interactive-mode.md). Then confirm to start recording. Speak naturally: `agent-ear` captures audio until you stop (press `Ctrl+C` or the designated stop key).
 
 > [!NOTE]
 > **Automatic Recovery**: If the transcription fails (e.g., due to a lost internet connection or API error), your raw audio is safely preserved in the `.recovery/` directory so it can be retrieved or processed later.
