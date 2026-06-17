@@ -11,9 +11,9 @@ This how-to guide shows you how to use interactive mode to record, transcribe an
 
 ## Steps
 
-### 1. Launch interactive mode and select Templates --> Meeting notes
+### 1. Launch the Wizard and select Templates --> Meeting notes
 
-Run `agent-ear` without the `--non-interactive` flag to start the interactive TUI:
+Run `agent-ear` without the `--non-interactive` flag to start the Wizard:
 
 ```bash
 agent-ear
@@ -32,7 +32,7 @@ Then choose:
 ```
 ### 2. Configure and record
 
-Choose your preferred output format, transcription model and output directory (see also: how-to-use-interactive-mode.md). Then confirm to start recording. Speak naturally: `agent-ear` captures audio until you stop (press `Ctrl+C` or the designated stop key).
+Choose your preferred output format, transcription model and output directory (see also: how-to-use-interactive-terminal-wizard.md). Then confirm to start recording. Speak naturally: `agent-ear` captures audio until you stop (press `Ctrl+C` or the designated stop key).
 
 > [!NOTE]
 > **Automatic Recovery**: If the transcription fails (e.g., due to a lost internet connection or API error), your raw audio is safely preserved in the `.recovery/` directory so it can be retrieved or processed later.

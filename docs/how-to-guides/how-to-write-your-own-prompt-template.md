@@ -5,7 +5,7 @@ This guide shows you how to create a custom prompt template that appears in the 
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
-- Familiarity with the wizard — see [How to Use the Interactive Wizard](how-to-use-interactive-mode.md)
+- Familiarity with the wizard — see [How to Use the Interactive Wizard](how-to-use-interactive-terminal-wizard.md)
 
 ## Template anatomy
 

@@ -122,7 +122,7 @@ You've got the basics working. Here's where to go from here:
 |:------|:------------------|
 | [Set up Vertex AI](../how-to-guides/how-to-setup-vertex-ai.md) | Full-featured auth with GCS uploads for large files |
 | [Set up GCS staging](../how-to-guides/how-to-setup-gcs-staging.md) | Cloud storage setup for Vertex AI or files over 2 GB |
-| [TTS briefing mode](../how-to-guides/how-to-use-tts-briefing.md) | Have agent-ear speak instructions before recording |
+| [TTS briefings](../how-to-guides/how-to-use-tts-briefing.md) | Have agent-ear speak instructions before recording |
 | [Architecture](../explanation/architecture.md) | Understand why agent-ear is designed the way it is |
 
 > [!TIP]

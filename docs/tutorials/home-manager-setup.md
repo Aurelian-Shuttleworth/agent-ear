@@ -36,7 +36,7 @@ Open your `flake.nix` and add `agent-ear` to the `inputs` block:
 For reproducibility, pin to a tag or commit:
 
 ```nix
-agent-ear.url = "github:Aurelian-Shuttleworth/agent-ear/v1.2.0";
+agent-ear.url = "github:Aurelian-Shuttleworth/agent-ear/v1.1.0";
 ```
 
 ## 2. Apply the overlay
@@ -229,5 +229,5 @@ Here's a minimal, self-contained `flake.nix` that sets up Home Manager with agen
 |:------|:------------------|
 | [Your First Transcription](first-transcription.md) | Full walkthrough of recording and output |
 | [Set up Vertex AI](../how-to-guides/how-to-setup-vertex-ai.md) | Full-featured auth with GCS uploads |
-| [TTS briefing mode](../how-to-guides/how-to-use-tts-briefing.md) | Have agent-ear speak instructions before recording |
+| [TTS briefings](../how-to-guides/how-to-use-tts-briefing.md) | Have agent-ear speak instructions before recording |
 | [Nix Consumer Integration](../how-to-guides/how-to-add-agent-ear-to-nix-flake.md) | Other consumption patterns (overlay, flake-parts) |

@@ -28,7 +28,7 @@ For reproducibility, pin to a Git tag or commit:
 
 ```nix
 # Pin to a release tag
-agent-ear.url = "github:Aurelian-Shuttleworth/agent-ear/v1.2.0";
+agent-ear.url = "github:Aurelian-Shuttleworth/agent-ear/v1.1.0";
 
 # Pin to a specific commit
 agent-ear.url = "github:Aurelian-Shuttleworth/agent-ear/abc1234";
@@ -106,6 +106,9 @@ For projects using [flake-parts](https://flake.parts), import the module and ena
     };
 }
 ```
+
+> [!WARNING]
+> The flake-parts module currently only **declares** the `agent-ear.enable` option — it does not yet wire the package into your outputs. Until that lands, add the package yourself with **Pattern A** (direct reference) or **Pattern B** (overlay). For Home Manager, use the dedicated module in step 3, which is fully implemented.
 
 ### 3. Home Manager integration
 

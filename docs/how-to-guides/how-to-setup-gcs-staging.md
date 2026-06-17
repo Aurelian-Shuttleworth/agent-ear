@@ -2,6 +2,9 @@
 
 > **Goal**: Configure a Google Cloud Storage staging bucket for Vertex AI users or files exceeding 2 GB.
 
+> [!NOTE]
+> New to staging? Read [GCS Staging](../explanation/gcs-staging.md) first for what it is and why agent-ear uses it. This guide is the procedure.
+
 ## Prerequisites
 
 - Vertex AI authentication configured — see [Set up Vertex AI Authentication](how-to-setup-vertex-ai.md)
@@ -78,15 +81,17 @@ agent-ear --non-interactive --gcs-bucket my-custom-staging-bucket --video ./larg
 
 The resolution chain is: `--gcs-bucket` → `AGENT_EAR_GCS_BUCKET` → `{project-id}-transcribe-staging`.
 
-### 5. Configure the bucket location
+### 5. Choose the bucket location
 
-The default bucket location is **EU**. To change it:
+agent-ear stages files into an **existing** bucket — it does not create buckets for you, so set the region when you create the bucket in step 2 via the `--location` flag:
 
 ```bash
-export AGENT_EAR_GCS_LOCATION="US"
+gcloud storage buckets create gs://YOUR_PROJECT_ID-transcribe-staging \
+  --location=US \
+  --uniform-bucket-level-access
 ```
 
-This sets the default location for the auto-derived bucket name. For manually created buckets, set the location in the `gcloud storage buckets create` command.
+Pick the region closest to you or one that matches your data-residency requirements (e.g. `EU`, `US`, `ASIA`).
 
 ### 6. Verify large file support
 

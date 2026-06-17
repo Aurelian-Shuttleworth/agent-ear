@@ -1,14 +1,14 @@
 # The Architecture
  
-Agent-ear has two operational modes. For human users, agent-ear has a bash wrapper that creates a UI. For AI agents, agent-ear works autonomously with the core python pipeline. For the purposes of this document, 'agent-ear' will hereafter refer to the bash dispatcher and gum TUI. 'agent-ear-core' will refer to the python pipeline.
+Agent-ear has two operational modes. For human users, the **Shell** (the `agent-ear` bash script) presents an interactive Wizard. For AI agents, the **Engine** (the `agent-ear-core` Python backend) runs the Pipeline autonomously. This document uses **Shell** for the bash entry point and its Wizard, and **Engine** for the Python backend; the literal binary names `agent-ear` and `agent-ear-core` are used when referring to the executables themselves.
 
-## Operational modes
+## Operational overview
 Here is a graphical overview of the agent-ear architecture:
 
 ```mermaid
 graph TD
-    A["agent-ear<br/>(Bash dispatcher & Gum TUI)"] -->|"--non-interactive flag<br/>or non-TTY stdin"| B["agent-ear-core<br/>(Python pipeline)"]
-    A -->|"interactive TTY<br/>no --non-interactive flag"| A_TUI["Interactive Mode<br/>(Gum TUI wizard)"]
+    A["agent-ear<br/>(Shell — bash entry point)"] -->|"--non-interactive flag<br/>or non-TTY stdin"| B["agent-ear-core<br/>(Engine — Python Pipeline)"]
+    A -->|"interactive TTY<br/>no --non-interactive flag"| A_TUI["Wizard<br/>(Gum TUI)"]
     A_TUI -->|"exec agent-ear-core --non-interactive"| B
 
     style A fill:#6366f1,stroke:#4f46e5,color:#fff
@@ -16,34 +16,36 @@ graph TD
     style B fill:#0ea5e9,stroke:#0284c7,color:#fff
 ```
 
-Agent-ear routes non-interactive calls (made by AI agents, using --non-interactive flag or piped in via non-interactive command line (non-TTY stdin)) directly to agent-ear-core. All interactive calls (by humans) are routed through the TUI wizard using Gum.
+The Shell routes non-interactive calls (made by AI agents, using the `--non-interactive` flag or piped in via a non-TTY stdin) directly to the Engine. All interactive calls (by humans) are routed through the Wizard, which is built with Gum.
 
 | Entry point | What it actually is | Purpose |
 |:------------|:-------------------|:--------|
-| `agent-ear` | Bash script (Nix `writeShellApplication` wrapping `scripts/agent-ear.sh`) | The main interface. Routes non-interactive calls directly to core, otherwise launches the guided TUI wizard using [Gum](https://github.com/charmbracelet/gum). |
-| `agent-ear-core` | Python package (Nix `makeWrapper` around the Python venv) | The pipeline: validate → brief → record → transcribe. |
+| `agent-ear` (the **Shell**) | Bash script (Nix `writeShellApplication` wrapping `scripts/agent-ear.sh`) | The main interface. Routes non-interactive calls directly to the Engine, otherwise launches the guided Wizard using [Gum](https://github.com/charmbracelet/gum). |
+| `agent-ear-core` (the **Engine**) | Python package (Nix `makeWrapper` around the Python venv) | The Pipeline: validate → brief → record → transcribe. |
 
-## agent-ear: Bash dispatcher and Gum TUI
+## The Shell: bash entry point and Wizard
 
-To handle the different needs of humans and AI agents cleanly, `agent-ear` acts as a smart dispatcher. The Gum TUI wizard walks human users through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --non-interactive` with the assembled flags.
+To handle the different needs of humans and AI agents cleanly, `agent-ear` (the Shell) routes by context. The Wizard walks human users through every decision with styled menus and confirmation screens, then delegates to `agent-ear-core --non-interactive` with the assembled flags.
 
-Agent-ear's routing logic at the very top of the script is trivial:
+The Shell's routing logic at the very top of the script is trivial:
 
 ```bash
-# Any of these flags → bypass interactive, go straight to core
+# Any of these flags → bypass the Wizard, go straight to the Engine
 for arg in "$@"; do
   case "$arg" in
     --non-interactive|--help|-h) exec agent-ear-core "$@" ;;
   esac
 done
 
-# Not a TTY (piped, cron, agent) → core
-[[ ! -t 0 ]] && exec agent-ear-core "$@"
+# No interactive terminal (piped stdin/stdout, cron, agent, dumb TERM) → Engine
+if [[ ! -t 0 ]] || [[ ! -t 1 ]] || [[ -z "${TERM:-}" ]] || [[ "${TERM:-}" == "dumb" ]]; then
+  exec agent-ear-core "$@"
+fi
 ```
 
-This separation means agents never see the TUI code loading, and humans never need to know the flag syntax. Both paths ultimately `exec` into the same Python entry point (`agent-ear-core`), which does all the real work.
+This separation means agents never see the Wizard code loading, and humans never need to know the flag syntax. Both paths ultimately `exec` into the Engine (`agent-ear-core`), which does all the real work.
 
-## agent-ear-core: Python pipeline
+## The Engine: Python Pipeline
 
 AI agents work best with `--non-interactive` and structured output. They pass a system prompt, skip interactive menus, and parse the result. They do not have a TTY (no interactive terminal input/output).
 
@@ -86,16 +88,16 @@ Here you can see a sequence diagram of the prompt validation flow in 'agent-ear'
 ```mermaid
 sequenceDiagram
     participant Agent as AI Agent
-    participant Ear as agent-ear-core
-    participant Judge as Gemini (flash)
+    participant Ear as agent-ear-core (Engine)
+    participant Val as Validator<br/>(gemini-3.5-flash)
     participant Mic as Microphone
-    participant Trans as Gemini (transcription)
+    participant Trans as Gemini (transcription model)
 
     Agent->>Ear: --prompt-file requirements.txt --non-interactive
 
-    %% Validation phase — judge evaluates AND improves
-    Ear->>Judge: "Evaluate this transcription prompt"
-    Judge-->>Ear: {score, valid, feedback,<br/>improved_prompt, thinking_level, extra_tokens}
+    %% Validation Stage — Validator scores AND improves
+    Ear->>Val: "Evaluate this prompt"
+    Val-->>Ear: {score, valid, feedback,<br/>improved_prompt, thinking_level, extra_tokens}
 
     alt score < 3: Reject with corrective feedback
         Ear-->>Agent: exit_code: 2 + feedback<br/>+ improved_prompt suggestion
@@ -122,12 +124,12 @@ With agent-ear, prompt validation catches this _before_ any recording happens. A
 4. **Negative constraints** — does it say what to avoid?
 5. **Completeness** — does it handle edge cases?
 
-If the score is below 3/5, the pipeline exits with code `2` and returns an improved prompt suggestion. The agent can refine and retry without ever bothering the human.
+If the score is below 3/5, the Pipeline exits with code `2` and returns an improved prompt suggestion. The agent can refine and retry without ever bothering the human.
 
 Beyond scoring, the validator also emits **transcription hints** — a `thinking_level` recommendation (`low`, `medium`, or `high`) and an `extra_tokens` budget adjustment (0–16384). These hints configure the downstream transcription model's reasoning effort and output token budget, optimising quality for complex prompts without manual tuning.
 
 > [!NOTE]
-> Validation is deliberately **fail-open**: if the validation call itself errors (network issue, quota), the pipeline proceeds anyway. This is part of facilitating off-line use of the tool.
+> Validation is deliberately **fail-open**: if the validation call itself errors (network issue, quota), the Pipeline proceeds anyway. This is part of facilitating off-line use of the tool.
 
 The same pattern applies to TTS briefings — a two-layer check (static regex checks for free, then LLM-as-a-judge) catches non-speakable content like markdown headers, URLs, and pacing mismatches before the TTS API is called.
 
@@ -169,7 +171,7 @@ It is recommended that you use a 7-day lifecycle when using agent-ear. Staging f
 
 ## Cost Tracking
 
-Every Gemini API call in the pipeline is tracked through a `CostTracker` that threads through all phases:
+Every Gemini API call in the Pipeline is tracked through a `CostTracker` that threads through all Stages:
 
 ```mermaid
 flowchart LR
@@ -198,15 +200,13 @@ Each API response includes `usage_metadata` with four token types:
 | Thinking tokens | Output rate | Chain-of-thought (billed as output) |
 | Cached tokens | Reduced rate (~10× cheaper) | Re-used context across calls |
 
-The tracker computes a dollar estimate per call using a built-in pricing table. This approximation helps agents make cost-aware decisions (e.g., choosing `flash-lite` over `pro` when quality requirements are modest).
-
-For current per-model pricing, see the [Google AI pricing page](https://ai.google.dev/pricing) and [Vertex AI pricing page](https://cloud.google.com/vertex-ai/generative-ai/pricing).
+The tracker computes a dollar estimate per call. Rates are fetched live from the [PriceToken](https://pricetoken.ai) API at startup and fall back to a built-in pricing table when the network is unavailable, so cost reporting still works offline. This approximation helps agents make cost-aware decisions (e.g., choosing `flash-lite` over `pro` when quality requirements are modest).
 
 For current per-model pricing, see the [Google AI pricing page](https://ai.google.dev/pricing) and [Vertex AI pricing page](https://cloud.google.com/vertex-ai/generative-ai/pricing).
 
 ### Per-call reporting
 
-At the end of a pipeline run, you see:
+At the end of a Pipeline run, you see:
 
 ```
 💰 gemini-3.5-flash: $0.0001 (in: 1,024, out: 256, think: 64)
