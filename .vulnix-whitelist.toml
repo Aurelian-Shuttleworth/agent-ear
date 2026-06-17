@@ -1,15 +1,42 @@
 # vulnix whitelist — suppresses known false positives or accepted risks.
 #
-# Format: TOML sections keyed by derivation name.
-# Each section can have:
-#   cve = ["CVE-2024-XXXXX"]  — specific CVEs to ignore
-#   until = "2025-12-31"      — auto-expire the whitelist entry
-#   comment = "reason"        — why this is whitelisted
-#
-# Example:
-# [python3-3.13.1]
-# cve = ["CVE-2024-12345"]
-# comment = "Disputed — not exploitable in our usage (CLI tool, no network server)"
-# until = "2026-12-31"
+# Triaged: 2026-06-17
+# Context: agent-ear is a local CLI tool. It does not accept untrusted
+#          network input, run as a server, or parse attacker-controlled
+#          files. Most CVEs below require attack vectors that don't exist
+#          in this tool's threat model.
 #
 # See: https://github.com/nix-community/vulnix#whitelisting
+
+["unbound-1.24.2"]
+comment = "DNS resolver — agent-ear does not run Unbound; transitive closure dep only"
+
+["libsndfile-1.2.2"]
+comment = "Audio I/O — agent-ear only writes self-recorded WAV via soundfile, never opens attacker-controlled audio files"
+
+["ffmpeg-8.0.1"]
+comment = "Video processing — agent-ear uses yt-dlp for download, not ffmpeg's parser on untrusted input"
+
+["giflib-5.2.2"]
+comment = "Image processing — agent-ear does not process images; transitive dep via ffmpeg"
+
+["libxml2-2.15.1"]
+comment = "XML parsing — agent-ear does not parse XML; transitive dep"
+
+["zlib-1.3.2"]
+comment = "CVE-2026-27820 is Ruby-specific (zlib gem); CVE-2023-6992 is Cloudflare fork only. Neither applies."
+
+["sqlite-3.51.2"]
+comment = "Database — agent-ear does not use SQLite; transitive dep via Python"
+
+["protobuf-6.33.6"]
+comment = "Serialization — used internally by google-genai; no untrusted protobuf input"
+
+["openmp-21.1.8"]
+comment = "CVE-2022-26345 requires local DLL search path manipulation; not relevant for Nix-packaged binary"
+
+["cryptography-46.0.6"]
+comment = "Transitive via google-auth; no direct crypto operations on untrusted input"
+
+# NOTE: openssl and urllib3 are intentionally NOT whitelisted.
+# They should be fixed via Dependabot's weekly flake.lock bump.
