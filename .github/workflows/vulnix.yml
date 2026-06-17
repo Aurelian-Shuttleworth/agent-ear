@@ -1,0 +1,88 @@
+name: "Vulnerability Scan — Nix Closure"
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "flake.lock"
+      - "uv.lock"
+      - "pyproject.toml"
+      - "flake.nix"
+      - "nix/**"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "flake.lock"
+      - "uv.lock"
+      - "pyproject.toml"
+      - "flake.nix"
+      - "nix/**"
+  schedule:
+    - cron: "30 3 * * 1" # Monday 03:30 UTC (after Dependabot PRs)
+
+permissions: read-all
+
+jobs:
+  vulnix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Set up Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@87b14cf437d03d37989d87f0fa5ce4f5dc1a330b # v8
+
+      - name: Build package
+        run: nix build --print-build-logs
+
+      - name: Scan Nix closure with vulnix
+        run: |
+          nix run nixpkgs#vulnix -- \
+            --json \
+            --closure \
+            --whitelist .vulnix-whitelist.toml \
+            ./result > vulnix-report.json 2>&1 || true
+
+          # Parse results and report
+          if [ -s vulnix-report.json ]; then
+            echo "::group::Vulnix Report"
+            cat vulnix-report.json
+            echo "::endgroup::"
+
+            # Count vulnerabilities (non-whitelisted)
+            VULN_COUNT=$(python3 -c "
+          import json, sys
+          try:
+              data = json.load(open('vulnix-report.json'))
+              if isinstance(data, list):
+                  print(len(data))
+              else:
+                  print(0)
+          except (json.JSONDecodeError, FileNotFoundError):
+              print(0)
+          ")
+
+            if [ "$VULN_COUNT" -gt 0 ]; then
+              echo "::warning::vulnix found $VULN_COUNT vulnerable packages in the Nix closure. Review vulnix-report.json."
+            else
+              echo "✅ No vulnerabilities found in Nix closure."
+            fi
+          else
+            echo "✅ No vulnerabilities found in Nix closure."
+          fi
+
+      - name: Upload vulnix report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vulnix-report
+          path: vulnix-report.json
+          retention-days: 30
+          if-no-files-found: ignore

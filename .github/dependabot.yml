@@ -8,6 +8,10 @@ updates:
       day: "monday"
     labels:
       - "dependencies"
+      - "ci"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
     groups:
       all:
         patterns:
@@ -20,6 +24,10 @@ updates:
       day: "monday"
     labels:
       - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
     groups:
       all:
         patterns:
@@ -32,6 +40,10 @@ updates:
       day: "monday"
     labels:
       - "dependencies"
+      - "nix"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
     groups:
       all:
         patterns:

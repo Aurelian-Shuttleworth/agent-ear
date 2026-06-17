@@ -1,0 +1,15 @@
+# vulnix whitelist — suppresses known false positives or accepted risks.
+#
+# Format: TOML sections keyed by derivation name.
+# Each section can have:
+#   cve = ["CVE-2024-XXXXX"]  — specific CVEs to ignore
+#   until = "2025-12-31"      — auto-expire the whitelist entry
+#   comment = "reason"        — why this is whitelisted
+#
+# Example:
+# [python3-3.13.1]
+# cve = ["CVE-2024-12345"]
+# comment = "Disputed — not exploitable in our usage (CLI tool, no network server)"
+# until = "2026-12-31"
+#
+# See: https://github.com/nix-community/vulnix#whitelisting
