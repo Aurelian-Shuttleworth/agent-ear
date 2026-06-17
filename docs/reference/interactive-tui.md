@@ -1,8 +1,8 @@
 # Interactive Wizard Screens
 
-Screen-by-screen specification of the interactive wizard. This is the canonical reference for the wizard's menus, options, and the CLI flags each choice maps to. For a task-oriented walkthrough, see [How to Use the Interactive Wizard](../how-to-guides/how-to-use-interactive-mode.md).
+Screen-by-screen specification of the interactive wizard. This is the canonical reference for the wizard's menus, options, and the CLI flags each choice maps to. For a task-oriented walkthrough, see [How to Use the Interactive Wizard](../how-to-guides/how-to-use-interactive-terminal-wizard.md).
 
-The wizard is part of the `agent-ear` dispatcher script and launches automatically when `agent-ear` runs in a TTY without the `--non-interactive` flag. It is built with [Gum](https://github.com/charmbracelet/gum) and assembles a single `agent-ear-core` invocation, then replaces its own process (`exec`).
+The Wizard is part of the `agent-ear` Shell script and launches automatically when `agent-ear` runs in a TTY without the `--non-interactive` flag. It is built with [Gum](https://github.com/charmbracelet/gum) and assembles a single `agent-ear-core` (Engine) invocation, then replaces its own process (`exec`).
 
 ## Screen flow
 

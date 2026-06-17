@@ -34,7 +34,7 @@ How-to guides assume you have a working installation and need to accomplish a pa
 
 - [How to Set Up Google AI Studio Authentication](how-to-guides/how-to-setup-google-ai-studio.md) — Free API key authentication
 - [How to Set Up Vertex AI Authentication](how-to-guides/how-to-setup-vertex-ai.md) — Full-featured GCP authentication
-- [How to Use the Interactive Wizard](how-to-guides/how-to-use-interactive-mode.md) — Guided setup via the terminal wizard
+- [How to Use the Interactive Wizard](how-to-guides/how-to-use-interactive-terminal-wizard.md) — Guided setup via the terminal wizard
 - [How to Record Meetings with Speaker Labels](how-to-guides/how-to-record-meetings.md) — Multi-speaker meetings with action items
 - [How to Write Your Own Prompt Template](how-to-guides/how-to-write-your-own-prompt-template.md) — Custom templates for the wizard
 - [How to Set Up GCS Staging](how-to-guides/how-to-setup-gcs-staging.md) — GCS staging (Vertex AI / files > 2 GB)
@@ -50,6 +50,8 @@ How-to guides assume you have a working installation and need to accomplish a pa
 Explanation content provides the broader context that other documentation types deliberately leave out. Read these when you want to understand *why* agent-ear works the way it does.
 
 - [Architecture](explanation/architecture.md) — Design decisions, pipeline flow, and cost model
+- [GCS Staging](explanation/gcs-staging.md) — What staging is, why it exists, and when you need it
+- [Comparison with Wispr Flow](explanation/comparison-with-wispr-flow.md) — How agent-ear differs from a dictation tool
 
 ---
 

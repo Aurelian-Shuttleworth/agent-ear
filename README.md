@@ -2,11 +2,11 @@
 
 **Open-source agentic CLI tool for voice and video comprehension.**
 
-Agent ear offers open-source audio and video comprehension for your agentic IDE, including antigravity. Despite its deep Gemini integration, the tool is CLI-agnostic; it runs wherever command-line execution is available as long as an API key is provided.
+Agent ear offers open-source audio and video comprehension for your agentic IDE, including Antigravity. Despite its deep Gemini integration, the tool is CLI-agnostic; it runs wherever command-line execution is available as long as an API key is provided.
 
 **Move Beyond Simplistic Transcription**
 
-Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, --- . It handles the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
+Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, the model hears what plain transcription throws away — the stress, hesitation, and timing that change what words actually mean. It handles the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
 
 **End-to-End Agentic Pipeline**
 
@@ -38,7 +38,7 @@ agent-ear
 
 ## Features
 
-- **🎤 Voice Capture** — Record audio via microphone with automatic silence detection
+- **🎤 Voice Capture** — Record audio via microphone; stop with `Ctrl+C` or the on-screen button
 - **🗣️ TTS Briefing** — Speak instructions to the user before recording (with Director's Notes prosody control)
 - **📝 Prompt Validation** — LLM-as-a-judge scoring prevents garbage-in/garbage-out
 - **🎬 Video Contextualization** — WCAG-compliant descriptions of local video files or YouTube URLs
@@ -50,9 +50,9 @@ agent-ear
 ## Architecture
 
 ```
-agent-ear (Bash wrapper)
-├── --non-interactive or non-TTY → exec agent-ear-core (Python pipeline)
-└── interactive TTY   → Launch Interactive Mode (Gum TUI wizard)
+agent-ear (the Shell)
+├── --non-interactive or non-TTY → exec agent-ear-core (the Engine)
+└── interactive TTY   → Launch the Wizard (Gum TUI)
                              └── exec agent-ear-core --non-interactive
 ```
 
@@ -60,8 +60,8 @@ Two entry points, one tool:
 
 | Binary | Purpose |
 |:-------|:--------|
-| `agent-ear` | Main entry point — handles routing and interactive wizard |
-| `agent-ear-core` | Python backend — the pipeline that agents and scripts call |
+| `agent-ear` | Main entry point (the **Shell**) — handles routing and the Wizard |
+| `agent-ear-core` | The **Engine** — the Pipeline that agents and scripts call |
 
 ## Usage
 
@@ -128,13 +128,14 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework. Star
 | **Tutorial** | [Home Manager Setup](docs/tutorials/home-manager-setup.md) | Add agent-ear to a Home Manager flake |
 | **How-to** | [How to Set Up Google AI Studio](docs/how-to-guides/how-to-setup-google-ai-studio.md) | Free API key authentication |
 | **How-to** | [How to Set Up Vertex AI](docs/how-to-guides/how-to-setup-vertex-ai.md) | Full-featured GCP authentication |
-| **How-to** | [How to Use the Interactive Wizard](docs/how-to-guides/how-to-use-interactive-mode.md) | Guided setup via the terminal wizard |
+| **How-to** | [How to Use the Interactive Wizard](docs/how-to-guides/how-to-use-interactive-terminal-wizard.md) | Guided setup via the terminal wizard |
 | **How-to** | [How to Record Meetings](docs/how-to-guides/how-to-record-meetings.md) | Multi-speaker meetings with action items |
 | **How-to** | [How to Write Your Own Prompt Template](docs/how-to-guides/how-to-write-your-own-prompt-template.md) | Custom templates for the wizard |
 | **How-to** | [How to Set Up GCS Staging](docs/how-to-guides/how-to-setup-gcs-staging.md) | GCS staging (Vertex AI / files > 2 GB) |
 | **How-to** | [How to Brief Users with Spoken Instructions](docs/how-to-guides/how-to-use-tts-briefing.md) | TTS briefings before recording |
 | **How-to** | [How to Add agent-ear to Your Nix Flake](docs/how-to-guides/how-to-add-agent-ear-to-nix-flake.md) | Use agent-ear in your flake |
-| **Explanation** | [Architecture](docs/explanation/architecture.md) | Dispatcher design, pipeline flow, cost model |
+| **Explanation** | [Architecture](docs/explanation/architecture.md) | Shell/Engine design, pipeline flow, cost model |
+| **Explanation** | [GCS Staging](docs/explanation/gcs-staging.md) | What staging is and when you need it |
 | **Reference** | [CLI Flags & Exit Codes](docs/reference/cli.md) | Complete flag and exit code reference |
 | **Reference** | [Interactive Wizard Screens](docs/reference/interactive-tui.md) | Screen-by-screen wizard specification |
 | **Reference** | [Environment Variables](docs/reference/environment-variables.md) | All env vars |
@@ -166,6 +167,8 @@ See the [Changelog](CHANGELOG.md) for release history.
   agent-ear.enable = true;
 }
 ```
+
+> The flake-parts module currently only exposes the `enable` option; add the package via the overlay or `packages` output above. For a turnkey setup, use the Home Manager module below.
 
 ### With Home Manager (recommended)
 
