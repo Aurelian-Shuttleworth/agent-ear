@@ -1,5 +1,3 @@
-<!-- REVIEW: Lara — are the release dates correct? I used 2026-05-31 for v1.1.0 and a placeholder for v1.0.0. -->
-
 # Changelog
 
 All notable changes to agent-ear are documented in this file.
@@ -40,8 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [1.0.0] — 2025-XX-XX
-
-<!-- REVIEW: Lara — please fill in the actual v1.0.0 release date. -->
+## [1.0.0] — 2026-05-21
 
 Initial release.

@@ -1,12 +1,20 @@
 # agent-ear
 
+[![CI](https://github.com/Aurelian-Shuttleworth/agent-ear/actions/workflows/ci.yml/badge.svg)](https://github.com/Aurelian-Shuttleworth/agent-ear/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/License-MIT%20%26%20Apache--2.0-blue.svg)](LICENSE-MIT)
+[![Nix](https://img.shields.io/badge/built%20with-Nix-7e7eff.svg)](https://nixos.org/)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Aurelian-Shuttleworth/agent-ear/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Aurelian-Shuttleworth/agent-ear)
+
 **Open-source agentic CLI tool for voice and video comprehension.**
+
+> [!WARNING]
+> **Alpha Release:** agent-ear is in active development. APIs and configuration flags may change before v1.0 stable.
 
 Agent ear offers open-source audio and video comprehension for your agentic IDE, including Antigravity. Despite its deep Gemini integration, the tool is CLI-agnostic; it runs wherever command-line execution is available as long as an API key is provided.
 
 **Move Beyond Simplistic Transcription**
 
-Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, the model hears what plain transcription throws away — the stress, hesitation, and timing that change what words actually mean. It handles the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
+Agent-ear's elegant multimodal architecture enables **prosodic contextualization**[^1]: preserving the semantic meaning carried by emphasis, tone, and pacing. By sending media directly to a multimodal model rather than a speech-to-text intermediary, the model hears what plain transcription throws away — the stress, hesitation, and timing that change what words actually mean. It handles the inherent messiness of unscripted speech from meetings, monologues, YouTube videos, and lecture recordings. WCAG-compatible video descriptions extend this to visual content, ensuring human accessibility for visually impaired users while grounding visual information as machine-readable text that persists for any downstream model.
 
 **End-to-End Agentic Pipeline**
 
@@ -215,6 +223,12 @@ nix flake check
 # Build the package
 nix build
 ```
+
+## Community & Governance
+
+- [Contributing Guide](CONTRIBUTING.md) — How to set up the dev environment and submit PRs
+- [Security Policy](SECURITY.md) — How to report vulnerabilities safely
+- [Code of Conduct](CODE_OF_CONDUCT.md) — Community guidelines
 
 ## License
 
