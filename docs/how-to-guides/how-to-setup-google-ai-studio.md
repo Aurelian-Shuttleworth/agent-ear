@@ -1,4 +1,4 @@
-# Set up Google AI Studio Authentication
+# How to Set up Google AI Studio Authentication
 
 This how-to guide shows you how to set up Google AI Studio Authentication for agent-ear.
 ## Prerequisites
