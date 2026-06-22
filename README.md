@@ -24,25 +24,27 @@ Agent-ear exposes a full pipeline where an AI agent validates its own 'extractio
 
 ## Quick Start
 
-### Run without installing (from GitHub)
+### Install via Homebrew (macOS)
 
 ```bash
+brew tap Aurelian-Shuttleworth/tools
+brew install agent-ear
+```
+
+→ Full guide: [How to Install via Homebrew](docs/how-to-guides/how-to-install-via-homebrew.md)
+
+### Install via Nix (macOS / Linux)
+
+```bash
+# Run without installing (from GitHub)
 nix run github:Aurelian-Shuttleworth/agent-ear
-```
 
-### Run locally (from source)
-
-```bash
+# Or clone and run locally
 git clone https://github.com/Aurelian-Shuttleworth/agent-ear.git
-cd agent-ear
-
-# Run directly
-nix run .
-
-# Or enter the development shell
-nix develop
-agent-ear
+cd agent-ear && nix run .
 ```
+
+→ Full guide: [How to Add agent-ear to Your Nix Flake](docs/how-to-guides/how-to-add-agent-ear-to-nix-flake.md)
 
 ## Features
 
@@ -134,6 +136,7 @@ Full documentation follows the [Diátaxis](https://diataxis.fr/) framework. Star
 |:-----|:---------|:------------|
 | **Tutorial** | [Your First Transcription](docs/tutorials/first-transcription.md) | Get recording in 5 minutes |
 | **Tutorial** | [Home Manager Setup](docs/tutorials/home-manager-setup.md) | Add agent-ear to a Home Manager flake |
+| **How-to** | [How to Install via Homebrew](docs/how-to-guides/how-to-install-via-homebrew.md) | Install on macOS with Homebrew |
 | **How-to** | [How to Set Up Google AI Studio](docs/how-to-guides/how-to-setup-google-ai-studio.md) | Free API key authentication |
 | **How-to** | [How to Set Up Vertex AI](docs/how-to-guides/how-to-setup-vertex-ai.md) | Full-featured GCP authentication |
 | **How-to** | [How to Use the Interactive Wizard](docs/how-to-guides/how-to-use-interactive-terminal-wizard.md) | Guided setup via the terminal wizard |
