@@ -55,7 +55,7 @@ You are transcribing a daily standup meeting.
 mkdir -p ~/agent-ear-templates
 ```
 
-Copy a packaged template as a starting point — the repository's [`templates/`](../../templates/) directory has six to choose from, and `templates/internal/` shows the structure used for video and audio ingestion.
+Copy a packaged template as a starting point: the repository's [`templates/`](../../templates/) directory has six to choose from, and `templates/internal/` shows the structure used for video and audio ingestion.
 
 ### 2. Write the template
 
@@ -71,16 +71,16 @@ agent-ear
 Your templates now populate the **📋 Templates ▸** menu in place of the packaged set.
 
 > [!NOTE]
-> `AGENT_EAR_TEMPLATES_DIR` replaces the packaged directory entirely — it is not merged. If you want the built-in templates alongside your own, copy them into your directory first.
+> `AGENT_EAR_TEMPLATES_DIR` replaces the packaged directory entirely, it is not merged. If you want the built-in templates alongside your own, copy them into your directory first.
 
 ### 4. Test it
 
-Select your template in the wizard and use **🔍 View prompt** on the confirmation screen to verify the body loaded exactly as written. Template runs skip prompt validation (curated templates are treated as pre-validated), so mistakes in the prompt go straight to the transcription model — review the first output carefully.
+Select your template in the wizard and use **🔍 View prompt** on the confirmation screen to verify the body loaded exactly as written. Template runs skip prompt validation (curated templates are treated as pre-validated), so mistakes in the prompt go straight to the transcription model. Review the first output carefully.
 
 ## Writing effective template prompts
 
 - **State the role and task in the first line** ("You are transcribing a …").
 - **Number the instructions** and keep each one a single obligation.
-- **Define the output structure literally** — the model mirrors the headings you show it.
+- **Define the output structure literally:** the model mirrors the headings you show it.
 - **Constrain hallucination explicitly**: forbid inferring content that was not spoken.
 - Keep timestamps, speaker labels, and formatting rules in the instructions, not the description.
