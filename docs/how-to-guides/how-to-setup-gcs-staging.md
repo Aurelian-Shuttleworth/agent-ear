@@ -2,6 +2,9 @@
 
 This how-to guide shows you how to decide if you require GCS, how to set up a GCS bucket, how to configure the bucket and test that it works with agent-ear.
 
+> [!NOTE]
+> New to staging? Read [GCS Staging](../explanation/gcs-staging.md) first for what it is and why agent-ear uses it. This guide is the procedure.
+
 ## Prerequisites
 
 - Vertex AI authentication configured (see also [Set up Vertex AI Authentication](setup-vertex-ai.md))
