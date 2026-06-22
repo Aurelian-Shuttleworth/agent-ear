@@ -1,5 +1,5 @@
 
-# Transcribe a Meeting with Speaker Labels
+# How to Transcribe a Meeting with Speaker Labels
 
 This how-to guide shows you how to use interactive mode to record, transcribe and contextualize meetings with agent ear.
 
