@@ -22,7 +22,7 @@ Add agent-ear to your `flake.nix` inputs:
 }
 ```
 
-#### Pin to a specific version
+#### Optional: Pin to a specific version (best practice)
 
 For reproducibility, pin to a Git tag or commit:
 
