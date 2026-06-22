@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/Aurelian-Shuttleworth/agent-ear/actions/workflows/ci.yml/badge.svg)](https://github.com/Aurelian-Shuttleworth/agent-ear/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-MIT%20%26%20Apache--2.0-blue.svg)](LICENSE-MIT)
+[![Homebrew](https://img.shields.io/badge/install%20via-Homebrew-FBB040.svg)](docs/how-to-guides/how-to-install-via-homebrew.md)
 [![Nix](https://img.shields.io/badge/built%20with-Nix-7e7eff.svg)](https://nixos.org/)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Aurelian-Shuttleworth/agent-ear/badge)](https://securityscorecards.dev/viewer/?uri=github.com/Aurelian-Shuttleworth/agent-ear)
 
@@ -213,6 +214,27 @@ This places:
 | `agent-ear.configDir` | `".gemini/config"` | Base path for skills/workflows (change to `".agents"` for Antigravity 2.0) |
 
 → Full guide: [Nix Consumer Integration](docs/how-to-guides/how-to-add-agent-ear-to-nix-flake.md)
+
+## For Homebrew Users
+
+Install agent-ear and all native dependencies with two commands:
+
+```bash
+brew tap Aurelian-Shuttleworth/tools
+brew install agent-ear
+```
+
+This installs both `agent-ear` (interactive wizard) and `agent-ear-core` (Python engine), plus all native dependencies (`gum`, `portaudio`, `libsndfile`, `ffmpeg`, `yt-dlp`).
+
+```bash
+# Verify
+agent-ear --help
+
+# Update
+brew upgrade agent-ear
+```
+
+→ Full guide: [How to Install via Homebrew](docs/how-to-guides/how-to-install-via-homebrew.md)
 
 ## Development
 
