@@ -22,8 +22,8 @@ If you discover a security vulnerability in agent-ear, please report it responsi
 
 ### Alternative: Email
 
-If GitHub Private Vulnerability Reporting is not available, email the maintainer
-directly. Contact details are in [MAINTAINERS.md](MAINTAINERS.md).
+If GitHub Private Vulnerability Reporting is not available, contact the
+lead maintainer via their GitHub profile listed in [MAINTAINERS.md](MAINTAINERS.md).
 
 ## What Counts as a Security Issue
 

@@ -8,7 +8,7 @@
 **Open-source agentic CLI tool for voice and video comprehension.**
 
 > [!WARNING]
-> **Alpha Release:** agent-ear is in active development. APIs and configuration flags may change before v1.0 stable.
+> **Alpha Release:** agent-ear is in active development. APIs and configuration flags may change between minor versions.
 
 Agent ear offers open-source audio and video comprehension for your agentic IDE, including Antigravity. Despite its deep Gemini integration, the tool is CLI-agnostic; it runs wherever command-line execution is available as long as an API key is provided.
 
