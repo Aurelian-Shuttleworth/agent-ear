@@ -1,6 +1,6 @@
 # How to Add agent-ear to Your Nix Flake
 
-> **Goal**: Add agent-ear as a dependency in a downstream Nix project using one of three consumption patterns.
+This how-to guide will show you how to add agent-ear as a dependency in a downstream Nix project using one of three consumption patterns.
 
 ## Prerequisites
 
