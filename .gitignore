@@ -53,3 +53,4 @@ Desktop.ini
 .scratch/
 graphify-out/
 .pre-commit-config.yaml
+tmp/

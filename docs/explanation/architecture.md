@@ -265,5 +265,3 @@ Key design decisions visible in this flow:
 - **Cleanup only on success** — temp files and recovery copies are only deleted after the output is saved. Partial failures preserve everything.
 - **Dynamic token budgets** — output token limits scale with recording duration (~200 tokens per minute of speech, floor 8192, cap 65536). Video defaults to 32768. The prompt validator can add up to 16384 extra tokens via its `extra_tokens` hint, and agents can request additional tokens via `--extra-tokens N` (or the `AGENT_EAR_EXTRA_TOKENS` env var). All sources stack additively, clamped to 16384.
 - **Validator-driven reasoning** — the prompt validator emits `thinking_level` and `extra_tokens` hints that configure the transcription model's reasoning depth and token budget, optimising quality without manual tuning. Agents can also override thinking with `--thinking-level` and add budget with `--extra-tokens`.
-
-Technically, if a user explicitly passes `--gcs-bucket`, GCS uploads happen regardless of auth backend.

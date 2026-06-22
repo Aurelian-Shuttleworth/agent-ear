@@ -11,7 +11,7 @@ This documentation is organised using the [Diátaxis framework](https://diataxis
 | Starting point | Go to |
 |---|---|
 | New to agent-ear? | [Your First Transcription](tutorials/first-transcription.md) — up and recording in 5 minutes |
-| Setting up auth? | [Google AI Studio (easy)](how-to-guides/how-to-setup-google-ai-studio.md) or [Vertex AI (full)](how-to-guides/how-to-setup-vertex-ai.md) |
+| Setting up auth? | [Google AI Studio (quickest setup)](how-to-guides/how-to-setup-google-ai-studio.md) or [Vertex AI (full)](how-to-guides/how-to-setup-vertex-ai.md) |
 | Looking for a flag? | [CLI Reference](reference/cli.md) — every flag, subcommand, and exit code |
 
 ---
