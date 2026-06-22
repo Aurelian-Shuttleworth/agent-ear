@@ -1,11 +1,11 @@
 # How to Write Your Own Prompt Template
 
-This guide shows you how to create a custom prompt template that appears in the wizard's **📋 Templates ▸** menu, so a transcription style you use repeatedly becomes a one-keystroke choice.
+This guide shows you how to create a custom prompt template that appears in the wizard's **📋 Templates ▸** menu, for custom transcription styles you want to use repeatedly.
 
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
-- Familiarity with the wizard — see [How to Use the Interactive Wizard](how-to-use-interactive-terminal-wizard.md)
+- Familiarity with the wizard (see: [How to Use the Interactive Wizard](how-to-use-interactive-terminal-wizard.md))
 
 ## Template anatomy
 
