@@ -1,7 +1,6 @@
-# How to Set Up Vertex AI Authentication (Full Features)
+# How to Set up Vertex AI Authentication (Full Features)
 
-> **Goal**: Configure a GCP project with Application Default Credentials to unlock the complete agent-ear feature set, including GCS uploads for large files.
-
+This how-to guide shows you how to set up Vertex AI Authentication and test that it works.
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
@@ -13,7 +12,7 @@
 
 If you don't have a project, create one at [console.cloud.google.com/projectcreate](https://console.cloud.google.com/projectcreate).
 
-Note your **Project ID** (not the display name) — you'll need it in the next steps.
+Record your **Project ID** (not the display name) as you will need it in the next steps.
 
 ### 2. Enable the Vertex AI API
 
@@ -85,5 +84,5 @@ The resolution chain for location is: `--location` flag → `GOOGLE_CLOUD_LOCATI
 
 ## Next steps
 
-- [Configure GCS Staging for Large Files](how-to-setup-gcs-staging.md) — required for large files when using Vertex AI
-- [Brief Users with Spoken Instructions](how-to-use-tts-briefing.md) — use TTS to speak instructions before recording
+- [Configure GCS Staging for Large Files](setup-gcs-staging.md) — required for large files when using Vertex AI
+- [Brief Users with Spoken Instructions](tts-briefing.md) — use TTS to speak instructions before recording

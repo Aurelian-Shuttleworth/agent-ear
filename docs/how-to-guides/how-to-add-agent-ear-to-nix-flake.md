@@ -1,6 +1,6 @@
 # How to Add agent-ear to Your Nix Flake
 
-> **Goal**: Add agent-ear as a dependency in a downstream Nix project using one of three consumption patterns.
+This how-to guide will show you how to add agent-ear as a dependency in a downstream Nix project using one of three consumption patterns.
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ Add agent-ear to your `flake.nix` inputs:
 }
 ```
 
-#### Pin to a specific version
+#### Optional: Pin to a specific version (best practice)
 
 For reproducibility, pin to a Git tag or commit:
 
@@ -40,7 +40,7 @@ agent-ear provides three ways to consume the package. Choose the one that fits y
 
 #### Pattern A: Direct package reference
 
-The simplest approach — reference the package output directly.
+The simplest approach: reference the package output directly.
 
 ```nix
 {
@@ -108,7 +108,7 @@ For projects using [flake-parts](https://flake.parts), import the module and ena
 ```
 
 > [!WARNING]
-> The flake-parts module currently only **declares** the `agent-ear.enable` option — it does not yet wire the package into your outputs. Until that lands, add the package yourself with **Pattern A** (direct reference) or **Pattern B** (overlay). For Home Manager, use the dedicated module in step 3, which is fully implemented.
+> The flake-parts module currently only **declares** the `agent-ear.enable` option. It does not yet wire the package into your outputs. Until that lands, add the package yourself with **Pattern A** (direct reference) or **Pattern B** (overlay). For Home Manager, use the dedicated module in step 3, which is fully implemented.
 
 ### 3. Home Manager integration
 
