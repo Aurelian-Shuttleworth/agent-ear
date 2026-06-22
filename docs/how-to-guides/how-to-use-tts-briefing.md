@@ -1,5 +1,7 @@
 # How to Brief Users with Spoken Instructions
 
+This how-to guide primarily serves AI agents working with agent-ear. 
+
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
