@@ -42,10 +42,17 @@ jobs:
         run: |
           VERSION="${{ github.event.release.tag_name }}"
 
-          # Build the Python wheel using uv (available in the Nix dev
-          # shell via flake devShell inputs).  uv build handles isolated
-          # builds natively — no venv or pip workaround needed.
-          nix develop --command uv build --wheel --directory src --out-dir dist/
+          # Build the Python wheel. The Nix dev shell provides Python +
+          # project deps, but its site-packages is read-only.  Use a
+          # temporary venv that inherits the system packages and adds
+          # only the 'build' frontend.
+          nix develop --command bash -c '
+            python -m venv --system-site-packages .build-venv
+            .build-venv/bin/pip install --quiet "build==1.2.2"
+            cd src
+            ../.build-venv/bin/python -m build --wheel --outdir ../dist/
+          '
+          rm -rf .build-venv
 
           # Package everything Homebrew needs into a clean tarball:
           #   - dist/*.whl         (Python wheel)
