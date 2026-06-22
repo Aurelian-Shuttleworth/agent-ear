@@ -1,4 +1,4 @@
-# Configure GCS Staging for Large Files
+# How to Configure GCS Staging for Large Files
 
 This how-to guide shows you how to decide if you require GCS, how to set up a GCS bucket, how to configure the bucket and test that it works with agent-ear.
 
