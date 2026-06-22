@@ -1,18 +1,17 @@
-# How to Set Up GCS Staging for Large Files
+# Configure GCS Staging for Large Files
 
-This how-to guide shows you how to configure a Google Cloud Storage staging bucket for Vertex AI users or files exceeding 2 GB.
-
-> [!NOTE]
-> New to staging? You may find it helpful to read [GCS Staging](../explanation/gcs-staging.md) first for what it is and why agent-ear uses it.
+This how-to guide shows you how to decide if you require GCS, how to set up a GCS bucket, how to configure the bucket and test that it works with agent-ear.
 
 ## Prerequisites
 
-- Vertex AI authentication configured — see [Set up Vertex AI Authentication](how-to-setup-vertex-ai.md)
+- Vertex AI authentication configured (see also [Set up Vertex AI Authentication](setup-vertex-ai.md))
 - [Google Cloud CLI (`gcloud`)](https://cloud.google.com/sdk/docs/install) installed
 
-## Why GCS staging is needed
+## Files over 2GB require GCS
 
-Agent-ear handles files of any practical size. Files ≤ 100 MB are uploaded inline for speed. Larger files are automatically routed via GCS (Vertex AI) or the Gemini Files API (AI Studio, up to 2 GB). This happens transparently — you still use the same CLI commands.
+Agent-ear handles files of any practical size. Files ≤ 100 MB are uploaded inline for speed. Larger files are automatically routed via GCS (Vertex AI) or the Gemini Files API (AI Studio, up to 2 GB). 
+
+If you are using Google AI Studio, files up to 2 GB are handled automatically via the Gemini Files API no GCS setup required. GCS staging is primarily needed for Vertex AI users with large files, or when you want explicit control over file staging.
 
 ```
 File ≤ 100 MB   → inline upload (fastest, automatic)
@@ -20,24 +19,22 @@ File 100 MB–2 GB → Files API (AI Studio) or GCS (Vertex AI)
 File > 2 GB      → GCS required (use --gcs-bucket)
 ```
 
-> [!TIP]
-> If you're using Google AI Studio, files up to 2 GB are handled automatically via the Gemini Files API — no GCS setup required. GCS staging is primarily needed for Vertex AI users with large files, or when you want explicit control over file staging.
-
 ## Steps
 
 ### 1. Determine if you need GCS staging
 
-GCS staging is required when:
+Use the criteria below to decide if you need to set up a GCS staging bucket.
 
-- You are using **Vertex AI** and need GCS staging for large files
-- You want explicit control over file staging via `--gcs-bucket`
+GCS staging is **required** if:
+- You are using **Vertex AI** and transcribing files larger than 100 MB.
+- You are using **Google AI Studio** and transcribing files larger than 2 GB.
+- You want explicit control over where your media is staged (by passing `--gcs-bucket` or setting `AGENT_EAR_GCS_BUCKET`).
 
-GCS staging is **not required** when:
+GCS staging is **not required** if:
+- You are using **Google AI Studio** and all files you transcribe are 2 GB or smaller (these are handled automatically inline or via the Gemini Files API).
+- You are using **Vertex AI** and only transcribe small files (100 MB or smaller) inline.
 
-- You're using AI Studio and your files are ≤ 2 GB (handled automatically via Files API)
-- You are using **AI Studio** with files ≤2 GB (handled via the Gemini Files API)
-
-If you don't need GCS staging, skip this guide entirely.
+If your workflow does not require GCS staging, you can skip this guide entirely.
 
 ### 2. Create the bucket
 
@@ -81,17 +78,15 @@ agent-ear --non-interactive --gcs-bucket my-custom-staging-bucket --video ./larg
 
 The resolution chain is: `--gcs-bucket` → `AGENT_EAR_GCS_BUCKET` → `{project-id}-transcribe-staging`.
 
-### 5. Choose the bucket location
+### 5. Configure the bucket location
 
-agent-ear stages files into an **existing** bucket — it does not create buckets for you, so set the region when you create the bucket in step 2 via the `--location` flag:
+The default bucket location is **EU**. To change it:
 
 ```bash
-gcloud storage buckets create gs://YOUR_PROJECT_ID-transcribe-staging \
-  --location=US \
-  --uniform-bucket-level-access
+export AGENT_EAR_GCS_LOCATION="US"
 ```
 
-Pick the region closest to you or one that matches your data-residency requirements (e.g. `EU`, `US`, `ASIA`).
+This sets the default location for the auto-derived bucket name. For manually created buckets, set the location in the `gcloud storage buckets create` command.
 
 ### 6. Verify large file support
 
