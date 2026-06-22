@@ -12,7 +12,7 @@ This how-to guide shows you how to configure a Google Cloud Storage staging buck
 
 ## Why GCS staging is needed
 
-agent-ear handles files of any practical size. Files ≤ 100 MB are uploaded inline for speed. Larger files are automatically routed via GCS (Vertex AI) or the Gemini Files API (AI Studio, up to 2 GB). This happens transparently — you still use the same CLI commands.
+Agent-ear handles files of any practical size. Files ≤ 100 MB are uploaded inline for speed. Larger files are automatically routed via GCS (Vertex AI) or the Gemini Files API (AI Studio, up to 2 GB). This happens transparently — you still use the same CLI commands.
 
 ```
 File ≤ 100 MB   → inline upload (fastest, automatic)
