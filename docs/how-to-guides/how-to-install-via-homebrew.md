@@ -1,6 +1,6 @@
 # How to Install agent-ear via Homebrew
 
-Install agent-ear on macOS using Homebrew. This gives you the full tool — interactive wizard, non-interactive agent mode, and all native dependencies — with a single command.
+Install agent-ear on macOS using Homebrew. This gives you the full tool (interactive wizard, non-interactive agent mode, and all native dependencies) with a single command.
 
 ## Prerequisites
 
