@@ -6,7 +6,7 @@ This how-to guide shows you how to use interactive mode to record, transcribe an
 ## Prerequisites
 
 - `agent-ear` installed (see [README](../../README.md))
-- Authentication configured — either [Google AI Studio](how-to-setup-google-ai-studio.md) or [Vertex AI](how-to-setup-vertex-ai.md)
+- Authentication configured: either [Google AI Studio](how-to-setup-google-ai-studio.md) or [Vertex AI](how-to-setup-vertex-ai.md)
 - Working microphone (built-in or external)
 
 ## Steps
