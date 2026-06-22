@@ -7,7 +7,7 @@ Here is a graphical overview of the agent-ear architecture:
 
 ```mermaid
 graph TD
-    A["agent-ear<br/>(Shell — bash entry point)"] -->|"--non-interactive flag<br/>or non-TTY stdin"| B["agent-ear-core<br/>(Engine — Python Pipeline)"]
+    A["agent-ear<br/>(Shell - bash entry point)"] -->|"--non-interactive flag<br/>or non-TTY stdin"| B["agent-ear-core<br/>(Engine - Python Pipeline)"]
     A -->|"interactive TTY<br/>no --non-interactive flag"| A_TUI["Wizard<br/>(Gum TUI)"]
     A_TUI -->|"exec agent-ear-core --non-interactive"| B
 
@@ -69,7 +69,7 @@ flowchart TD
     style Fail fill:#ef4444,stroke:#dc2626,color:#fff
 ```
 
-For most users, Google AI studio will be the optimal choice, with the least complicated onboarding required. Google AI Studio needs one API key and zero infrastructure. It has no GCS support[^1], but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging.
+For most users, Google AI studio will be the optimal choice, with the least complicated onboarding required. Google AI Studio needs one API key and zero infrastructure. It has no GCS support, but AI Studio can still handle files up to 2 GB via the Gemini Files API. Only files exceeding 2 GB require Vertex AI with GCS staging.
 
 If you're handling large audio/video files (larger than 2GB), you may want to opt for Vertex AI. Vertex AI gives you GCS uploads for large files, project-scoped billing, and enterprise features. However, setting up Vertex AI requires a GCP project, enabled APIs, and Application Default Credentials.
 
@@ -131,7 +131,7 @@ Beyond scoring, the validator also emits **transcription hints** — a `thinking
 > [!NOTE]
 > Validation is deliberately **fail-open**: if the validation call itself errors (network issue, quota), the Pipeline proceeds anyway. This is part of facilitating off-line use of the tool.
 
-The same pattern applies to TTS briefings — a two-layer check (static regex checks for free, then LLM-as-a-judge) catches non-speakable content like markdown headers, URLs, and pacing mismatches before the TTS API is called.
+The same pattern applies to TTS briefings, a two-layer check (static regex checks for free, then LLM-as-a-judge) catches non-speakable content like markdown headers, URLs, and pacing mismatches before the TTS API is called.
 
 ## Media Upload Strategy
 
@@ -263,7 +263,5 @@ Key design decisions visible in this flow:
 - **System instruction separation** — the agent's prompt goes in `system_instruction`, not mixed with the audio content. This follows Gemini best practices for constrained generation.
 - **Safety copy before transcription** — recordings are backed up to `.recovery/` immediately after capture, before any API call. If transcription crashes, the recording survives.
 - **Cleanup only on success** — temp files and recovery copies are only deleted after the output is saved. Partial failures preserve everything.
-- **Dynamic token budgets** — output token limits scale with recording duration (~200 tokens per minute of speech, floor 8192, cap 65536). Video defaults to 32768. The prompt validator can add up to 16384 extra tokens via its `extra_tokens` hint.
-- **Validator-driven reasoning** — the prompt validator emits `thinking_level` and `extra_tokens` hints that configure the transcription model's reasoning depth and token budget, optimising quality without manual tuning.
-
-[^1]: Technically, if a user explicitly passes `--gcs-bucket`, GCS uploads happen regardless of auth backend.
+- **Dynamic token budgets** — output token limits scale with recording duration (~200 tokens per minute of speech, floor 8192, cap 65536). Video defaults to 32768. The prompt validator can add up to 16384 extra tokens via its `extra_tokens` hint, and agents can request additional tokens via `--extra-tokens N` (or the `AGENT_EAR_EXTRA_TOKENS` env var). All sources stack additively, clamped to 16384.
+- **Validator-driven reasoning** — the prompt validator emits `thinking_level` and `extra_tokens` hints that configure the transcription model's reasoning depth and token budget, optimising quality without manual tuning. Agents can also override thinking with `--thinking-level` and add budget with `--extra-tokens`.

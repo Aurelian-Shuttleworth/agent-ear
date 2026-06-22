@@ -54,6 +54,12 @@ agent-ear --non-interactive
 # Constrained by prompt
 agent-ear --non-interactive --prompt-file prompt.md
 
+# Long meeting (30+ min) or multi-speaker — request extra output tokens
+agent-ear --non-interactive --prompt-file prompt.md --extra-tokens 8192
+
+# Dense lecture with structured output
+agent-ear --non-interactive --prompt-file prompt.md --extra-tokens 4096
+
 # From existing file (skip recording)
 agent-ear --non-interactive --input-file recording.wav
 ```
@@ -81,3 +87,4 @@ agent-ear --non-interactive --input-file recording.wav
 | Programmatically cancel the recording | Kills the user's session mid-speech |
 | Skip prompt for structured capture tasks | Output will be unstructured freeform |
 | Use `--model gemini-3.1-pro-preview` for simple notes | Unnecessary cost; default model suffices |
+| Use `--max-tokens` for slight budget increases | `--extra-tokens` is additive; `--max-tokens` replaces the entire auto-scaled budget |

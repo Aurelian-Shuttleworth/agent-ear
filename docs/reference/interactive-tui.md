@@ -4,6 +4,9 @@ Screen-by-screen specification of the interactive wizard. This is the canonical 
 
 The Wizard is part of the `agent-ear` Shell script and launches automatically when `agent-ear` runs in a TTY without the `--non-interactive` flag. It is built with [Gum](https://github.com/charmbracelet/gum) and assembles a single `agent-ear-core` (Engine) invocation, then replaces its own process (`exec`).
 
+> [!NOTE] About Gum
+> [Gum](https://github.com/charmbracelet/gum) is a toolkit for building interactive terminal user interfaces with shell scripts. It provides styled menus, text inputs, file pickers, confirmation prompts, and pagers — all the interactive components the Wizard uses. Gum is bundled by the Nix package; you don't need to install it separately.
+
 ## Screen flow
 
 ```

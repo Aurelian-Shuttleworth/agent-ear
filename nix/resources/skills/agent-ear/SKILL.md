@@ -50,6 +50,24 @@ Resolution order: `--project-id` → `GOOGLE_CLOUD_PROJECT` → `gcloud config` 
 | TTS + Record     | `agent-ear --non-interactive --prompt-file p.md --briefing-file b.md`     |
 | JSON output      | `agent-ear --non-interactive --output-format json`                        |
 
+## Token Budget
+
+Output token allocation is automatic — scaled from recording duration (~200 tokens/min, floor 8192, cap 65536). The prompt validator can add up to 16384 extra tokens based on prompt complexity. For known heavy workloads, request more explicitly:
+
+| Flag | Effect |
+|:-----|:-------|
+| `--extra-tokens N` | Add N tokens to the budget (stacks with validator hint, max +16384). Env: `AGENT_EAR_EXTRA_TOKENS` |
+| `--max-tokens N`   | Override the entire budget (ignores duration scaling) |
+
+**When to use `--extra-tokens`:**
+
+| Scenario | Recommended value |
+|:---------|:------------------|
+| Meeting with 3+ speakers, >30 min | `--extra-tokens 8192` |
+| Dense lecture or presentation | `--extra-tokens 4096` |
+| Long video (>20 min) | `--extra-tokens 8192` |
+| Simple voice note | Not needed (auto-scaling suffices) |
+
 ## Output Formats
 
 | Format     | Description                                         |
@@ -60,12 +78,13 @@ Resolution order: `--project-id` → `GOOGLE_CLOUD_PROJECT` → `gcloud config` 
 
 ## Model Selection
 
-| Model                          | Use Case         | Cost (in / out per 1M tokens) |
-| :----------------------------- | :--------------- | :---------------------------- |
-| `gemini-3.1-flash-lite-preview` | Audio (default) | $0.30 / $1.50                 |
-| `gemini-3-flash-preview`       | Video (default)  | $1.00 / $4.00                 |
-| `gemini-3.1-pro-preview`       | Quality          | $1.25 / $10.00                |
-| `gemini-2.5-flash-tts`         | TTS briefing     | $0.30 / $2.50                 |
+The default model handles both audio and video. Only override when needed:
+
+| Use case | Flag | When |
+|:---------|:-----|:-----|
+| Default (audio + video) | _(none — auto-selected)_ | All standard captures |
+| Premium quality | `--model gemini-3.1-pro-preview` | Dense multi-speaker content, critical transcriptions |
+| TTS briefing | _(auto — not user-selectable)_ | Handled internally |
 
 ## Sharp Edges
 

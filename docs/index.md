@@ -11,7 +11,7 @@ This documentation is organised using the [Diátaxis framework](https://diataxis
 | Starting point | Go to |
 |---|---|
 | New to agent-ear? | [Your First Transcription](tutorials/first-transcription.md) — up and recording in 5 minutes |
-| Setting up auth? | [Google AI Studio (easy)](how-to-guides/how-to-setup-google-ai-studio.md) or [Vertex AI (full)](how-to-guides/how-to-setup-vertex-ai.md) |
+| Setting up auth? | [Google AI Studio (quickest setup)](how-to-guides/how-to-setup-google-ai-studio.md) or [Vertex AI (full)](how-to-guides/how-to-setup-vertex-ai.md) |
 | Looking for a flag? | [CLI Reference](reference/cli.md) — every flag, subcommand, and exit code |
 
 ---
@@ -32,6 +32,7 @@ Tutorials walk you through complete workflows from start to finish. They assume 
 
 How-to guides assume you have a working installation and need to accomplish a particular task. Each guide is self-contained and can be read independently.
 
+- [How to Install via Homebrew](how-to-guides/how-to-install-via-homebrew.md) — Install on macOS with Homebrew
 - [How to Set Up Google AI Studio Authentication](how-to-guides/how-to-setup-google-ai-studio.md) — Free API key authentication
 - [How to Set Up Vertex AI Authentication](how-to-guides/how-to-setup-vertex-ai.md) — Full-featured GCP authentication
 - [How to Use the Interactive Wizard](how-to-guides/how-to-use-interactive-terminal-wizard.md) — Guided setup via the terminal wizard

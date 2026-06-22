@@ -1,0 +1,81 @@
+# Release workflow: build per-architecture tarballs and update the Homebrew tap.
+#
+# Triggered on GitHub Release publish. Two jobs:
+#   1. build-tarball — creates agent-ear-<version>-<os>-<arch>.tar.gz
+#   2. update-tap    — bumps the formula in Aurelian-Shuttleworth/homebrew-tools
+#
+# Prerequisites:
+#   - HOMEBREW_TAP_TOKEN secret: a GitHub PAT with `repo` scope on the tap repo
+
+name: Release — Homebrew
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-tarball:
+    name: Build tarball (${{ matrix.arch }})
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest    # Apple Silicon runner
+            arch: arm64
+          - os: macos-13        # Intel runner
+            arch: x86_64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
+
+      - name: Verify build (Nix)
+        run: nix flake check
+
+      - name: Build release tarball
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+
+          # Build the Python wheel from source using the Nix dev shell.
+          # This ensures we use the exact same Python + deps as the Nix build.
+          nix develop --command bash -c '
+            cd src
+            pip install --quiet build
+            python -m build --wheel --outdir ../dist/
+          '
+
+          # Package everything Homebrew needs into a clean tarball:
+          #   - dist/*.whl         (Python wheel)
+          #   - scripts/agent-ear.sh (Bash TUI dispatcher)
+          #   - templates/         (prompt templates)
+          #   - src/pyproject.toml (for pip install metadata)
+          mkdir -p staging/scripts staging/templates staging/src
+          cp dist/*.whl staging/
+          cp scripts/agent-ear.sh staging/scripts/
+          cp -r templates/* staging/templates/
+          cp src/pyproject.toml staging/src/
+
+          tar -czf "agent-ear-${VERSION}-darwin-${{ matrix.arch }}.tar.gz" \
+            -C staging .
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: agent-ear-*.tar.gz
+
+  update-tap:
+    name: Update Homebrew tap
+    needs: build-tarball
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bump formula
+        uses: mislav/bump-homebrew-formula-action@581d1a926c3b95b39a0048a3934a3489290408d2 # v3
+        with:
+          formula-name: agent-ear
+          homebrew-tap: Aurelian-Shuttleworth/homebrew-tools
+          tag-name: ${{ github.event.release.tag_name }}
+          download-url: "https://github.com/Aurelian-Shuttleworth/agent-ear/archive/refs/tags/${{ github.event.release.tag_name }}.tar.gz"
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}

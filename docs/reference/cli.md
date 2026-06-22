@@ -33,7 +33,7 @@ agent-ear [-h] [--prompt-file FILE] [--prompt TEXT]
 |:----------|:--------|
 | `--non-interactive` flag present | `agent-ear-core` (the Engine — Python Pipeline) |
 | Non-TTY stdin/stdout, or `TERM` unset/`dumb` | `agent-ear-core` (the Engine — Python Pipeline) |
-| Interactive TTY, no `--non-interactive` | The Wizard (Gum TUI) |
+| Interactive TTY, no `--non-interactive` | The Wizard (interactive TUI) |
 
 Agents **must** always pass `--non-interactive` to bypass the Wizard.
 
@@ -171,6 +171,7 @@ Flags that control audio/video recording quality and token limits.
 |:-----|:-----|:--------|:--------|:------------|
 | `--high-res` | `flag` | `false` | — | Use `MEDIA_RESOLUTION_HIGH` for text-heavy **video** (denser visual sampling — better for slides and on-screen text). Only effective for video on supported models (Gemini 3.5+); ignored otherwise. |
 | `--max-tokens N` | `integer` | Auto-scaled | — | Maximum output token count for the Gemini response. Auto-scaled (~200 tokens/min of speech, floor 8192, cap 65536). Video defaults to 32768. Overridable. |
+| `--extra-tokens N` | `integer` | `0` | `AGENT_EAR_EXTRA_TOKENS` | Additional output tokens to reserve beyond the auto-scaled budget. Additive — stacks with the prompt validator's hint. Use 4096–8192 for meetings or long-form content. Clamped to 0–16384. |
 
 #### Examples
 
@@ -180,6 +181,9 @@ agent-ear --non-interactive --video ./slides-talk.mp4 --high-res
 
 # Increase token limit for long meetings
 agent-ear --non-interactive --max-tokens 16384
+
+# Add extra tokens for a long meeting (stacks with auto-scaling)
+agent-ear --non-interactive --prompt-file meeting.md --extra-tokens 8192
 
 # High-res video with extended token limit
 agent-ear --non-interactive --video ./long-meeting.mp4 --high-res --max-tokens 32768

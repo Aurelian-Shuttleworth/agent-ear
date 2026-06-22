@@ -1,15 +1,15 @@
 # Your First Transcription in 5 Minutes
 
-Welcome! By the end of this page, you'll have recorded your voice (or transcribed a YouTube video) and received a structured Obsidian-ready note, all without installing anything beyond Nix.
+Welcome! By the end of this page, you'll have recorded your voice (or transcribed a YouTube video) and received a structured Obsidian-ready note.
 
 ## Prerequisites
 
 You need two things:
 
-1. **Nix**: with flakes enabled. If `nix --version` prints something, you're good.
+1. **A package manager** — either:
+   - **[Homebrew](https://brew.sh)** (macOS): see the [Homebrew install guide](../how-to-guides/how-to-install-via-homebrew.md)
+   - **[Nix](https://nixos.org)** (macOS / Linux): with flakes enabled
 2. **A Google account**: for the Gemini API that powers transcription.
-
-That's it. No Python, no pip, no Docker.
 
 ## Choose Your Auth Path
 
@@ -42,9 +42,13 @@ export GOOGLE_API_KEY="your-key-here"
 
 ## Run Your First Transcription
 
-Run this command in your CLI:
+Run this command in your terminal:
 
 ```bash
+# If you installed via Homebrew or are in a Nix dev shell:
+agent-ear --non-interactive
+
+# If you're using Nix without installing:
 nix run github:Aurelian-Shuttleworth/agent-ear -- --non-interactive
 ```
 
@@ -78,12 +82,16 @@ You'll see output like this:
 Don't have a microphone, or just want to see the output without speaking? Transcribe a YouTube video instead:
 
 ```bash
+# If you installed via Homebrew or are in a Nix dev shell:
+agent-ear --non-interactive --video "https://youtube.com/watch?v=dQw4w9WgXcQ"
+
+# If you're using Nix without installing:
 nix run github:Aurelian-Shuttleworth/agent-ear -- --non-interactive --video "https://youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
 agent-ear will:
 
-1. ⬇️ Download the video via `yt-dlp` (bundled by Nix — nothing to install)
+1. ⬇️ Download the video via `yt-dlp` (bundled automatically — nothing extra to install)
 2. 📤 Upload it to Gemini (routing is automatic based on file size and auth backend)
 3. ✨ Produce a timestamped, structured note with executive summary and visual descriptions
 

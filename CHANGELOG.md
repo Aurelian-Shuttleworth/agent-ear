@@ -1,5 +1,3 @@
-<!-- REVIEW: Lara — are the release dates correct? I used 2026-05-31 for v1.1.0 and a placeholder for v1.0.0. -->
-
 # Changelog
 
 All notable changes to agent-ear are documented in this file.
@@ -16,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Dynamic token budgets** — Output token limits now scale with recording duration (~200 tokens per minute of speech, floor 8192, cap 65536). Video transcription defaults to 32768.
 - **Prompt validator hints** — The LLM-as-a-Judge validator now emits `thinking_level` and `extra_tokens` hints that auto-configure the transcription model for optimal quality.
 - **Meeting Mode** — Interactive wizard mode for multi-speaker transcription with named or numbered speaker identification, action items extraction, and notable quotes.
-- **Interactive terminal wizard** — Gum-based TUI wrapper providing 7 modes, configuration screens, and advanced options for human users.
+- **Interactive terminal wizard** — Interactive TUI wrapper providing 7 modes, configuration screens, and advanced options for human users.
 - **`--max-tokens` flag** — Explicit override for the auto-scaled output token limit.
 
 ### Changed
@@ -40,8 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [1.0.0] — 2025-XX-XX
-
-<!-- REVIEW: Lara — please fill in the actual v1.0.0 release date. -->
+## [1.0.0] — 2026-05-21
 
 Initial release.

@@ -48,7 +48,7 @@ YouTube downloads are capped at 720p — Gemini samples at 1fps, higher is waste
 Requires Vertex AI mode (AI Studio can't do GCS uploads):
 
 ```bash
-agent-ear --non-interactive --video long_meeting.mp4 --project-id my-project
+agent-ear --non-interactive --video long_meeting.mp4 --project-id my-project --extra-tokens 8192
 ```
 
 GCS bucket auto-provisioned as `{project}-transcribe-staging` with 7-day lifecycle.
@@ -71,12 +71,14 @@ agent-ear --non-interactive --video "https://..." --output-dir /path/to/vault/0.
 
 ## Model Selection
 
-| Model                    | When                   | Cost (in / out per 1M) |
-| :----------------------- | :--------------------- | :--------------------- |
-| `gemini-3-flash-preview` | Default for video      | $1.00 / $4.00         |
-| `gemini-3.1-pro-preview` | Dense / complex content | $1.25 / $10.00        |
+The default model handles video. Only override when needed:
 
-**Cost awareness:** Video ≈ 25 tokens/second. 10 min video ≈ 15K input tokens ≈ $0.015 (flash).
+| Use case | Flag | When |
+|:---------|:-----|:-----|
+| Default | _(none — auto-selected)_ | All standard video captures |
+| Premium quality | `--model gemini-3.1-pro-preview` | Dense / complex content, critical transcriptions |
+
+**Cost awareness:** Video ≈ 25 tokens/second. 10 min video ≈ 15K input tokens.
 
 ## Sharp Edges
 
@@ -84,4 +86,4 @@ agent-ear --non-interactive --video "https://..." --output-dir /path/to/vault/0.
 | :----------------------- | :------- | :--------------------------------------------- |
 | 720p cap                 | Low      | Gemini 1fps sampling — higher res is wasted    |
 | >20MB in AI Studio       | Medium   | Switch to Vertex AI for GCS staging            |
-| Dynamic token allocation | Info     | >120s audio: ~200 tokens/min auto-scaled, cap 65536 |
+| Long video truncation    | Medium   | Use `--extra-tokens 8192` for videos >20 min   |

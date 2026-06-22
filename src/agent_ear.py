@@ -52,6 +52,7 @@ def run_pipeline(
     max_tokens: int | None = None,
     thinking_level: str | None = None,
     template_tags: str | None = None,
+    cli_extra_tokens: int = 0,
 ) -> dict:
     """Run the full agentic listening pipeline.
 
@@ -142,6 +143,17 @@ def run_pipeline(
                 f"🧠 Validator recommends thinking_level='{validator_thinking_hint}', "
                 f"extra_tokens=+{validator_extra_tokens}"
             )
+
+    # Resolve CLI extra tokens: CLI flag → env var → 0
+    resolved_cli_extra = cli_extra_tokens or int(os.environ.get("AGENT_EAR_EXTRA_TOKENS", 0))
+
+    # Stack validator + CLI extra tokens, clamp to 0–16384
+    total_extra_tokens = min(max(validator_extra_tokens + resolved_cli_extra, 0), 16384)
+    if resolved_cli_extra > 0:
+        print(
+            f"📏 Extra tokens: +{validator_extra_tokens} (validator) "
+            f"+ {resolved_cli_extra} (CLI/env) = +{total_extra_tokens}"
+        )
 
     # --- 2.5 Validate briefing (if provided and validation enabled) ---
     briefing_text = None
@@ -235,7 +247,7 @@ def run_pipeline(
                 non_interactive=non_interactive,
                 max_tokens=max_tokens,
                 thinking_level=effective_thinking,
-                extra_tokens=validator_extra_tokens,
+                extra_tokens=total_extra_tokens,
             )
         except Exception:
             # Recording is safe — tell the user where to find it

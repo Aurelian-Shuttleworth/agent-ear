@@ -13,7 +13,7 @@ This tutorial walks you through adding agent-ear to a [Home Manager](https://git
 - A working `flake.nix` that already builds your Home Manager configuration
 
 > [!TIP]
-> Not using Home Manager yet? You can still use agent-ear with `nix run` — see the [Quick Start](../../README.md#quick-start) in the README.
+> Not using Home Manager? You can install agent-ear via [Homebrew](../how-to-guides/how-to-install-via-homebrew.md) or with `nix run` — see the [Quick Start](../../README.md#quick-start).
 
 ## 1. Add agent-ear as a flake input
 
