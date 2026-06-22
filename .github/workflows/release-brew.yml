@@ -42,13 +42,17 @@ jobs:
         run: |
           VERSION="${{ github.event.release.tag_name }}"
 
-          # Build the Python wheel from source using the Nix dev shell.
-          # This ensures we use the exact same Python + deps as the Nix build.
+          # Build the Python wheel. The Nix dev shell provides Python +
+          # project deps, but its site-packages is read-only.  Use a
+          # temporary venv that inherits the system packages and adds
+          # only the 'build' frontend.
           nix develop --command bash -c '
+            python -m venv --system-site-packages .build-venv
+            .build-venv/bin/pip install --quiet "build==1.2.2"
             cd src
-            pip install --quiet "build==1.2.2"
-            python -m build --wheel --outdir ../dist/
+            ../.build-venv/bin/python -m build --wheel --outdir ../dist/
           '
+          rm -rf .build-venv
 
           # Package everything Homebrew needs into a clean tarball:
           #   - dist/*.whl         (Python wheel)
