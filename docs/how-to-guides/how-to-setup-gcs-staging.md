@@ -3,7 +3,7 @@
 This how-to guide shows you how to configure a Google Cloud Storage staging bucket for Vertex AI users or files exceeding 2 GB.
 
 > [!NOTE]
-> New to staging? Read [GCS Staging](../explanation/gcs-staging.md) first for what it is and why agent-ear uses it. This guide is the procedure.
+> New to staging? You may find it helpful to read [GCS Staging](../explanation/gcs-staging.md) first for what it is and why agent-ear uses it.
 
 ## Prerequisites
 
