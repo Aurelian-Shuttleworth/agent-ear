@@ -23,7 +23,7 @@ Before we begin, a quick decision:
 | **Limitations** | Files up to 2 GB | Full feature set |
 
 > [!TIP]
-> **Just want to try it?** Go with Google AI Studio (see also: ../how-to-guides/how-to-setup-google-ai-studio.md). You can switch to Vertex AI later with no code changes needed.
+> **Just want to try it?** Go with Google AI Studio (see also: [How to Set Up Google AI Studio](../how-to-guides/how-to-setup-google-ai-studio.md)). You can switch to Vertex AI later with no code changes needed.
 
 If you already have a GCP project with Vertex AI enabled, see the [Vertex AI setup guide](../how-to-guides/how-to-setup-vertex-ai.md) and skip ahead to [Run your first transcription](#run-your-first-transcription).
 
