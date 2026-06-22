@@ -108,7 +108,7 @@ For projects using [flake-parts](https://flake.parts), import the module and ena
 ```
 
 > [!WARNING]
-> The flake-parts module currently only **declares** the `agent-ear.enable` option — it does not yet wire the package into your outputs. Until that lands, add the package yourself with **Pattern A** (direct reference) or **Pattern B** (overlay). For Home Manager, use the dedicated module in step 3, which is fully implemented.
+> The flake-parts module currently only **declares** the `agent-ear.enable` option. It does not yet wire the package into your outputs. Until that lands, add the package yourself with **Pattern A** (direct reference) or **Pattern B** (overlay). For Home Manager, use the dedicated module in step 3, which is fully implemented.
 
 ### 3. Home Manager integration
 
