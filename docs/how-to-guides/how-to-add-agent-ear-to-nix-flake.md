@@ -40,7 +40,7 @@ agent-ear provides three ways to consume the package. Choose the one that fits y
 
 #### Pattern A: Direct package reference
 
-The simplest approach — reference the package output directly.
+The simplest approach: reference the package output directly.
 
 ```nix
 {
