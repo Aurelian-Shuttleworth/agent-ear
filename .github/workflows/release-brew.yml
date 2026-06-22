@@ -73,11 +73,35 @@ jobs:
     permissions: {}  # uses HOMEBREW_TAP_TOKEN, not GITHUB_TOKEN
     steps:
       - name: Bump formula
-        uses: mislav/bump-homebrew-formula-action@ccf2332299a883f6af50a1d2d41e5df7904dd769 # v3
-        with:
-          formula-name: agent-ear
-          homebrew-tap: Aurelian-Shuttleworth/homebrew-tools
-          tag-name: ${{ github.event.release.tag_name }}
-          download-url: "https://github.com/Aurelian-Shuttleworth/agent-ear/archive/refs/tags/${{ github.event.release.tag_name }}.tar.gz"
         env:
-          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.release.tag_name }}"
+          TARBALL_URL="https://github.com/Aurelian-Shuttleworth/agent-ear/archive/refs/tags/${TAG}.tar.gz"
+
+          # 1. Download tarball and compute sha256
+          SHA=$(curl -fsSL "$TARBALL_URL" | shasum -a 256 | cut -d' ' -f1)
+          echo "Computed sha256: ${SHA}"
+
+          # 2. Clone the tap repo
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/Aurelian-Shuttleworth/homebrew-tools.git" tap
+          cd tap
+
+          # 3. Update url and sha256 in the formula
+          FORMULA="Formula/agent-ear.rb"
+          sed -i 's|url "https://github.com/Aurelian-Shuttleworth/agent-ear/archive/refs/tags/.*"|url "'"${TARBALL_URL}"'"|' "$FORMULA"
+          sed -i 's|sha256 ".*"|sha256 "'"${SHA}"'"|' "$FORMULA"
+
+          # 4. Verify the update (fail fast if sed didn't match)
+          grep -q "$TAG" "$FORMULA" || { echo "ERROR: tag not found in formula after sed"; exit 1; }
+          grep -q "$SHA" "$FORMULA" || { echo "ERROR: sha256 not found in formula after sed"; exit 1; }
+
+          # 5. Commit and push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$FORMULA"
+          git diff --cached --quiet && { echo "Formula already up-to-date"; exit 0; }
+          git commit -m "agent-ear ${TAG}"
+          git push
+
