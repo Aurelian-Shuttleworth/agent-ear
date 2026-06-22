@@ -13,6 +13,8 @@ on:
   release:
     types: [published]
 
+permissions: read-all
+
 jobs:
   build-tarball:
     name: Build tarball (${{ matrix.arch }})
@@ -24,6 +26,8 @@ jobs:
           - os: macos-13        # Intel runner
             arch: x86_64
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write  # upload release assets
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -38,13 +42,17 @@ jobs:
         run: |
           VERSION="${{ github.event.release.tag_name }}"
 
-          # Build the Python wheel from source using the Nix dev shell.
-          # This ensures we use the exact same Python + deps as the Nix build.
+          # Build the Python wheel. The Nix dev shell provides Python +
+          # project deps, but its site-packages is read-only.  Use a
+          # temporary venv that inherits the system packages and adds
+          # only the 'build' frontend.
           nix develop --command bash -c '
+            python -m venv --system-site-packages .build-venv
+            .build-venv/bin/pip install --quiet "build==1.2.2"
             cd src
-            pip install --quiet build
-            python -m build --wheel --outdir ../dist/
+            ../.build-venv/bin/python -m build --wheel --outdir ../dist/
           '
+          rm -rf .build-venv
 
           # Package everything Homebrew needs into a clean tarball:
           #   - dist/*.whl         (Python wheel)
@@ -69,6 +77,7 @@ jobs:
     name: Update Homebrew tap
     needs: build-tarball
     runs-on: ubuntu-latest
+    permissions: {}  # uses HOMEBREW_TAP_TOKEN, not GITHUB_TOKEN
     steps:
       - name: Bump formula
         uses: mislav/bump-homebrew-formula-action@ccf2332299a883f6af50a1d2d41e5df7904dd769 # v3
