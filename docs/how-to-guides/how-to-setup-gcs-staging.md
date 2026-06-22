@@ -7,7 +7,7 @@ This how-to guide shows you how to decide if you require GCS, how to set up a GC
 
 ## Prerequisites
 
-- Vertex AI authentication configured (see also [Set up Vertex AI Authentication](setup-vertex-ai.md))
+- Vertex AI authentication configured (see also [Set up Vertex AI Authentication](how-to-setup-vertex-ai.md))
 - [Google Cloud CLI (`gcloud`)](https://cloud.google.com/sdk/docs/install) installed
 
 ## Files over 2GB require GCS

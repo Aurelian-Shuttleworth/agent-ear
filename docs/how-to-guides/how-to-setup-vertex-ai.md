@@ -84,5 +84,5 @@ The resolution chain for location is: `--location` flag → `GOOGLE_CLOUD_LOCATI
 
 ## Next steps
 
-- [Configure GCS Staging for Large Files](setup-gcs-staging.md) — required for large files when using Vertex AI
-- [Brief Users with Spoken Instructions](tts-briefing.md) — use TTS to speak instructions before recording
+- [Configure GCS Staging for Large Files](how-to-setup-gcs-staging.md) — required for large files when using Vertex AI
+- [Brief Users with Spoken Instructions](how-to-use-tts-briefing.md) — use TTS to speak instructions before recording
