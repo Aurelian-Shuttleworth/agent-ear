@@ -54,6 +54,8 @@ environment variables:
                          Overridden by --gcs-bucket if provided.
   AGENT_EAR_THINKING_LEVEL  Override thinking level (minimal/low/medium/high).
                          Overridden by --thinking-level if provided.
+  AGENT_EAR_EXTRA_TOKENS   Additional output tokens (additive, 0-16384).
+                         Overridden by --extra-tokens if provided.
   GOOGLE_API_KEY         Google AI Studio API key (no GCP project needed).
   GOOGLE_CLOUD_PROJECT   GCP project ID for Vertex AI mode.
 
@@ -188,6 +190,14 @@ exit codes:
         default=None,
         help="Max output tokens for transcription (default: 8192 audio, 16384 video)",
     )
+    recording.add_argument(
+        "--extra-tokens",
+        metavar="N",
+        type=int,
+        default=0,
+        help="Additional output tokens to reserve (additive, stacks with validator hint). "
+        "Use 4096-8192 for meetings or long-form content. Env: AGENT_EAR_EXTRA_TOKENS",
+    )
 
     # Utility
     utility = parser.add_argument_group("utility")
@@ -234,6 +244,7 @@ def main():
             max_tokens=args.max_tokens,
             thinking_level=args.thinking_level,
             template_tags=args.template_tags,
+            cli_extra_tokens=args.extra_tokens,
         )
         sys.exit(result.get("exit_code", 0))
 

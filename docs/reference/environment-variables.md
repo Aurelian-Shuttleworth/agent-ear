@@ -181,6 +181,35 @@ agent-ear --non-interactive --prompt-file complex-analysis.md
 
 ---
 
+### `AGENT_EAR_EXTRA_TOKENS`
+
+| Property | Value |
+|:---------|:------|
+| **Purpose** | Additional output tokens to reserve beyond the auto-scaled budget |
+| **Default** | `0` (no extra tokens) |
+| **Required** | No |
+| **CLI equivalent** | `--extra-tokens` |
+| **Allowed values** | Integer, 0–16384 |
+
+Additive token budget increase that stacks with the prompt validator's automatic `extra_tokens` hint. Use for known heavy workloads like long meetings or complex multi-speaker transcriptions.
+
+The total extra tokens (validator hint + this value) are clamped to 16384.
+
+**Resolution chain:**
+
+```
+--extra-tokens flag → AGENT_EAR_EXTRA_TOKENS → 0
+```
+
+**Example:**
+
+```bash
+export AGENT_EAR_EXTRA_TOKENS="8192"
+agent-ear --non-interactive --prompt-file meeting-prompt.md
+```
+
+---
+
 ## GCS Variables
 
 ### `AGENT_EAR_GCS_BUCKET`
@@ -218,6 +247,7 @@ agent-ear --non-interactive --video ./large-video.mp4
 | `AGENT_EAR_OUTPUT_DIR` | Default output directory | Current directory | — |
 | `AGENT_EAR_GCS_BUCKET` | GCS staging bucket name | `{project}-transcribe-staging` | — |
 | `AGENT_EAR_THINKING_LEVEL` | Reasoning depth override | Auto (duration-based) | — |
+| `AGENT_EAR_EXTRA_TOKENS` | Additional output tokens (additive) | `0` | — |
 
 ## See Also
 

@@ -38,7 +38,7 @@ A TUI selection (Freeform, Meeting, YouTube, etc.) that maps to a Prompt Templat
 _Avoid_: preset, profile, option
 
 **Wizard**:
-The interactive Gum TUI inside the Shell script. Two-tier menu since the template engine landed: Record Now / Custom Prompt / Templates ▸ / Transcribe ▸. There is no separate interactive binary (the former `agent-ear-interactive.sh` was deleted).
+The interactive TUI inside the Shell script, built with [Gum](docs/reference/interactive-tui.md). Two-tier menu since the template engine landed: Record Now / Custom Prompt / Templates ▸ / Transcribe ▸. There is no separate interactive binary (the former `agent-ear-interactive.sh` was deleted).
 _Avoid_: interactive mode, TUI (in user-facing docs)
 
 **Prompt Template**:

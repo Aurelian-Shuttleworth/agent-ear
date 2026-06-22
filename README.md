@@ -52,7 +52,7 @@ agent-ear
 ```
 agent-ear (the Shell)
 ├── --non-interactive or non-TTY → exec agent-ear-core (the Engine)
-└── interactive TTY   → Launch the Wizard (Gum TUI)
+└── interactive TTY   → Launch the Wizard (interactive TUI)
                              └── exec agent-ear-core --non-interactive
 ```
 
