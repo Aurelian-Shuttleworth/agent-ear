@@ -40,7 +40,8 @@ The tools differ at the model layer, and this shapes everything downstream.
 
 ### agent-ear: Multimodal-native
 
-Audio and video are sent directly to a multimodal LLM (Gemini). There is no speech-to-text intermediary. This preserves **prosodic context** - emphasis, tone, and pacing carry semantic meaning that a text transcript discards.
+Audio and video are sent directly to a multimodal LLM (Gemini). There is no speech-to-text intermediary. 
+This preserves **prosodic context**, emphasis, tone, and pacing carry semantic meaning that a text transcript discards.
 
 The agent supplies a constrained extraction prompt that shapes what the model extracts, and validation ensures that prompt is well-formed before any recording starts. The output is structured data, not plain text.
 
