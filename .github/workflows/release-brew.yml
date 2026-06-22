@@ -17,15 +17,8 @@ permissions: read-all
 
 jobs:
   build-tarball:
-    name: Build tarball (${{ matrix.arch }})
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest    # Apple Silicon runner
-            arch: arm64
-          - os: macos-13        # Intel runner
-            arch: x86_64
-    runs-on: ${{ matrix.os }}
+    name: Build tarball (arm64)
+    runs-on: macos-latest  # Apple Silicon
     permissions:
       contents: write  # upload release assets
     steps:
@@ -65,7 +58,7 @@ jobs:
           cp -r templates/* staging/templates/
           cp src/pyproject.toml staging/src/
 
-          tar -czf "agent-ear-${VERSION}-darwin-${{ matrix.arch }}.tar.gz" \
+          tar -czf "agent-ear-${VERSION}-darwin-arm64.tar.gz" \
             -C staging .
 
       - name: Upload to Release
