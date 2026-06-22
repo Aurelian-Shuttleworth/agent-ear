@@ -1,13 +1,13 @@
 # Your First Transcription in 5 Minutes
 
-Welcome! By the end of this page, you'll have recorded your voice (or transcribed a YouTube video) and received a structured Obsidian-ready note — all without installing anything beyond Nix.
+Welcome! By the end of this page, you'll have recorded your voice (or transcribed a YouTube video) and received a structured Obsidian-ready note, all without installing anything beyond Nix.
 
 ## Prerequisites
 
 You need two things:
 
-1. **Nix** — with flakes enabled. If `nix --version` prints something, you're good.
-2. **A Google account** — for the Gemini API that powers transcription.
+1. **Nix**: with flakes enabled. If `nix --version` prints something, you're good.
+2. **A Google account**: for the Gemini API that powers transcription.
 
 That's it. No Python, no pip, no Docker.
 
@@ -23,7 +23,7 @@ Before we begin, a quick decision:
 | **Limitations** | Files up to 2 GB | Full feature set |
 
 > [!TIP]
-> **Just want to try it?** Go with Google AI Studio. You can switch to Vertex AI later — no code changes needed.
+> **Just want to try it?** Go with Google AI Studio (see also: ). You can switch to Vertex AI later with no code changes needed.
 
 If you already have a GCP project with Vertex AI enabled, see the [Vertex AI setup guide](../how-to-guides/how-to-setup-vertex-ai.md) and skip ahead to [Run your first transcription](#run-your-first-transcription).
 
@@ -42,7 +42,7 @@ export GOOGLE_API_KEY="your-key-here"
 
 ## Run Your First Transcription
 
-One command. Nix fetches everything — Python, audio libraries, the lot.
+Run this command in your CLI:
 
 ```bash
 nix run github:Aurelian-Shuttleworth/agent-ear -- --non-interactive
