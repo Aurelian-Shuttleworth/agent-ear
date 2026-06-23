@@ -11,6 +11,8 @@ import re
 import subprocess
 import tempfile
 
+from upload import VIDEO_MIME_TYPES
+
 # YouTube URL detection
 YOUTUBE_PATTERN = re.compile(r"(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+")
 
@@ -26,6 +28,12 @@ def preprocess_video(video_path: str) -> str:
     """
     if YOUTUBE_PATTERN.match(video_path):
         return download_youtube(video_path)
+    ext = os.path.splitext(video_path)[1].lower()
+    if ext not in VIDEO_MIME_TYPES:
+        supported = ", ".join(sorted(VIDEO_MIME_TYPES.keys()))
+        raise RuntimeError(
+            f"❌ '{os.path.basename(video_path)}' is not a supported video format.\n   Supported: {supported}"
+        )
     return video_path
 
 

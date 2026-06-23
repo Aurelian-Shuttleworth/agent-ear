@@ -52,11 +52,30 @@ def detect_mime_type(media_path: str, is_video: bool) -> str:
 
     Returns:
         MIME type string (e.g., "audio/wav", "video/mp4").
+
+    Raises:
+        ValueError: If the file extension is not a supported audio/video format.
     """
     ext = os.path.splitext(media_path)[1].lower()
-    if not is_video:
-        return AUDIO_MIME_TYPES.get(ext, "audio/wav")
-    return VIDEO_MIME_TYPES.get(ext, "video/mp4")
+    if is_video:
+        mime = VIDEO_MIME_TYPES.get(ext)
+        if not mime:
+            supported = ", ".join(sorted(VIDEO_MIME_TYPES.keys()))
+            raise ValueError(
+                f"Unsupported video file extension '{ext}' "
+                f"(file: {os.path.basename(media_path)}).\n"
+                f"Supported extensions: {supported}"
+            )
+        return mime
+    mime = AUDIO_MIME_TYPES.get(ext)
+    if not mime:
+        supported = ", ".join(sorted(AUDIO_MIME_TYPES.keys()))
+        raise ValueError(
+            f"Unsupported audio file extension '{ext}' "
+            f"(file: {os.path.basename(media_path)}).\n"
+            f"Supported extensions: {supported}"
+        )
+    return mime
 
 
 def upload_media(

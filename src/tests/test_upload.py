@@ -27,9 +27,10 @@ class TestDetectMimeType:
         """FLAC extension returns audio/flac."""
         assert detect_mime_type("music.flac", is_video=False) == "audio/flac"
 
-    def test_audio_unknown_falls_back_to_wav(self):
-        """Unknown audio extension falls back to audio/wav."""
-        assert detect_mime_type("data.xyz", is_video=False) == "audio/wav"
+    def test_audio_unknown_extension_raises(self):
+        """Unknown audio extension raises ValueError."""
+        with pytest.raises(ValueError, match="Unsupported audio file extension"):
+            detect_mime_type("data.xyz", is_video=False)
 
     def test_video_mp4(self):
         """MP4 extension returns video/mp4."""
@@ -39,9 +40,77 @@ class TestDetectMimeType:
         """MKV extension returns video/x-matroska."""
         assert detect_mime_type("video.mkv", is_video=True) == "video/x-matroska"
 
-    def test_video_unknown_falls_back_to_mp4(self):
-        """Unknown video extension falls back to video/mp4."""
-        assert detect_mime_type("video.xyz", is_video=True) == "video/mp4"
+    def test_video_unknown_extension_raises(self):
+        """Unknown video extension raises ValueError."""
+        with pytest.raises(ValueError, match="Unsupported video file extension"):
+            detect_mime_type("video.xyz", is_video=True)
+
+    # --- Additional supported audio formats ---
+
+    def test_audio_aac(self):
+        """AAC extension returns audio/aac."""
+        assert detect_mime_type("voice.aac", is_video=False) == "audio/aac"
+
+    def test_audio_ogg(self):
+        """OGG extension returns audio/ogg."""
+        assert detect_mime_type("voice.ogg", is_video=False) == "audio/ogg"
+
+    def test_audio_opus(self):
+        """Opus extension returns audio/opus."""
+        assert detect_mime_type("voice.opus", is_video=False) == "audio/opus"
+
+    def test_audio_webm(self):
+        """WebM audio extension returns audio/webm."""
+        assert detect_mime_type("voice.webm", is_video=False) == "audio/webm"
+
+    # --- Additional supported video formats ---
+
+    def test_video_mov(self):
+        """MOV extension returns video/quicktime."""
+        assert detect_mime_type("clip.mov", is_video=True) == "video/quicktime"
+
+    def test_video_avi(self):
+        """AVI extension returns video/x-msvideo."""
+        assert detect_mime_type("clip.avi", is_video=True) == "video/x-msvideo"
+
+    def test_video_webm(self):
+        """WebM video extension returns video/webm."""
+        assert detect_mime_type("clip.webm", is_video=True) == "video/webm"
+
+    # --- Invalid input rejection ---
+
+    def test_audio_text_file_raises(self):
+        """Markdown file raises ValueError when treated as audio."""
+        with pytest.raises(ValueError, match="Unsupported audio file extension"):
+            detect_mime_type("notes.md", is_video=False)
+
+    def test_audio_python_file_raises(self):
+        """Python file raises ValueError when treated as audio."""
+        with pytest.raises(ValueError, match="Unsupported audio file extension"):
+            detect_mime_type("script.py", is_video=False)
+
+    def test_audio_no_extension_raises(self):
+        """File without extension raises ValueError."""
+        with pytest.raises(ValueError, match="Unsupported audio file extension"):
+            detect_mime_type("recording", is_video=False)
+
+    def test_video_audio_extension_raises(self):
+        """Audio extension raises ValueError when treated as video."""
+        with pytest.raises(ValueError, match="Unsupported video file extension"):
+            detect_mime_type("audio.wav", is_video=True)
+
+    def test_video_text_file_raises(self):
+        """Text file raises ValueError when treated as video."""
+        with pytest.raises(ValueError, match="Unsupported video file extension"):
+            detect_mime_type("notes.txt", is_video=True)
+
+    def test_error_message_lists_supported_extensions(self):
+        """Error message includes the list of supported extensions."""
+        with pytest.raises(ValueError, match=r"\.wav") as exc_info:
+            detect_mime_type("bad.xyz", is_video=False)
+        # Should list all supported audio extensions
+        assert ".mp3" in str(exc_info.value)
+        assert ".flac" in str(exc_info.value)
 
 
 class TestUploadMediaInline:
