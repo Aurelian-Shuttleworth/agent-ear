@@ -5,14 +5,14 @@ Handles:
   - Dynamic token budget allocation based on recording duration
   - Gemini API calls with transient error retry (3 attempts)
   - Response validation (finish_reason handling)
-  - Audio duration detection via soundfile
+  - Audio duration detection via miniaudio
 """
 
 import os
 import sys
 import time
 
-import soundfile as sf
+import miniaudio
 from google import genai
 from google.api_core import exceptions as api_exceptions
 from google.genai import types
@@ -290,7 +290,7 @@ def get_audio_duration(media_path: str) -> float | None:
         Duration in seconds, or None if the file format is unsupported.
     """
     try:
-        info = sf.info(media_path)
+        info = miniaudio.get_file_info(media_path)
         return info.duration
     except Exception:
         return None

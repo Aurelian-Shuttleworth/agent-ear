@@ -127,24 +127,29 @@
             lib.composeManyExtensions [
               inputs.pyproject-build-systems.overlays.wheel
               overlay
-              # Patch sounddevice to find portaudio at a fixed Nix store path.
-              # The PyPI wheel uses ctypes.util.find_library("portaudio") which
-              # relies on ldconfig / /etc/ld.so.cache — neither exists on NixOS.
-              # This mirrors the nixpkgs python3Packages.sounddevice patch.
-              # See: https://github.com/Aurelian-Shuttleworth/agent-ear/issues/36
+              # Build miniaudio from sdist — CFFI compiles miniaudio.c into a
+              # Python extension. Needs C compiler + headers for the platform
+              # audio backend (ALSA on Linux; CoreAudio on macOS is automatic).
+              # See: https://github.com/Aurelian-Shuttleworth/agent-ear/issues/40
               (final: prev: {
-                sounddevice = prev.sounddevice.overrideAttrs (old: {
-                  postInstall =
-                    (old.postInstall or "")
-                    + ''
-                      site="$out/${final.python.sitePackages}"
-                      if [ -f "$site/sounddevice.py" ]; then
-                        substituteInPlace "$site/sounddevice.py" \
-                          --replace-fail \
-                            "for _libname in (" \
-                            "for _libname in ('${pkgs.portaudio}/lib/libportaudio${pkgs.stdenv.hostPlatform.extensions.sharedLibrary}',"
-                      fi
-                    '';
+                miniaudio = prev.miniaudio.overrideAttrs (old: {
+                  nativeBuildInputs =
+                    (old.nativeBuildInputs or [ ])
+                    ++ [
+                      pkgs.pkg-config
+                    ]
+                    ++ final.resolveBuildSystem {
+                      cffi = [ ];
+                      setuptools = [ ];
+                    };
+                  buildInputs =
+                    (old.buildInputs or [ ])
+                    ++ [
+                      pkgs.libffi
+                    ]
+                    ++ lib.optionals pkgs.stdenv.isLinux [
+                      pkgs.alsa-lib
+                    ];
                 });
               })
             ]
@@ -160,10 +165,14 @@
         pkgs.ffmpeg
         pkgs.yt-dlp
       ];
-      libPath = lib.makeLibraryPath [
-        pkgs.portaudio
-        pkgs.libsndfile
-      ];
+      # miniaudio dlopen's OS audio backends at runtime on Linux.
+      # On macOS, CoreAudio is compiled into the CFFI extension — no runtime libs.
+      libPath = lib.makeLibraryPath (
+        lib.optionals pkgs.stdenv.isLinux [
+          pkgs.pulseaudio.out # libpulse.so — PulseAudio backend
+          pkgs.alsa-lib.out # libasound.so — ALSA fallback
+        ]
+      );
       libVar = if pkgs.stdenv.isDarwin then "DYLD_LIBRARY_PATH" else "LD_LIBRARY_PATH";
 
       # ── Binary 1: agent-ear-core (Python backend) ─────────────
@@ -366,8 +375,10 @@
           pkgs.gum
           pkgs.ffmpeg
           pkgs.yt-dlp
-          pkgs.portaudio
-          pkgs.libsndfile
+        ] ++ lib.optionals pkgs.stdenv.isLinux [
+          pkgs.pulseaudio
+          pkgs.alsa-lib
+        ] ++ [
           pkgs.nixfmt
         ];
         shellHook = ''
