@@ -127,6 +127,26 @@
             lib.composeManyExtensions [
               inputs.pyproject-build-systems.overlays.wheel
               overlay
+              # Patch sounddevice to find portaudio at a fixed Nix store path.
+              # The PyPI wheel uses ctypes.util.find_library("portaudio") which
+              # relies on ldconfig / /etc/ld.so.cache — neither exists on NixOS.
+              # This mirrors the nixpkgs python3Packages.sounddevice patch.
+              # See: https://github.com/Aurelian-Shuttleworth/agent-ear/issues/36
+              (final: prev: {
+                sounddevice = prev.sounddevice.overrideAttrs (old: {
+                  postInstall =
+                    (old.postInstall or "")
+                    + ''
+                      site="$out/${final.python.sitePackages}"
+                      if [ -f "$site/sounddevice.py" ]; then
+                        substituteInPlace "$site/sounddevice.py" \
+                          --replace-fail \
+                            "for _libname in (" \
+                            "for _libname in ('${pkgs.portaudio}/lib/libportaudio${pkgs.stdenv.hostPlatform.extensions.sharedLibrary}',"
+                      fi
+                    '';
+                });
+              })
             ]
           );
 
