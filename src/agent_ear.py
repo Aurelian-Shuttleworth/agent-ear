@@ -31,7 +31,7 @@ from output import obsidian_final_pass, save_json, save_markdown, save_raw
 from prompt_validator import validate_briefing, validate_prompt
 from recording import SleepPrevention, record_audio
 from transcription import build_default_system_prompt, transcribe
-from upload import is_video_extension
+from upload import AUDIO_MIME_TYPES, VIDEO_MIME_TYPES, is_video_extension
 from video import YOUTUBE_PATTERN, preprocess_video
 
 
@@ -223,6 +223,16 @@ def run_pipeline(
             shutil.copy2(media_path, recovery_path)
             print(f"🛡️  Recording backed up: {recovery_path}")
 
+        # --- 4.1 Auto-detect video from --input-file extension ---
+        if input_file and not video:
+            ext = os.path.splitext(media_path)[1].lower()
+            if is_video_extension(media_path):
+                is_video = True
+                print(f"🎬 Auto-detected video file from extension: {ext}")
+
+        # --- 4.2 Validate media file type ---
+        _validate_media_path(media_path, is_video)
+
         # --- 5. Transcribe ---
         safe_date = datetime.now().strftime("%Y-%m-%d")
         model_name = model or DEFAULT_TRANSCRIPTION_MODEL
@@ -315,3 +325,21 @@ def _load_prompt(prompt_file: str | None, prompt_text: str | None) -> str | None
     if prompt_text:
         return prompt_text.strip()
     return None
+
+
+def _validate_media_path(media_path: str, is_video: bool) -> None:
+    """Validate that the media file has a supported extension.
+
+    Raises RuntimeError with a user-facing message listing supported formats.
+    Called early in the pipeline before any API calls to avoid wasted work.
+    """
+    ext = os.path.splitext(media_path)[1].lower()
+    valid_exts = VIDEO_MIME_TYPES if is_video else AUDIO_MIME_TYPES
+    if ext not in valid_exts:
+        kind = "video" if is_video else "audio"
+        supported = ", ".join(sorted(valid_exts.keys()))
+        raise RuntimeError(
+            f"❌ '{os.path.basename(media_path)}' is not a supported {kind} file.\n"
+            f"   Supported extensions: {supported}\n"
+            f"   Received extension: '{ext}'"
+        )

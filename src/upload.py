@@ -69,16 +69,27 @@ def detect_mime_type(media_path: str, is_video: bool) -> str:
         MIME type string (e.g., "audio/wav", "video/mp4").
 
     Raises:
-        ValueError: If the file extension is not a supported media type.
+        ValueError: If the file extension is not a supported audio/video format.
     """
     ext = os.path.splitext(media_path)[1].lower()
     if is_video:
         mime = VIDEO_MIME_TYPES.get(ext)
-    else:
-        mime = AUDIO_MIME_TYPES.get(ext)
-    if mime is None:
-        supported = sorted(SUPPORTED_EXTENSIONS)
-        raise ValueError(f"Unsupported file extension '{ext}'. Supported: {', '.join(supported)}")
+        if not mime:
+            supported = ", ".join(sorted(VIDEO_MIME_TYPES.keys()))
+            raise ValueError(
+                f"Unsupported video file extension '{ext}' "
+                f"(file: {os.path.basename(media_path)}).\n"
+                f"Supported extensions: {supported}"
+            )
+        return mime
+    mime = AUDIO_MIME_TYPES.get(ext)
+    if not mime:
+        supported = ", ".join(sorted(AUDIO_MIME_TYPES.keys()))
+        raise ValueError(
+            f"Unsupported audio file extension '{ext}' "
+            f"(file: {os.path.basename(media_path)}).\n"
+            f"Supported extensions: {supported}"
+        )
     return mime
 
 
