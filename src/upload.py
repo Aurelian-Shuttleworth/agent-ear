@@ -42,6 +42,21 @@ AUDIO_MIME_TYPES = {
     ".webm": "audio/webm",
 }
 
+SUPPORTED_EXTENSIONS = set(AUDIO_MIME_TYPES) | set(VIDEO_MIME_TYPES)
+
+
+def is_video_extension(path: str) -> bool:
+    """Return True if the file extension is a known video type.
+
+    Args:
+        path: File path or name to check.
+
+    Returns:
+        True if the extension matches a known video MIME type.
+    """
+    ext = os.path.splitext(path)[1].lower()
+    return ext in VIDEO_MIME_TYPES
+
 
 def detect_mime_type(media_path: str, is_video: bool) -> str:
     """Detect MIME type from file extension.
@@ -52,11 +67,19 @@ def detect_mime_type(media_path: str, is_video: bool) -> str:
 
     Returns:
         MIME type string (e.g., "audio/wav", "video/mp4").
+
+    Raises:
+        ValueError: If the file extension is not a supported media type.
     """
     ext = os.path.splitext(media_path)[1].lower()
-    if not is_video:
-        return AUDIO_MIME_TYPES.get(ext, "audio/wav")
-    return VIDEO_MIME_TYPES.get(ext, "video/mp4")
+    if is_video:
+        mime = VIDEO_MIME_TYPES.get(ext)
+    else:
+        mime = AUDIO_MIME_TYPES.get(ext)
+    if mime is None:
+        supported = sorted(SUPPORTED_EXTENSIONS)
+        raise ValueError(f"Unsupported file extension '{ext}'. Supported: {', '.join(supported)}")
+    return mime
 
 
 def upload_media(
