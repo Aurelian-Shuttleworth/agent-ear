@@ -23,9 +23,16 @@ def preprocess_video(video_path: str) -> str:
 
     Returns:
         Path to a local video file ready for upload.
+
+    Raises:
+        ValueError: If the local file has an unsupported video extension.
     """
     if YOUTUBE_PATTERN.match(video_path):
         return download_youtube(video_path)
+    ext = os.path.splitext(video_path)[1].lower()
+    supported = (".mp4", ".mov", ".avi", ".mkv", ".webm")
+    if ext not in supported:
+        raise ValueError(f"Unsupported video extension '{ext}'. Supported: {', '.join(supported)}")
     return video_path
 
 

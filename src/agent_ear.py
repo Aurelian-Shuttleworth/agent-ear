@@ -31,6 +31,7 @@ from output import obsidian_final_pass, save_json, save_markdown, save_raw
 from prompt_validator import validate_briefing, validate_prompt
 from recording import SleepPrevention, record_audio
 from transcription import build_default_system_prompt, transcribe
+from upload import is_video_extension
 from video import YOUTUBE_PATTERN, preprocess_video
 
 
@@ -111,7 +112,7 @@ def run_pipeline(
     # Only --no-validate suppresses this; --non-interactive has no effect on validation.
     validator_thinking_hint = None
     validator_extra_tokens = 0
-    is_video = bool(video)
+    is_video = bool(video) or (bool(input_file) and is_video_extension(input_file))
 
     if validate:
         # Determine the effective prompt that will be sent to the model

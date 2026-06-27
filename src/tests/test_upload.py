@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from config import FILES_API_THRESHOLD, INLINE_THRESHOLD
-from upload import detect_mime_type, upload_media
+from upload import detect_mime_type, is_video_extension, upload_media
 
 
 class TestDetectMimeType:
@@ -27,9 +27,16 @@ class TestDetectMimeType:
         """FLAC extension returns audio/flac."""
         assert detect_mime_type("music.flac", is_video=False) == "audio/flac"
 
-    def test_audio_unknown_falls_back_to_wav(self):
-        """Unknown audio extension falls back to audio/wav."""
-        assert detect_mime_type("data.xyz", is_video=False) == "audio/wav"
+    def test_audio_unknown_raises_valueerror(self):
+        """Unknown audio extension raises ValueError with supported list."""
+        with pytest.raises(ValueError, match="Unsupported file extension '.xyz'"):
+            detect_mime_type("data.xyz", is_video=False)
+
+    def test_non_media_file_raises_valueerror(self):
+        """Non-media extensions (.md, .txt, .py) raise ValueError."""
+        for ext in (".md", ".txt", ".py", ".json"):
+            with pytest.raises(ValueError, match="Unsupported file extension"):
+                detect_mime_type(f"file{ext}", is_video=False)
 
     def test_video_mp4(self):
         """MP4 extension returns video/mp4."""
@@ -39,9 +46,38 @@ class TestDetectMimeType:
         """MKV extension returns video/x-matroska."""
         assert detect_mime_type("video.mkv", is_video=True) == "video/x-matroska"
 
-    def test_video_unknown_falls_back_to_mp4(self):
-        """Unknown video extension falls back to video/mp4."""
-        assert detect_mime_type("video.xyz", is_video=True) == "video/mp4"
+    def test_video_unknown_raises_valueerror(self):
+        """Unknown video extension raises ValueError."""
+        with pytest.raises(ValueError, match="Unsupported file extension '.xyz'"):
+            detect_mime_type("video.xyz", is_video=True)
+
+
+class TestIsVideoExtension:
+    """Tests for is_video_extension() helper."""
+
+    def test_mp4_is_video(self):
+        assert is_video_extension("recording.mp4") is True
+
+    def test_mov_is_video(self):
+        assert is_video_extension("clip.mov") is True
+
+    def test_webm_is_video(self):
+        assert is_video_extension("stream.webm") is True
+
+    def test_wav_is_not_video(self):
+        assert is_video_extension("audio.wav") is False
+
+    def test_mp3_is_not_video(self):
+        assert is_video_extension("song.mp3") is False
+
+    def test_txt_is_not_video(self):
+        assert is_video_extension("notes.txt") is False
+
+    def test_case_insensitive(self):
+        assert is_video_extension("VIDEO.MP4") is True
+
+    def test_full_path(self):
+        assert is_video_extension("/home/user/recordings/meeting.mp4") is True
 
 
 class TestUploadMediaInline:

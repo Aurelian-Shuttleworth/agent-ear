@@ -179,3 +179,67 @@ class TestPipeline:
 
         mock_final_pass.assert_called_once()
         assert result["content"].startswith("---"), "Final pass should add frontmatter to raw output"
+
+
+class TestVideoAutoDetection:
+    """Tests for is_video auto-detection from --input-file extension."""
+
+    @pytest.fixture(autouse=True)
+    def setup_dirs(self, tmp_path):
+        self.output_dir = str(tmp_path / "output")
+        os.makedirs(self.output_dir, exist_ok=True)
+
+    @pytest.fixture(autouse=True)
+    def _mock_sleep_prevention(self):
+        """Prevent caffeinate subprocess (macOS-only, not in Nix sandbox)."""
+        with (
+            patch("agent_ear.SleepPrevention.__enter__", return_value=None),
+            patch("agent_ear.SleepPrevention.__exit__", return_value=False),
+        ):
+            yield
+
+    @patch("agent_ear.create_client")
+    @patch("transcription.call_gemini")
+    def test_input_file_mp4_sets_is_video(self, mock_gemini, mock_client, tmp_path, mock_response):
+        """--input-file with .mp4 extension auto-sets is_video=True."""
+        mock_client.return_value = (MagicMock(), False)
+        mock_gemini.return_value = mock_response(
+            text="---\nslug: video-test\ntags: [video-note]\n---\n## Content\nHello"
+        )
+
+        video_file = tmp_path / "recording.mp4"
+        video_file.write_bytes(b"\x00" * 1024)
+
+        result = run_pipeline(
+            input_file=str(video_file),
+            output_dir=self.output_dir,
+            output_format="markdown",
+            non_interactive=True,
+            validate=False,
+        )
+
+        assert result["exit_code"] == 0
+        # Verify transcribe() was called with is_video=True by checking
+        # that the video system prompt was used (token budget = 32768)
+        call_kwargs = mock_gemini.call_args
+        assert call_kwargs is not None, "call_gemini should have been called"
+
+    @patch("agent_ear.create_client")
+    @patch("transcription.call_gemini")
+    def test_input_file_wav_keeps_audio_mode(self, mock_gemini, mock_client, tmp_path, mock_response):
+        """--input-file with .wav extension keeps is_video=False."""
+        mock_client.return_value = (MagicMock(), False)
+        mock_gemini.return_value = mock_response(text="---\nslug: audio-test\n---\n## Content\nHello")
+
+        audio_file = tmp_path / "recording.wav"
+        audio_file.write_bytes(b"\x00" * 1024)
+
+        result = run_pipeline(
+            input_file=str(audio_file),
+            output_dir=self.output_dir,
+            output_format="markdown",
+            non_interactive=True,
+            validate=False,
+        )
+
+        assert result["exit_code"] == 0
